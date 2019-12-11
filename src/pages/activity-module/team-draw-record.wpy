@@ -1,0 +1,326 @@
+<template>
+    <jn-loading wx:if="{{ !isLoaded }}"></jn-loading>
+    <jn-header :isHeadHeight="isHeadHeight" :className.sync="headerBackground" title="抽奖记录" buttonAfter></jn-header>
+    <view class="ui-container {{isAndroid ? 'is-android' :''}} {{isIphonex ? 'is-iphonex':''}}">
+            <view class="ui-team-record-module">
+                <view class="ui-record-results" wx:if="{{recordList.length}}">
+                    <repeat for="{{recordList}}" key="index" index="index" item="item">
+                        <view class="ui-results-box">
+                            <view class="ui-item-title">
+                                <text>第{{item.number}}期</text>
+                                <text>{{item.month}}.{{item.day}}</text>
+                            </view>
+                            <view class="ui-item-content">
+                                <view class="ui-content-members">
+                                    <repeat for="{{item.userInfoList}}" key="index" index="index" item="jtem">
+                                        <view class="ui-member-item">
+                                            <view class="cell-member-logo">
+                                                <image src="../../assets/img/team-leader.svg" wx:if="{{jtem.role == 'captain'}}"></image>
+                                                <image src="../../assets/img/team-new-user.svg" wx:if="{{jtem.role == 'register'}}"></image>
+                                                <view class="cell-extra-result" wx:if="{{item.drawExtra != '-1' && jtem.role == 'captain'}}">
+                                                    +{{item.drawExtra}}
+                                                </view>
+                                            </view>
+                                            <view class="cell-member-avatar">
+                                                <image class="cell-avatar" wx:if="{{jtem.avatarUrl}}" src="{{jtem.avatarUrl}}" ></image>
+                                                <image class="cell-default" mode="widthFix" src="../../assets/img/team-default.svg" wx:else></image>
+                                            </view>
+                                        </view>
+                                    </repeat>
+                                </view>
+                                <view class="ui-result">
+                                    <view class="cell-text font-orange" wx:if="{{item.drawResult != '-1'}}">
+                                        <view class="cell-drawResult">{{item.drawResult}}</view>
+                                        <view class="cell-drawExtra" wx:if="{{item.drawExtra != '-1'}}">+{{item.drawExtra}}</view>
+                                        天
+                                    </view>
+                                    <view class="cell-text" wx:else>
+                                        未中奖
+                                    </view>
+                                </view>
+                            </view>
+                        </view>
+                    </repeat>
+                    <view class="ui-more main-center cross-center">
+                        {{!isNotMore && !isMoreLoaded ?'正在努力加载...' : '没有更多了'}}
+                    </view>
+                </view>
+                <view class="ui-record-no-results" wx:else>
+                    暂无记录
+                </view>
+            </view>
+    </view>
+</template>
+<script>
+import wepy from 'wepy';
+import { getStore, connect } from 'wepy-redux';
+import { fetch } from '../../api';
+import header from '../../components/common/header';
+import Loading from '../../components/common/loading';
+import { shareDictionary, initializationDeligate } from '../../utils'
+
+    const store = getStore()
+    @connect({
+        token(state) {
+            return state.user.token;
+        },
+        systemInfo(state) {
+            return state.user
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+
+export default class teamRecord extends wepy.page{
+    config = {
+        navigationBarTitleText: "下拉刷新",
+        enablePullDownRefresh: true,
+        onReachBottomDistance:50,
+        backgroundTextStyle: "dark",
+        usingComponents: {}
+    }
+    components = {
+        'jn-loading': Loading,
+        'jn-header': header,
+    }
+    data = {
+        isLoaded:false,//是否加载完成
+        headerBackground: 'background-transparent',//head相关,背景
+        isHeadHeight: false,//head相关,是否占高度
+        isAndroid: /android/i.test(wx.getSystemInfoSync().system),
+        isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+        page: 1,//页码
+        pageSize: 10,//每页加载条数
+        isMoreLoaded: true,//上拉加载是否完成
+        isNotMore: false, // 是否全部加载完了
+        isScroll: true, // 是否能滚动
+        recordList:[],//抽奖记录
+        scrollTop: 0,//滚动距离
+        groupMaxNum:'',//组队最大人数
+    }
+
+    onLoad(params) {
+        let self = this
+        self.groupMaxNum = params.groupMaxNum ? params.groupMaxNum : 3;
+        self.$apply();
+        console.log(params)
+    }
+    onShow() {
+        let self = this
+        wepy.$instance.globalData.getLoadHuilder() // ga统计
+        initializationDeligate({
+            initializeFunc: self.initialize.bind(self)
+        })
+    }
+
+    onHide() {
+
+    }
+
+    initialize() {
+        let self = this
+        self.__getResultsList();
+    }
+
+    /* *
+    * 获取抽奖记录
+    * */
+    __getResultsList() {
+        let self = this
+        let postData = {
+            token: self.token,
+            pageNum: self.page,
+            pageSize: self.pageSize
+        }
+        self.isMoreLoaded = false;
+        self.$apply();
+        return fetch.getResultsList(postData).then(response => {
+            if(self.page == 1) {
+                self.recordList = response.length ? response.map(item => {
+                    item.userInfoList.length = self.groupMaxNum;
+                    return item
+                }) : [];
+            } else {
+                let result = response.length ? response.map(item => {
+                    item.userInfoList.length = self.groupMaxNum;
+                    return item
+                }) : [];
+                self.recordList = self.recordList.concat(result)
+            }
+            self.isNotMore = response.length > 0 ? true : false ;
+            self.isMoreLoaded = true;
+            self.isLoaded = true;
+            self.$apply();
+        })
+    }
+
+    methods = {
+        
+    }
+    /**
+     * 监听滚动条的位置
+     * @param
+     */
+    onPageScroll(res) {
+        let self = this
+        self.scrollTop = res.scrollTop
+        console.log('监听滚动事件')
+        self.$apply()
+    }
+
+    //监听页面下拉刷新
+    onPullDownRefresh() {
+        let self =this;
+        console.log('监听页面下拉')
+        self.page = 1
+        self.__getResultsList().then(()=>{
+            wx.stopPullDownRefresh()
+        }).catch((error)=>{
+            console.log(error)
+        })
+    }
+
+    //监听上拉加载
+    onReachBottom() {
+        let self = this
+
+        if (self.isMoreLoaded) {
+            self.page++
+            self.$apply()
+            self.__getResultsList()
+        }
+    }
+}
+</script>
+<style lang="less" scoped>
+@import '../../assets/style/theme';
+.ui-container {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    position: relative;
+    text-align: center;
+    padding-top: 136rpx;
+    box-sizing: border-box;
+    &.is-android {
+        padding-top: 156rpx;
+    }
+    &.is-iphonex {
+        padding-top: 196rpx;
+    }
+    .ui-team-record-module {
+        .ui-record-results {
+            padding-top: 32rpx;
+            padding-bottom: 40rpx;
+            .ui-results-box {
+                width: 686rpx;
+                background: @background-white;
+                border-radius: @border-radius-32;
+                box-shadow: @box-shadow-hight;
+                margin: 0 auto;
+                padding: 20rpx 32rpx;
+                box-sizing: border-box;
+                margin-bottom: 32rpx;
+                .ui-item-title {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    border-bottom: solid 1rpx @border-gray;
+                    padding-bottom: 20rpx;
+                    line-height: 1.5;
+                    text {
+                        font-size: 28rpx;
+                        color: @color-gray-8c;
+                        &+text{
+                            margin-left: 10rpx;
+                        }
+                    }
+                }
+                .ui-item-content {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 30rpx 0 20rpx;
+                    .ui-content-members {
+                        .flex-start();
+                        .ui-member-item {
+                            position: relative;
+                            &+.ui-member-item {
+                                margin-left: 32rpx;
+                            }
+                            .cell-member-logo {
+                                image {
+                                    width: 100%;
+                                    height: 24rpx;
+                                    position: absolute;
+                                    left: 0;
+                                    right: 0;
+                                    bottom: 0;
+                                }
+                                .cell-extra-result {
+                                    font-size: 20rpx;
+                                    color: @color-golden;
+                                    position: absolute;
+                                    width: 100%;
+                                    left: 0;
+                                    bottom: -24rpx;
+                                    text-align: center;
+                                    line-height: 1;
+                                }
+                            }
+                            .cell-member-avatar {
+                                width: 88rpx;
+                                height: 88rpx;
+                                border-radius: 50%;
+                                background: @background-gray-F4;
+                                .flex-center();
+                                .cell-default {
+                                    width: 35rpx;
+                                }
+                                .cell-avatar {
+                                    width: 100%;
+                                    height: 100%;
+                                    border-radius: 50%;
+                                }
+                            }
+                        }
+                    }
+                    .ui-result {
+                        
+                        .cell-text {
+                            font-size: 24rpx;
+                            color: @color-gray-BF;
+                            
+                        }
+                        .font-orange {
+                            color: @color-golden;
+                        }
+                        .cell-drawResult {
+                            font-size: 56rpx;
+                            display: inline;
+                        }
+                        .cell-drawExtra {
+                            font-size: 32rpx;
+                            display: inline;
+                        }
+                    }
+                }
+            }
+            .ui-more {
+                font-size: 24rpx;
+                color: @color-gray-8c;
+                position: absolute;
+                height: 1rem;
+                bottom: 20rpx;
+            }
+        }
+        .ui-record-no-results {
+            font-size: 28rpx;
+            color: @color-gray-8c;
+            height: 200rpx;
+            .flex-center();
+        }
+    }
+}
+</style>

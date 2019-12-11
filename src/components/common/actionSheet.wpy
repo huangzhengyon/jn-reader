@@ -1,0 +1,81 @@
+<style lang="less" scoped>
+
+</style>
+
+<template>
+    <view class="module-actionSheet-box main-center cross-center" :class="{'is-opacity-show': isShow}">
+        <form bindsubmit="handleSavePushCode" report-submit>
+            <view class="ui-actionSheet">
+                <view class="ui-content">
+                    <view class="cell-title">{{titleInfo}}</view>
+                    <view class="cell-content">{{contentInfo}}</view>
+                </view>
+                <view class="ui-botton-box main-center">
+                    <button form-type="submit"
+                            @tap.shop="getConfirm">{{buttonConfirm}}</button>
+                </view>
+            </view>
+        </form>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import PushMixin from '../../mixins/push'
+
+    export default class actionSheet extends wepy.component {
+        mixins = [PushMixin]
+
+        props = {
+            isShow: {
+                type: Boolean,
+                default: false,
+                twoWay: true
+            },
+            title: {
+                type: String
+            },
+            content: {
+                type: String
+            },
+            buttonConfirm: {
+                type: String,
+                default: '确定'
+            },
+            callBack: {
+                type: Number,
+                default: 0
+            }
+        }
+
+        computed = {
+            titleInfo() {
+                return this.title
+            },
+            contentInfo() {
+                return this.content
+            }
+        }
+
+        data = {
+
+        }
+
+        onLoad() {
+            let self = this
+        }
+
+        methods = {
+            getConfirm() {
+                let self = this
+                self.isShow = false
+                self.$apply()
+                if (self.callBack) {
+                    self.$emit('on-confirm')
+                }
+            }
+        }
+
+        events = {}
+    }
+</script>

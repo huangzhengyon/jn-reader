@@ -1,0 +1,115 @@
+<template>
+    <view class="module-countdown-box" wx:if="{{disabled}}">
+        <view class="ui-time-box" wx:if="{{!showdaynum}}">
+            <view class="cell-item-time {{hasBgColor ? 'cell-item-block':''}}" style="color:{{color}};background:{{bgColor}}">{{hours}}</view>
+            <view class="cell-item-syb" style="color:{{bgColor}}" wx:if="{{showSyb}}">:</view>
+            <view class="cell-item-time {{hasBgColor ? 'cell-item-block':''}}" style="color:{{color}};background:{{bgColor}}">{{minutes}}</view>
+            <view class="cell-item-syb" style="color:{{bgColor}}" wx:if="{{showSyb}}">:</view>
+            <view class="cell-item-time {{hasBgColor ? 'cell-item-block':''}}" style="color:{{color}};background:{{bgColor}}">{{seconds}}</view>
+        </view>
+        <view class="ui-time-box" wx:else>
+            <view class="cell-item-time {{hasBgColor ? 'cell-item-block':''}}" style="color:{{color}};background:{{bgColor}}">{{day}}</view>
+            <view style="color:{{bgColor}}" wx:if="{{showdaynum}}">天</view>
+        </view>
+    </view>
+</template>
+<script>
+import wepy from 'wepy'
+import { count } from '../../utils' 
+export default class countdown extends wepy.component{
+    props = {
+        /* 倒计时时间 */
+        countdownstart:{
+            type:Number,
+            default:0
+        },
+        /* 字体颜色 */
+        color:{
+            type:String
+        },
+        /* 背景颜色 */
+        bgColor:{
+            type:String
+        },
+        /* 是否显示倒计时 */
+        disabled:{
+            type:Boolean,
+            default:false
+        }
+    }
+
+    watch = {
+        countdownstart(newValue, oldValue){
+            if(oldValue > 0){
+                this.__subtract(0)
+            }
+            setTimeout(() => {
+                this.__subtract(newValue)
+            }, 0);
+             
+        },
+        disabled(newValue, oldValue){
+            if(newValue === false){
+                this.__subtract(0)
+                clearInterval(this.timer);
+            }
+        }
+    }
+    onLoad(){
+        clearInterval(this.timer);
+        this.__subtract(0);
+        this.hasBgColor = this.color ? true : false ;
+    }
+
+    computed = {
+        /* 是否展示天数 */
+        showdaynum(){
+            return this.hours != '' && this.hours && this.hours >= 24
+        }
+    }
+
+    data = {
+        day:'',//天数
+        hours:'',//小时
+        minutes:'',//分钟
+        seconds:'',//秒钟
+        hasBgColor:false,//是否有背景颜色
+        showSyb:false,//一开始的 : 不展示
+        timer:'',//倒计时容器
+    }
+
+
+    __subtract(num){
+        let self = this
+        num = num - 0;
+        self.timer && clearInterval(self.timer);
+        self.timer = setInterval(() => {
+            if(num <= 0 || Number.isNaN(num)){
+                self.$emit('countdown-stop',{isshowCountdown:false});
+                clearInterval(self.timer);
+            }else{
+                let result = count(num);
+                self.day = result.getDay() > 0 ? (result.getDay() + 1) : result.getDay();
+                self.hours = result.getHours();
+                self.minutes = result.getMinutes();
+                self.seconds = result.getSeconds();
+                self.showSyb = true;
+                num = num - 1000;
+                self.$apply()
+            }
+        }, 1000);
+    }
+}
+</script>
+<style lang="less" scoped>
+.module-countdown-box{
+    .ui-time-box{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        .cell-item-block{
+            display: inline-block;
+        }
+    }
+}
+</style>

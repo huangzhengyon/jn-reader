@@ -1,0 +1,661 @@
+<template>
+    <mloading wx:if="{{ !isLoaded }}"/>
+    <view wx:else class="tc-canvas-wrapper">
+        <jn-header title="成绩单"></jn-header>
+
+        <scroll-view scroll-y style="height: calc(100% - {{headerHeigth}}px)">
+            <view id="tc-article-preview" class="tc-article">
+                <view class="tc-article__preview" catchtap="handlePreviewSaveImage">
+
+                    <view class="flex-space-between-row tc-article__preview__account">
+                        <view class="flex-space-between-column tc-article__preview__account__left">
+                            <text class="tc-article__preview__account__left__name">学生姓名: {{ userName }}</text>
+                            <text class="tc-article__preview__account__left__date">完成时间: {{ beginDate }}</text>
+                        </view>
+                        <image class="tc-article__preview__account__right-icon" src="{{ avatar }}"
+                               mode="scaleToFill"></image>
+                    </view><!-- acount -->
+
+                    <view class="flex-start-row tc-article__preview__status">
+                        <text class="tc-article__preview__status__span">总得分:</text>
+                        <text class="tc-article__preview__status__red">{{ score }}</text>
+                        <text class="tc-article__preview__status__span">排名:</text>
+                        <text class="tc-article__preview__status__ranking">{{ ranking }}</text>
+                    </view><!-- status -->
+
+                    <view class="tc-article__table">
+                        <!--<view class="flex-start-row tc-article__table__tr th">
+                          <view class="tc-article__table__td td-0">{{ detail[0]&&detail[0]['skill'] }}</view>
+                          <view class="tc-article__table__td td-1">{{ detail[0]&&detail[0]['score'] }}</view>
+                          <view class="tc-article__table__td td-2">导师评语</view>
+                        </view>-->
+                        <view class="flex-start-row tc-article__table__body">
+                            <view class="tc-article__table__thead__wrapper">
+
+                                <view class="flex-space-between-row tc-article__table__tr">
+                                    <view class="tc-article__table__td td-0">{{ detail[0]&&detail[0]['skill'] }}</view>
+                                    <view class="tc-article__table__td td-1">{{ detail[0]&&detail[0]['score'] }}</view>
+                                </view><!-- tr -->
+
+                            </view><!-- wrapper -->
+                            <view class="tc-article__table__thead__rowspan flex-space-between-row">导师评语</view>
+                        </view>
+
+
+                        <view class="flex-start-row tc-article__table__body">
+                            <view class="tc-article__table__body__wrapper">
+
+                                <view wx:key="{{ index }}" wx:for="{{ detail }}" wx:if="{{ 0!==index }}"
+                                      class="flex-space-between-row tc-article__table__tr">
+                                    <view class="tc-article__table__td td-0">{{ item.skill }}</view>
+                                    <view class="tc-article__table__td td-1">{{ item.score }}</view>
+                                </view><!-- tr -->
+
+                            </view><!-- wrapper -->
+                            <view class="tc-article__table__body__rowspan">{{ comment }}</view>
+                        </view><!-- body -->
+                    </view><!-- table -->
+
+                    <image class="tc-article__qrcode" src="{{qrCodeImage}}" mode="scaleToFill"></image>
+
+                </view><!-- preview -->
+                <button class="tc-article__btn" hover-class="tc-article__btn-hover" @tap.stop="handleSaveToAlbum">保存到相册
+                </button>
+                <text class="tc-article__tips">点击图片长按可直接转发给好友</text>
+                <view class="tc-article__empty"></view>
+            </view><!-- article -->
+
+            <canvas canvas-id="myCanvas"
+                    style="border: 1px solid red; width: {{ viewPort.width * viewPort.pixelRatio }}px; height: {{ viewPort.height * viewPort.pixelRatio }}px;position:fixed;left:150%;top:0;"/>
+        </scroll-view>
+    </view>
+</template>
+
+<style lang="less">
+  ::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    background-color: transparent !important;
+  }
+
+  .tc-canvas-wrapper {
+    width: 750rpx;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .tc-article {
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    background-color: #FFF;
+    overflow: scroll;
+  }
+
+  .tc-article__preview {
+    width: 100%;
+    height: 1060rpx;
+    box-sizing: border-box;
+    padding: 22rpx 95.2rpx 178rpx 106rpx;
+    background-image: url('http://wx-small.runwise.cn/image/imageID18db2750b2f41280e1a8b27b1ffe.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .tc-article__preview__account {
+    width: 100%;
+    height: 80rpx;
+    margin-top: 254.2rpx;
+    margin-bottom: 38rpx;
+  }
+
+  .tc-article__preview__account__left {
+    line-height: 40rpx;
+    font-family: NotoSerifCJKsc-Medium;
+    font-size: 28rpx;
+    color: #14292C;
+  }
+
+  .tc-article__preview__account__left__name {
+
+  }
+
+  .tc-article__preview__account__right-icon {
+    width: 80rpx;
+    height: 80rpx;
+    display: block;
+  }
+
+  .tc-article__preview__status {
+    line-height: 38rpx;
+    margin-bottom: 12rpx;
+  }
+
+  .tc-article__preview__status__span {
+    margin-right: 16rpx;
+    display: block;
+    font-family: NotoSerifCJKsc-SemiBold;
+    font-size: 26rpx;
+    color: #14292C;
+  }
+
+  .tc-article__preview__status__red {
+    margin-right: 73rpx;
+    display: block;
+    font-family: NotoSerifCJKsc-Black;
+    font-size: 26rpx;
+    color: #D81352;
+    text-align: center;
+  }
+
+  .tc-article__preview__status__ranking {
+    margin-right: auto;
+    display: block;
+    font-family: NotoSerifCJKsc-Black;
+    font-size: 26rpx;
+    color: #14292C;
+    font-weight: bold;
+  }
+
+  .tc-article__table {
+    /* border: 2rpx solid #0071BC; */
+    background-image: url('http://wx-small.runwise.cn/image/imageID8c47ad0364f4e28a43b9b7371342.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+
+  .tc-article__table__tr {
+    width: 100%;
+    height: 56rpx;
+  }
+
+  .tc-article__table__td {
+    height: 100%;
+    line-height: 56rpx;
+    text-align: center;
+    /* border: 2rpx solid #0071BC; */
+    border-top: 0;
+  }
+
+  .tc-article__table__td.td-0 {
+    width: 188rpx;
+    border-left: 0;
+    color: #14292C;
+    font-size: 26rpx;
+    font-face: NotoSerifCJKsc-Medium;
+  }
+
+  .tc-article__table__td.td-1 {
+    width: 90rpx;
+    border-left: 0;
+    font-family: NotoSerifCJKsc-Black;
+    font-size: 26rpx;
+    color: #14292C;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .tc-article__table__td.td-2 {
+    width: 254rpx;
+    border-left: 0;
+    border-right: 0;
+    color: #14292C;
+    font-size: 26rpx;
+    font-face: NotoSerifCJKsc-Medium;
+  }
+
+  .tc-article__table__thead__rowspan {
+    display:block;
+    width:100%;
+    box-sizing: border-box;
+    text-align: center;
+    overflow: hidden;
+    color: #14292C;
+    font-size: 24rpx;
+    font-face: NotoSerifCJKsc-Medium;
+    line-height: 56rpx;
+  }
+
+  .tc-article__table__body__rowspan {
+    flex: 1;
+    height: 168rpx;
+    padding: 20rpx 10rpx;
+    box-sizing: border-box;
+    text-align: justify;
+    overflow: hidden;
+
+    color: #14292C;
+    font-size: 24rpx;
+    font-face: NotoSerifCJKsc-Regular;
+    line-height: 1.4;
+  }
+
+  .tc-article__qrcode {
+    width: 128rpx;
+    height: 128rpx;
+    margin-top: 30rpx;
+    display: block;
+  }
+
+  .tc-article__btn {
+    width: 480rpx;
+    height: 88rpx;
+    margin-top: 12rpx;
+    margin-bottom: 24rpx;
+    border-radius: 44rpx;
+    background-color: #2DB7B5;
+    font-family: PingFangSC-Semibold;
+    font-size: 36rpx;
+    color: #FFF;
+    letter-spacing: 1.64rpx;
+    text-align: center;
+  }
+
+  .tc-article__btn::after{
+    border:0 !important;
+  }
+
+  .tc-article__btn-hover {
+    background-color: #269B99 !important;
+  }
+
+  .tc-article__tips {
+    margin-top: 0;
+    display: block;
+    font-family: PingFangSC-Regular;
+    font-size: 28rpx;
+    text-align: center;
+    color: #5A696B;
+  }
+
+  .tc-article__empty {
+    width: 100%;
+    height: 48rpx;
+  }
+</style>
+
+<script>
+  import wepy from 'wepy'
+  import Loading from "../../components/common/loading";
+  import header from '../../components/common/header'
+  import { getStore, connect } from 'wepy-redux'
+  import { getStorageAsync, sleep, downLoadPhoto, drawText, canvasPreviewAndSave,shareDictionary } from "../../utils"
+  import {fetch, team as teamApi } from '../../api'
+
+  const store = getStore()
+
+   @connect({
+    avatar(state) {
+      return state.user.avatarUrl
+    },
+    userName(state) {
+      return state.user.nickName
+    }, // mapState 即getters
+    token(state) {
+      return state.user.token
+    },
+    role(state) {
+      return state.user.role
+    },
+    phone(state) {
+      return state.user.phone
+    }
+  })
+  export default class TeamLearningCanvas extends wepy.page {
+    components = {
+      mloading: Loading,
+        'jn-header': header
+    } // end components
+
+    data = {
+        headerHeigth: 68,
+      isLoaded: false,
+      teamID: '',
+      myTeamScore: 0,
+      ranking: 0,
+      score: 0, // 总分
+      viewPort: {
+        width: 375,
+        height: 530,
+        pixelRatio: 2
+      }, //  适口大小
+      detail: [{
+        skill: '敏捷思维',
+        score: 3.9,
+        option: '导师评语'
+      }, {
+        skill: '敏捷思维',
+        score: 3.9,
+        option: 'nil'
+      }, {
+        skill: '敏捷思维',
+        score: 3.9,
+        option: 'nil'
+      }, {
+        skill: '敏捷思维',
+        score: 3.9,
+        option: 'nil'
+      }],
+      comment: '曾经嗯该共轭阿米戈n马搞么帕克个帕克个n啊给阿峰哦文啊服务n的吗个阿哥吗，哦',
+      title: 'defaultTitle',
+      teacher: 'defaultTeacher',
+      beginDate: 'defaultBeginDate',
+      backgroundImage: 'https://wx-small.runwise.cn/image/imageID18db2750b2f41280e1a8b27b1ffe.png',
+      qrCodeImage: 'https://wx-small.runwise.cn/image/imageID49867a0313d44e94ef96fcd7bad1.jpeg',
+      temporaryImage: 'defaultImage'
+    } // end dat
+
+    methods = {
+      handlePreviewSaveImage() {
+        fetch.reportSharing({
+            token: this.token,
+            type: shareDictionary.SHARE_TEAM.report,
+            teamID:this.teamID
+          })
+          .catch(error => {
+            console.log('reportSharing error', error)
+          })
+
+
+        console.log('tend to preivew image')
+        wx.showLoading({
+          title: '正在绘制',
+          mask: true
+        })
+
+        return Promise.all([this.backgroundImage, this.avatar, this.qrCodeImage].map(item => downLoadPhoto(item)))
+          .then(([backgroundImage, avatarImage, qrCodeImage]) => {
+            let mCtx = wx.createCanvasContext('myCanvas')
+            let viewPortWidth = this.viewPort.width
+            let viewPortHeight = this.viewPort.height
+            let viewPortPixelRatio = this.viewPort.pixelRatio
+            let userName = this.userName
+            let beginDate = this.beginDate
+            let comment = this.comment
+            let score = this.score
+            let ranking = this.ranking
+            mCtx.drawImage(backgroundImage, 0, 0, viewPortWidth * viewPortPixelRatio, viewPortHeight * viewPortPixelRatio) // 画背景图
+            mCtx.drawImage(avatarImage, 275 * viewPortPixelRatio, 141 * viewPortPixelRatio, 40 * viewPortPixelRatio, 40 * viewPortPixelRatio) // 画头像
+            mCtx.drawImage(qrCodeImage, 52 * viewPortPixelRatio, 354 * viewPortPixelRatio, 64 * viewPortPixelRatio, 64 * viewPortPixelRatio) // 画二维码
+
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 14 * viewPortPixelRatio, align: 'left' }) ({ x: 52 * viewPortPixelRatio, y: 163 * viewPortPixelRatio, content: `学生姓名: ${userName}` })
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 14 * viewPortPixelRatio, align: 'left' }) ({ x: 52 * viewPortPixelRatio, y: 183 * viewPortPixelRatio, content: `完成时间: ${beginDate}` })
+
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 13 * viewPortPixelRatio, align: 'left' }) ({ x: 52 * viewPortPixelRatio, y: 218 * viewPortPixelRatio, content: `总得分` })
+            drawText({ ctx: mCtx, color: '#D81352', fontSize: 13 * viewPortPixelRatio, align: 'left' }) ({ x: 104.5 * viewPortPixelRatio, y: 218 * viewPortPixelRatio, content: `${score}` })
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 13 * viewPortPixelRatio, align: 'left' }) ({ x: 170 * viewPortPixelRatio, y: 218 * viewPortPixelRatio, content: `排名` })
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 13 * viewPortPixelRatio, align: 'left' }) ({ x: 209 * viewPortPixelRatio, y: 218 * viewPortPixelRatio, content: `${ranking}` })
+
+            mCtx.setStrokeStyle('#0071BC')
+            let mOptionWidth = [88, 56, 124]
+            for (let [index, item] of this.detail.entries()) {
+              let mY = 227 + 28 * index
+              let mCount = 0
+              for (let key in item) {
+                let mX = 52 + (1===mCount? 88: 2===mCount? 56+88: 0)
+                console.log('x, y>>>>>', mX, mY, '第'+mCount+'次内层循环, 宽度'+mOptionWidth[mCount])
+                let mValues = Object.values(item)
+                if('nil'!==item.option || 2!==mCount) {
+                  mCtx.strokeRect(mX * viewPortPixelRatio, mY * viewPortPixelRatio, mOptionWidth[mCount] * viewPortPixelRatio, 28 * viewPortPixelRatio)
+                  console.log('value should be written', mValues[mCount])
+                  drawText({ ctx: mCtx, color: '#14292C', fontSize: 12 * viewPortPixelRatio, align: 'left' }) ({ x: (mX+10) * viewPortPixelRatio, y: (mY+20) * viewPortPixelRatio, content: ''+mValues[mCount] })
+                }
+                mCount++
+              } // end inner for
+            } // end outter for
+            mCtx.strokeRect(52 * viewPortPixelRatio, 227 * viewPortPixelRatio, 268 * viewPortPixelRatio, 112 * viewPortPixelRatio)
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 12 * viewPortPixelRatio, align: 'left', lineHeight: 26 }) ({ x: 204 * viewPortPixelRatio, y: 275 * viewPortPixelRatio, content: comment })
+            return new Promise((resolve, reject) => {
+              mCtx.draw(false, resolve)
+            }) // end inner promise
+          })
+          .then(() => new Promise((resolve, reject) => {
+            wx.canvasToTempFilePath({
+              x: 0,
+              y: 0,
+              width: this.viewPort.width * this.viewPort.pixelRatio,
+              height: this.viewPort.height * this.viewPort.pixelRatio,
+              destWidth: this.viewPort.width * this.viewPort.pixelRatio,
+              destHeight: this.viewPort.height * this.viewPort.pixelRatio,
+              canvasId: 'myCanvas',
+              fileType: 'jpg',
+              quality: 1,
+              success: ({ tempFilePath }) => resolve(tempFilePath),
+              fail: error => error
+            })
+          }))
+          .then(tmp => {
+            wx.hideLoading()
+            return new Promise((resolve, reject) => {
+              wx.previewImage({
+                current: tmp,
+                urls: [tmp],
+                success: res => resolve({...res, tmp}),
+                fail: error => error
+              })
+            }) // end promise
+
+            console.log('保存到本地的图片', tmp)
+          })
+          .catch(error => {
+            wx.hideLoading()
+            wx.showToast({
+              title: '绘制失败',
+              icon: 'none'
+            })
+            console.log('error', error)
+          })
+      }, // handlePreviewSaveImage
+      handleSaveToAlbum() {
+        console.log('save to album')
+        wx.showLoading({
+          title: '正在绘制保存',
+          mask: true
+        })
+
+        return Promise.all([this.backgroundImage, this.avatar, this.qrCodeImage].map(item => downLoadPhoto(item)))
+          .then(([backgroundImage, avatarImage, qrCodeImage]) => {
+            let mCtx = wx.createCanvasContext('myCanvas')
+            let viewPortWidth = this.viewPort.width
+            let viewPortHeight = this.viewPort.height
+            let viewPortPixelRatio = this.viewPort.pixelRatio
+            let userName = this.userName
+            let beginDate = this.beginDate
+            let comment = this.comment
+            let score = this.score
+            let ranking = this.ranking
+            mCtx.drawImage(backgroundImage, 0, 0, viewPortWidth * viewPortPixelRatio, viewPortHeight * viewPortPixelRatio) // 画背景图
+            mCtx.drawImage(avatarImage, 275 * viewPortPixelRatio, 98 * viewPortPixelRatio, 40 * viewPortPixelRatio, 40 * viewPortPixelRatio) // 画头像
+            mCtx.drawImage(qrCodeImage, 52 * viewPortPixelRatio, 354 * viewPortPixelRatio, 64 * viewPortPixelRatio, 64 * viewPortPixelRatio) // 画二维码
+
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 14 * viewPortPixelRatio, align: 'left' }) ({ x: 52 * viewPortPixelRatio, y: 163 * viewPortPixelRatio, content: `学生姓名: ${userName}` })
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 14 * viewPortPixelRatio, align: 'left' }) ({ x: 52 * viewPortPixelRatio, y: 183 * viewPortPixelRatio, content: `完成时间: ${beginDate}` })
+
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 13 * viewPortPixelRatio, align: 'left' }) ({ x: 52 * viewPortPixelRatio, y: 218 * viewPortPixelRatio, content: `总得分` })
+            drawText({ ctx: mCtx, color: '#D81352', fontSize: 13 * viewPortPixelRatio, align: 'left' }) ({ x: 104.5 * viewPortPixelRatio, y: 218 * viewPortPixelRatio, content: `${score}` })
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 13 * viewPortPixelRatio, align: 'left' }) ({ x: 170 * viewPortPixelRatio, y: 218 * viewPortPixelRatio, content: `排名` })
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 13 * viewPortPixelRatio, align: 'left' }) ({ x: 209 * viewPortPixelRatio, y: 218 * viewPortPixelRatio, content: `${ranking}` })
+
+            mCtx.setStrokeStyle('#0071BC')
+            let mOptionWidth = [88, 56, 124]
+            for (let [index, item] of this.detail.entries()) {
+              let mY = 227 + 28 * index
+              let mCount = 0
+              for (let key in item) {
+                let mX = 52 + (1===mCount? 88: 2===mCount? 56+88: 0)
+                // console.log('x, y>>>>>', mX, mY, '第'+mCount+'次内层循环, 宽度'+mOptionWidth[mCount])
+                let mValues = Object.values(item)
+                if('nil'!==item.option || 2!==mCount) {
+                  mCtx.strokeRect(mX * viewPortPixelRatio, mY * viewPortPixelRatio, mOptionWidth[mCount] * viewPortPixelRatio, 28 * viewPortPixelRatio)
+                  // console.log('value should be written', mValues[mCount])
+                  drawText({ ctx: mCtx, color: '#14292C', fontSize: 12 * viewPortPixelRatio, align: 'left' }) ({ x: (mX+10) * viewPortPixelRatio, y: (mY+20) * viewPortPixelRatio, content: ''+mValues[mCount] })
+                }
+                mCount++
+              } // end inner for
+            } // end outter for
+            mCtx.strokeRect(52 * viewPortPixelRatio, 227 * viewPortPixelRatio, 268 * viewPortPixelRatio, 112 * viewPortPixelRatio)
+            drawText({ ctx: mCtx, color: '#14292C', fontSize: 12 * viewPortPixelRatio, align: 'left', lineHeight: 65 * viewPortPixelRatio }) ({ x: 204 * viewPortPixelRatio, y: 275 * viewPortPixelRatio, content: comment })
+            return new Promise((resolve, reject) => {
+              mCtx.draw(false, resolve)
+            }) // end inner promise
+          })
+          .then(() => new Promise((resolve, reject) => {
+            wx.canvasToTempFilePath({
+              x: 0,
+              y: 0,
+              width: this.viewPort.width * this.viewPort.pixelRatio,
+              height: this.viewPort.height * this.viewPort.pixelRatio,
+              destWidth: this.viewPort.width * this.viewPort.pixelRatio,
+              destHeight: this.viewPort.height * this.viewPort.pixelRatio,
+              canvasId: 'myCanvas',
+              fileType: 'jpg',
+              quality: 1,
+              success: ({ tempFilePath }) => resolve(tempFilePath),
+              fail: error => error
+            })
+          }))
+          .then(tmp => {
+            wx.hideLoading()
+            return new Promise((resolve, reject) => {
+              wx.saveImageToPhotosAlbum({
+                filePath: tmp,
+                success: res => resolve(res),
+                fail: error => error
+              })
+            }) // end promise
+
+            console.log('保存到本地的图片', tmp)
+          })
+          .then(({ errMsg, tmp }) => {
+            if ('saveImageToPhotosAlbum:ok'!==errMsg) return false
+            console.log('tmp.>>>>>>>>>>', tmp)
+            wx.showToast({
+              title: '保存成功',
+              icon: 'none'
+            })
+          })
+          .catch(error => {
+            wx.hideLoading()
+            wx.showToast({
+              title: '绘制失败',
+              icon: 'none'
+            })
+            console.log('error', error)
+          })
+
+      } // end handleSaveToAlbum
+    } // end methods
+
+    asyncDraw({
+      backgroundImage,
+      avatarImage,
+      qrCodeImage,
+      viewPortWidth,
+      viewPortHeight,
+      viewPortPixelRatio,
+      userName,
+      title,
+      teacher,
+      beginDate
+    }) {
+      let mCtx = wx.createCanvasContext('myCanvas')
+      console.log(`width: ${viewPortWidth}, height: ${viewPortHeight}, pixelRatio: ${viewPortPixelRatio}`)
+      mCtx.drawImage(backgroundImage, 0, 0, viewPortWidth * viewPortPixelRatio, viewPortHeight * viewPortPixelRatio) // 画背景图
+      mCtx.drawImage(avatarImage, 275 * viewPortPixelRatio, 68 * viewPortPixelRatio, 40 * viewPortPixelRatio, 40 * viewPortPixelRatio) // 画头像
+      mCtx.drawImage(qrCodeImage, 60 * viewPortPixelRatio, 295 * viewPortPixelRatio, 83 * viewPortPixelRatio, 83 * viewPortPixelRatio) // 画二维码
+      drawText({ ctx: mCtx, color: '#14292C', fontSize: 18 * viewPortPixelRatio, align: 'left' }) ({ x: 60 * viewPortPixelRatio, y: 88 * viewPortPixelRatio, content: userName })
+      drawText({ ctx: mCtx, color: '#5A696B', fontSize: 12 * viewPortPixelRatio, align: 'left' }) ({ x: 60 * viewPortPixelRatio, y: 106 * viewPortPixelRatio, content: '邀请你参加训练营' })
+      drawText({ ctx: mCtx, color: '#14292C', fontSize: 24 * viewPortPixelRatio, align: 'left', lineHeight: 33 * viewPortPixelRatio }) ({ x: 60 * viewPortPixelRatio, y: 140 * viewPortPixelRatio, content: title })
+      let mOtherTextCtx = drawText({ ctx: mCtx, color: '#4A4A4A', fontSize: 16 * viewPortPixelRatio, align: 'left' })
+      mOtherTextCtx({ x: 60 * viewPortPixelRatio, y: 217 * viewPortPixelRatio, content: teacher })
+      mOtherTextCtx({ x: 60 * viewPortPixelRatio, y: 247 * viewPortPixelRatio, content: beginDate })
+      mOtherTextCtx({ x: 263 * viewPortPixelRatio, y: 356 * viewPortPixelRatio, content: '邀请卡' })
+      return new Promise((resolve, reject) => {
+        mCtx.draw(false, resolve)
+      }) // end inner promise
+    } // end draw
+
+    asyncGetPixelRatio() {
+      return new Promise((resolve, reject) => {
+          wx.getSystemInfo({
+              success: ({ errMsg, pixelRatio }) => {
+                  'getSystemInfo:ok' === errMsg ? resolve(pixelRatio): new Error(errMsg)
+                  console.log('getSystemInfo pixelRatio', pixelRatio)
+              }, // success
+              fail: error => error
+          }) // end getSystemInfo
+      }) // end promise
+        .then(pixelRatio => {
+          this.viewPort.pixelRatio = pixelRatio
+          this.$apply()
+        })
+        .catch(error => {
+          this.viewPort.pixelRatio = 1
+          this.$apply()
+        })
+    } // end getPixelRatio
+
+    asyncGetViewPort() {
+      return sleep(1)
+        .then(() => {
+          let mQuery = wx.createSelectorQuery()
+          mQuery.select('#tc-article-preview').fields({
+              size: true,
+          }, ({ width, height }) => {
+            this.viewPort.width = width
+            this.viewPort.height = height
+            this.$apply()
+            console.log('viewPort>>L___', this.viewPort)
+          }).exec()
+        }) // end then
+    } // end asyncGetViewPort
+
+    initialize(teamID) {
+      return teamApi.getTeamRecord({
+        token: this.token,
+        teamID,
+        myTeamScore: this.myTeamScore
+      })
+        .then(({ teamGrandShow, teamName, teamEndDate, myAllScore, skillList }) => {
+          this.beginDate = teamEndDate
+          let transfer = (letter, index) => {
+            let mStandard = [8, 17, 26]
+            let mStopIndex = 35
+            if (mStandard.some(item => index===item)) return `${letter}\n`
+            if (index>=mStopIndex) return ''
+            return letter
+          }
+          this.comment = teamGrandShow && teamGrandShow.split('').map((item, index) => transfer(item, index) ).join('')
+          this.title = teamName
+          this.score = myAllScore
+          let mDetail = skillList.map((item, index) => ({ ...this.detail[index], score: item.skillScore, skill: item.skillName }))
+          this.detail = mDetail
+          return this.$apply()
+        })
+    } // end initialize
+
+    onLoad({ teamID='defaultTeamID', ranking=0, myTeamScore=0 }) {
+      this.teamID = teamID
+      this.ranking = ranking
+      this.myTeamScore = myTeamScore
+        wepy.$instance.globalData.getLoadHuilder() // ga统计
+    } // end onLoad
+
+    onShow() {
+      this.initialize(this.teamID)
+        .then(() => {
+          this.isLoaded = true
+          this.$apply()
+        })
+    }
+       events = {
+           'header-info': (data) => {
+               let self = this
+               self.headerHeigth = data.headerHeigth
+               self.$apply()
+           }
+       }
+  }
+</script>

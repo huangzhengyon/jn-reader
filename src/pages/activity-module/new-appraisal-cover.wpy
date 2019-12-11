@@ -1,0 +1,303 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-appraisal-box {
+        view {
+            box-sizing: border-box;
+        }
+        .ui-divider {
+            height: 2rpx;
+            margin: 20rpx 32rpx;
+            clear: both;
+            background-color: @border-gray;
+        }
+        .ui-thumb-box {
+            width: 100%;
+            height: auto;
+            overflow: hidden;
+            clear: both;
+            image {
+                width: 100%;
+                height: auto;
+                overflow: hidden;
+            }
+        }
+        .ui-text-box {
+            padding: 24rpx 32rpx;
+            line-height: 54rpx;
+            .cell-title {
+                padding-bottom: 24rpx;
+                font-size: 40rpx;
+                font-weight: 700;
+                color: @color-black;
+            }
+            .cell-details {
+                display: block;
+                font-size: 34rpx;
+                color: @color-gray;
+                text-align: justify;
+            }
+        }
+        .ui-poll-box {
+            padding: 24rpx 32rpx;
+            .cell-button {
+                width: 200rpx;
+                height: 60rpx;
+                margin: 40rpx auto 0;
+                background: @background-gray-F4;
+                color: @color-blue;
+                font-size: 30rpx;
+                line-height: 60rpx;
+                text-align: center;
+                border-radius: @border-radius-32;
+                &.cell-seleted {
+                    color: @color-gray;
+                    background: none;
+                }
+            }
+        }
+        .ui-share-box {
+            padding: 24rpx 0;
+            button {
+                width: 320rpx;
+                height: 100rpx;
+                background-color: @background-gray-F4;
+                font-size: 34rpx;
+                font-weight: 700;
+                color: @color-blue;
+                text-align: center;
+                line-height: 100rpx;
+                border-radius: @border-radius-20;
+                text {
+                    font-size: 48rpx;
+                    font-weight: 400;
+                    margin-right: 20rpx;
+                }
+            }
+        }
+        .ui-button-box {
+            width: 100%;
+            height: 128rpx;
+            &.is-iphonex {
+                height: 196rpx;
+                .cell-button {
+                    height: 196rpx;
+                }
+            }
+            .cell-button {
+                width: 100%;
+                height: 128rpx;
+                background-color: @background-mask-deep-white;
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                z-index: @z-index-normal;
+            }
+            button {
+                width: 700rpx;
+                height: 100rpx;
+                margin: 0 auto;
+                background-color: @background-blue;
+                font-size: 34rpx;
+                color: @color-white;
+                text-align: center;
+                line-height: 100rpx;
+                border-radius: @border-radius-20;
+            }
+        }
+    }
+</style>
+
+<template>
+    <jn-loading wx:if="{{!isLoaded}}">
+    </jn-loading>
+    <view class="ui-appraisal-box" wx:if="{{isLoaded}}">
+        <jn-header :isHeadHeight="isHeadHeight" buttonAfter className="background-transparent"></jn-header>
+        <repeat for="{{coverCardList}}" key="index" index="index" item="data">
+            <view class="ui-divider" wx:if="{{'border'==data.type}}"></view>
+            <view class="ui-thumb-box flex" wx:if="{{'image'==data.type}}">
+                <image mode="widthFix" src="{{data.img}}"></image>
+            </view>
+            <view class="ui-text-box" wx:if="{{'text'==data.type}}">
+                <view class="cell-title">{{data.title}}</view>
+                <div class="cell-details"><text>{{data.content}}</text></div>
+            </view>
+            <view class="ui-poll-box" wx:if="{{'poll'==data.type}}">
+                <jn-poll :cardIndex.sync="index" :cardsList.sync="coverCardList" isLearning></jn-poll>
+                <button class="cell-button" :class="{'cell-seleted' : data.isDone}" data-index="{{index}}" data-item="{{data}}" @tap.stop="getPoll">{{data.isDone ? '已投票' : '投票'}}</button>
+            </view>
+        </repeat>
+        <view class="ui-share-box main-center">
+            <button open-type="share"><text class="icon-share"></text>分享</button>
+        </view>
+        <view class="ui-button-box" :class="{'is-iphonex': isIphonex}">
+            <view class="cell-button">
+                <!-- <button open-type="{{!phone ? 'getPhoneNumber' : ''}}" @getphonenumber.stop="getPhone" @tap.stop="getPhone">开始测试</button> -->
+                <button @tap.stop="getPhone">开始测试</button>
+            </view>
+        </view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {
+        getStore,
+        connect
+    } from 'wepy-redux'
+    import header from '../../components/common/header'
+    import Loading from '../../components/common/loading'
+    import poll from '../../components/cards-type/poll'
+    import {
+        fetch
+    } from '../../api'
+    import {
+        initializationDeligate
+    } from "../../utils"
+    import {
+        getUserPhone,
+        refreshUserInformations
+    } from '../../redux/models/user'
+    import _ from 'underscore'
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        userName(state) {
+            return state.user.nickName
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+    export default class courseLearning extends wepy.page {
+        components = {
+            'jn-header': header,
+            'jn-loading': Loading,
+            'jn-poll': poll
+        }
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isHeadHeight: false,
+            isLoaded: false,
+            paramsInfo: {},
+            detailsInfo: {},
+            coverCardList: []
+        }
+        onLoad(parmas) {
+            let self = this
+            self.paramsInfo = parmas
+            initializationDeligate({
+                initializeFunc: self.initialize.bind(self)
+            })
+        }
+        onShow() {
+            
+        }
+        initialize() {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token,
+                examID: self.paramsInfo.examID
+            }
+            fetch.getExamFront(postData).then(response => {
+                self.coverCardList = _.sortBy(response.coverCardDetail, (data) => {
+                    if ('poll' === data.type) {
+                        data.cardStatus = data.pollType
+                        if (data.isDone) {
+                            let ballotTotal = _.reduce(data.optionList, (memo, item) => {
+                                return memo + item.ballot
+                            }, 0) // 统计全部投票人数
+                            _.each(data.optionList, (item) => {
+                                item.prop = Math.floor(item.ballot / ballotTotal * 1000) / 10
+                            })
+                        }
+                    }
+                    return data.index
+                })
+                self.detailsInfo = response
+                self.isLoaded = true
+                self.$apply()
+                wepy.$instance.globalData.getLoadHuilder({
+                    pageTheme: self.detailsInfo.subjectHeading
+                }) // ga统计
+            }).catch(error => {
+                self.isLoaded = true
+            })
+        }
+        /**
+         * 开始测评
+         */
+        __gotoAppraisalSubject() {
+            let self = this
+        }
+        methods = {
+            /**
+             * 投票
+             * @param event
+             */
+            getPoll(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            index
+                        }
+                    }
+                } = event
+                if (item.isDone) {
+                    return
+                }
+                let postData = {
+                    token: self.systemInfo.token,
+                    pollID: item.pollID,
+                    optionList: item.selectedItem.id
+                }
+                fetch.sendUserPoll(postData).then((response) => {
+                    item.isDone = true
+                    wepy.$instance.globalData.getHuilder(`${self.detailsInfo.subjectHeading}投票`, 'click', `${item.title}`)
+                    self.$broadcast('broadcast-poll', item)
+                }).catch(error => {
+                })
+            },
+            /**
+             * 开始测评
+             */
+            getPhone(event) {
+                let self = this
+
+                wepy.$instance.globalData.getHuilder('测评/测评封面/开始测试', 'click', `${self.detailsInfo.subjectHeading}`)
+                self.$navigate(`/pages/activity-module/new-appraisal-subject`, {
+                    examID: self.paramsInfo.examID
+                })
+
+            },
+        }
+        events = {
+            /**
+             * 交互卡，选择，排序卡
+             * @param data
+             */
+            'on-interaction': (data) => {
+                let self = this
+                let item = _.find(self.coverCardList, {
+                    pollID: data.id
+                })
+                _.extend(item, data)
+                self.$apply()
+            }
+        }
+        onShareAppMessage(event) {
+            let self = this
+            wepy.$instance.globalData.getHuilder('测评/测评封面/分享', 'click', `${self.detailsInfo.subjectHeading}`)
+            wepy.$instance.globalData.getReportFlow('share')
+            return {
+                title: self.detailsInfo.shareContent,
+                path: `/pages/activity-module/new-appraisal-cover?examID=${self.paramsInfo.examID}`,
+                imageUrl: self.detailsInfo.shareImageURL
+            }
+        }
+    }
+</script>

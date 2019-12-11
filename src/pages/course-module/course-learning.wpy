@@ -1,0 +1,1368 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .course-learning-box {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        z-index: 20;
+        view {
+            box-sizing: border-box;
+        }
+        .ui-progress-box {
+            justify-content: flex-start;
+            .ui-progress {
+                width: 216rpx;
+                height: 10rpx;
+                background-color: rgba(241, 242, 245, .5);
+                border-radius: 6rpx;
+                position: relative;
+                left: 0rpx;
+                overflow: hidden;
+            }
+            .cell-current {
+                height: 100%;
+                background-color: #A1A9AB;
+                border-radius: 6rpx;
+                position: absolute;
+                left: 0;
+                top: 0;
+                transition: width .5s ease-in-out;
+            }
+            .cell-number {
+                width: 58rpx;
+                padding-left: 16rpx;
+                font-size: 24rpx;
+                color: #A1A9AB;
+            }
+            &.is-dark {
+                .ui-progress .cell-current {
+                    background-color: rgba(241, 242, 245, 1);
+                }
+                .cell-number {
+                    color: @color-white;
+                }
+            }
+        }
+        .module-swiper-box {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            .ui-swiper-clear {
+                width: 100%;
+            }
+            .ui-swiper {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        .ui-share {
+            width: 100rpx;
+            height: 100rpx;
+            font-size: 32rpx;
+            color: @color-blue;
+            text {
+                font-size: 56rpx;
+                color: @color-blue;
+            }
+            &.is-dark {
+                color: @color-white;
+                text {
+                    color: @color-white;
+                }
+            }
+            .cell-text {
+                font-size: 24rpx;
+            }
+            &.is-iphonex {
+                position: fixed;
+                top: 190rpx;
+            }
+        }
+        .ui-button-box {
+            width: 100%;
+            height: 128rpx;
+            padding: 0 24rpx;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            .ui-bottom-mask {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: @z-index-mask;
+            }
+            &.is-iphonex {
+                height: 196rpx;
+                .ui-button-list .ui-tips {
+                    bottom: 226rpx;
+                }
+            }
+            .ui-button-list {
+                width: 224rpx;
+                button {
+                    width: 100rpx;
+                    height: 100rpx;
+                    margin-right: 12rpx;
+                    background: @background-gray-F4;
+                    border-radius: @border-radius-20;
+                    position: relative;
+                    transition: all .25s;
+                    text {
+                        display: block;
+                        width: 100%;
+                        text-align: center;
+                        position: absolute;
+                        transition: all .25s;
+                    }
+                    .cell-icon {
+                        font-size: 54rpx;
+                        color: @color-blue;
+                        top: -37rpx;
+                    }
+                    .cell-text {
+                        font-size: 26rpx;
+                        color: @color-gray;
+                        bottom: -10rpx;
+                    }
+                }
+                .ui-tips {
+                    height: 56rpx;
+                    padding: 0 20rpx;
+                    background-color: @background-blue;
+                    font-size: 28rpx;
+                    color: @color-white;
+                    text-align: center;
+                    line-height: 56rpx;
+                    border-radius: @border-radius-20;
+                    position: fixed;
+                    left: 62rpx;
+                    bottom: 156rpx;
+                    transition: all .25s;
+                    text {
+                        display: block;
+                        margin-left: -17rpx;
+                        font-size: 34rpx;
+                        color: @color-blue;
+                        position: absolute;
+                        left: 110rpx;
+                        top: 34rpx;
+                        transform: rotatex(180deg);
+                        transition: all .25s;
+                    }
+                    &.ui-length {
+                        left: 128rpx;
+                        text {
+                            left: 50rpx
+                        }
+                    }
+                }
+            }
+            .cell-button {
+                width: 100%;
+                height: 100rpx;
+                background: @background-gray-F4;
+                font-size: 28rpx;
+                color: @color-blue;
+                border-radius: @border-radius-20;
+                transition: all .25s;
+                text {
+                    padding-left: 10rpx;
+                    font-size: 46rpx;
+                }
+                &.cell-unselect {
+                    color: @color-gray;
+                }
+            }
+            .cell-hover {
+                background: @background-gray-hover;
+            }
+            &.is-dark {
+                .ui-button-list {
+                    button {
+                        background: @background-mask-normal-2;
+                        text {
+                            color: @color-white;
+                        }
+                    }
+                }
+                .cell-button {
+                    background: @background-mask-normal-2;
+                    color: @color-white;
+                }
+                .cell-hover {
+                    background: @background-mask-normal;
+                }
+                .ui-tips {
+                    background-color: @background-white;
+                    color: @color-black;
+                    text {
+                        color: @color-white;
+                    }
+                }
+            }
+        }
+        /* 立即领取课程S */
+        .ui-preview-end {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-direction: column;
+            flex-wrap: wrap;
+            height: calc(~"100% - 64px");
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(255,255,255,.8), rgba(255,255,255,0));
+            overflow: hidden;
+            .cell-lock {
+                width: 36rpx;
+                height: 48rpx;
+            }
+            .cell-locked-explain {
+                width: 100%;
+                font-size: 40rpx;
+                color: @color-black;
+                text-align:center;
+                line-height:3;
+                margin-bottom: 16rpx;
+            }
+            .cell-draw {
+                width: 670rpx;
+                height: 96rpx;
+                .flex-center();
+                background: @background-blue;
+                color: @color-white;
+                font-size: 34rpx;
+                border-radius: @border-radius-20;
+                transition: all .25s;
+                margin-bottom: 80rpx;
+            }
+        }
+        /* 立即领取课程E */
+    }
+</style>
+
+<template>
+    <jn-loading wx:if="{{!isLoaded}}">
+    </jn-loading>
+    <view class="course-learning-box">
+        <jn-header className="background-transparent" hiddenButton :delta.sync="routerDelta">
+            <button slot="cursor-button" class="cell-back" @tap.stop="getBackStep">
+                <text class="icon-back"></text>
+            </button>
+            <view slot="content" class="ui-progress-box main-center cross-center {{cardCurrentInfo[0].fullImageColorIsDark ? 'is-dark' : ''}}">
+                <view class="ui-progress">
+                    <view class="cell-current" style="width:{{((cardCurrent+1)/cardsList.length) * 100}}%"></view>
+                </view>
+                <view class="cell-number">{{cardCurrent+1}}/{{cardsList.length}}</view>
+            </view>
+        </jn-header>
+        <view class="module-swiper-box" bindtouchstart="getSwipperStart" bindtouchend="getSwipperEnd">
+            <swiper class="ui-swiper" duration="300" current="{{cardCurrent}}">
+                <repeat for="{{cardsOriginList}}" key="index" index="index" item="item">
+                    <swiper-item style="background-color: {{item.fullImageBgColor}}" catchtouchmove="getCatchTouchMove">
+                        <view class="ui-swiper-clear" style="height: {{headerHeigth}}px"></view>
+                        <view style="height: calc(100% - {{!isIpad ? headerHeigth : 210}}px)">
+                            <jn-full-image :cardItem.sync="item" wx:if="{{index+2>=cardCurrent && item.type==='fullimage'}}"></jn-full-image>
+                            <jn-single-choice :cardIndex.sync="index" :cardsList.sync="cardsList" wx:if="{{index+2>=cardCurrent && item.type==='textSelectionVer2'}}" isShowType></jn-single-choice>
+                            <jn-sort :cardItem.sync="item" :cardIndex.sync="index" :cardsList.sync="cardsList" wx:if="{{index+2>=cardCurrent && item.type==='order'}}" ></jn-sort>
+                            <jn-poll :cardIndex.sync="index" :cardsList.sync="cardsList" wx:if="{{index+2>=cardCurrent && (item.type==='multiplePoll' || item.type==='poll')}}" isShowType></jn-poll>
+                            <jn-session :cardItem.sync="item" :cardIndex.sync="index" :cardsList.sync="cardsList" wx:if="{{index+2>=cardCurrent && item.type==='session'}}"></jn-session>
+                            <jn-hot-spot :cardItem.sync="item" :cardIndex.sync="index" :cardsList.sync="cardsList" wx:if="{{index+2>=cardCurrent && item.type==='hotSpot'}}"></jn-hot-spot>
+
+                        </view>
+                    </swiper-item>
+                </repeat>
+            </swiper>
+        </view>
+        
+        <view class="ui-preview-end" hover-class="cell-hover" hover-stay-time="100" wx:if="{{isPreview && isShowPreviewMask}}">
+            <image class="cell-lock" src="../../assets/img/locked.svg"></image>
+            <view class="cell-locked-explain" wx:if="{{!isInspect}}">{{!phone ? '注册后可阅读全文' : '订阅后可阅读全文'}}</view>
+            <button open-type="{{!phone ? 'getPhoneNumber' : ''}}" class="cell-button cell-draw" @getphonenumber.stop="getRegisterMember" @tap.stop="getRegisterMember" form-type="submit" wx:if="{{!phone && !isInspect}}">立即注册，全场免费体验24小时</button>
+            <button class="cell-button cell-draw" @tap.stop="getSubscribe" wx:if="{{phone && !isInspect}}">订阅Plus会员，全场无限学</button>
+        </view>
+        <view class="ui-button-box main-justify" :class="{'is-iphonex': isIphonex, 'is-dark': cardCurrentInfo[0].fullImageColorIsDark, 'is-hide': !cardCurrentInfo[0].buttonShow}" wx:else>
+            <view class="ui-button-list dir-left" wx:if="{{cardCurrentInfo[0].type=='fullimage' || cardCurrentInfo[0].type=='hotSpot'}}">
+                <button @tap.stop="getCollectionRecord">
+                    <text class="icon-collection2 cell-icon"></text>
+                    <text class="icon-collected cell-icon collectionAnimation" wx:if="{{cardCurrentInfo[0].userIsSelected}}"></text>
+                    <text class="cell-text">{{cardCurrentInfo[0].cardCollectionCount || 0}}</text>
+                </button>
+                <button @tap.stop="getShare">
+                    <view class="ui-share  main-center cross-center dir-top" :class="{'is-dark':cardCurrentInfo[0].fullImageColorIsDark}">
+                        <text class="icon-share cell-icon"></text>
+                    </view>
+                    <text class="cell-text">{{cardCurrentInfo[0].userShareCount || 0}}</text>
+                </button>
+            </view>
+            <view class="cell-button main-center cross-center" :class="{'cell-unselect': !cardCurrentInfo[0].allowToNext && cardCurrentInfo[0].isInteraction && !cardCurrentInfo[0].selectedId}" hover-class="cell-hover" hover-stay-time="100" @tap.stop="getContinue">
+                {{cardCurrentInfo[0].fullImageBottomtText}}<text class="icon-next" wx:if="{{cardCurrentInfo[0].allowToNext || !cardCurrentInfo[0].isInteraction || cardCurrentInfo[0].selectedId}}"></text>
+            </view>
+            
+        </view>
+        <jn-share-card></jn-share-card>
+        <jn-learning-discuss :headerHeigth.sync="headerHeigth"></jn-learning-discuss>
+    </view>
+    <view class="module-result-box dir-bottom" :class="{'is-iphonex': isIphonex, 'active': (isAnswerOver && isActiveHotCard), 'is-success': cardCurrentInfo[0].answerStatus===1, 'is-error': cardCurrentInfo[0].answerStatus===2, 'is-default': cardCurrentInfo[0].answerStatus===3}" wx:if="{{isAnswerOver && isActiveHotCard}}">
+        <view class="ui-mask" hover-stay-time="100" @tap.stop="getCloseMask"></view>
+        <view class="ui-result">
+            <view class="ui-title">{{cardCurrentInfo[0].answerTitle}}</view>
+            <view class="ui-close-icon">
+                <image mode="widthFix" @tap.stop="getCloseMask" class="cell-close" src="../../assets/img/alert-close.svg"></image>
+            </view>
+            <view class="ui-thumb" wx:if="{{cardCurrentInfo[0].answerIcon}}">
+                <image mode="widthFix" src="{{cardCurrentInfo[0].answerIcon}}"></image>
+            </view>
+            <view class="ui-details">
+                {{cardCurrentInfo[0].answerDescription}}
+            </view>
+            <view class="ui-button main-center cross-center" hover-stay-time="100" @tap.stop="getNextCard" wx:if="{{cardCurrentInfo[0].type != 'hotSpot'}}">
+                继续学习<text class="icon-next"></text>
+            </view>
+        </view>
+    </view>
+    <view class="module-toast-box main-center cross-center" :class="{'is-opacity-show': isShowTotast}">
+        <view class="ui-content">
+            <view class="cell-icon"><text class="{{banSwitchToast[cardCurrentInfo[0].type].icon}}"></text></view>
+            <view class="cell-title">{{banSwitchToast[cardCurrentInfo[0].type].title}}</view>
+        </view>
+    </view>
+    <!-- 组队弹窗 -->
+    <team-draw-member :showByTop.sync="showTeamDrawToastInTop" :showByBottom.sync="showTeamDrawToastInBottom" :groupSource.sync="groupSource"></team-draw-member>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {
+        getStore,
+        connect
+    } from 'wepy-redux'
+    import {
+        fetchCardsWithPreview
+    } from '../../redux/models/cards'
+    import {
+        initializationDeligate,
+        deepCopy,
+        parsePercentageForPoll,
+        getStorageAsync,
+        setStorageAsync
+    } from '../../utils'
+    import { fetch,report as reportApi } from '../../api'
+    import header from '../../components/common/header'
+    import Loading from '../../components/common/loading'
+    import shareCard from '../../components/shareImages/share-card'
+    import fullImage from '../../components/cards-type/full-image'
+    import singleChoice from '../../components/cards-type/single-choice'
+    import sort from '../../components/cards-type/sort'
+    import poll from '../../components/cards-type/poll'
+    import session from '../../components/cards-type/session'
+    import hotSpot from '../../components/cards-type/hot-spot'
+    import learningDiscuss from '../../components/course-module/learning-discuss'
+    import {getUserPhone, refreshUserInformations} from '../../redux/models/user';
+    import teamDrawMember from '../../components/team-module/team-draw-members';
+    import _ from 'underscore'
+
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        requestFlag(state) {
+            return state.cards.requestFlag
+        },
+        currentCourseName(state) {
+            return state.courses.currentName
+        },
+        entrance(state) { //全局场景值
+            return state.entrance
+        },
+        isIos(state) {
+            return state.user.platform === 'ios'
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+    export default class courseLearning extends wepy.page {
+        components = {
+            'jn-header': header,
+            'jn-loading': Loading,
+            'jn-share-card': shareCard,
+            'jn-full-image': fullImage,
+            'jn-single-choice': singleChoice,
+            'jn-sort': sort,
+            'jn-poll': poll,
+            'jn-session': session,
+            'jn-hot-spot': hotSpot,
+            'jn-learning-discuss': learningDiscuss,
+            'team-draw-member':teamDrawMember,//组队弹窗
+        }
+        data = {
+            headerHeigth: 68,
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isIpad: /iPad|ipad/i.test(wx.getSystemInfoSync().model),
+            isLoaded: false,
+            isSubmit: false, // 是否提交了收藏或生成分享图
+            isShowFirstCollection: false, // 第一次是否显示收藏提示
+            isShowCollection: false, // 停留在全图卡、热点卡超过6s显示收藏提示
+            timer: null,
+            senceID: null,
+            courseID: null,
+            cardID: null,
+            resumeLastRead: null,
+            teamID: 'defaultTeamID',
+            senceName: '',
+            senceThumb: '',
+            cardCurrentInfo: [],
+            cardCurrent: 0,
+            cardsList: [],
+            cardsOriginList: [],
+            isExprience: false,//是否为初体验
+            isReview:false,//是否为回顾学习
+            startTouches: {},
+            isAnimationFinish: true,
+            isAnswerOver: false,
+            interactionType: ['textSelectionVer2', 'order', 'poll', 'association'],
+            feedbackResult: ['textSelectionVer2', 'order'],
+            anmiationCard: ['session'], // 动画卡，切换到这种卡的初始化运动的卡片
+            routerDelta: 1,
+            isShowTotast: false,
+            banSwitchToast: {
+                'textSelectionVer2': {
+                    icon: 'icon-toast',
+                    title: '选择正确的选项'
+                },
+                'poll': {
+                    icon: 'icon-toast',
+                    title: '请先投票'
+                },
+                'order': {
+                    icon: 'icon-toast',
+                    title: '请先排序'
+                },
+                'session': {
+                    icon: 'icon-toast',
+                    title: '请先回复'
+                },
+                'front': {
+                    icon: 'icon-toast',
+                    title: '点击按钮继续学习'
+                }
+            },
+            skipRoutes: [
+                'pages/course-module/course-learning',
+                'pages/course-module/course-exercises'
+            ],
+            isPreview: '', //是否为预览
+            isShowPreviewMask:false,//是否展示预览领取课程按钮
+            courseDetail:'',//课程信息
+            isInspect:false,//是否为审核需要隐藏状态,true为需要隐藏(只有IOS需要隐藏)
+            isFromTodayListing:false,//是否从学习清单进来
+            showTeamDrawToastInTop:false,//是否展示组队弹窗(头部返回触发)
+            showTeamDrawToastInBottom:false,//是否展示组队弹窗(底部按钮触发)
+            groupDrawStatus:null,//组队状态
+            groupDrawStatusNum:null,//组队弹窗缓存的次数
+            groupSource:'',//表示弹窗触发的入口
+            requestFlag:'',//参数
+        }
+        onLoad(params) {
+            let self = this;
+            self.senceID = params.senceID;
+            self.courseID = params.courseID;
+            self.teamID = params.teamID;
+            self.cardID = params.cardID;
+            self.resumeLastRead = params.resumeLastRead;
+            self.source = params.source ? params.source : '';
+            self.isExprience = params.isExprience == 'true' ? true : false;
+            self.isReview = params.isReview == 'true' ? true : false;
+            self.isFromTodayListing = params.isFromTodayListing == 'true' ? true : false;
+            self.isPreview = params.preview == 'true' ? true : false;
+            
+            let { user: { token, platform }, cards: { requestFlag } } = getStore().getState()
+            self.requestFlag = requestFlag ;
+
+            wx.getStorage({
+                key: 'collectionStatus',
+                fail(error) {
+                    self.isShowFirstCollection = true
+                    self.$apply()
+                    wx.setStorageSync("collectionStatus", true)
+                }
+            })
+            
+            self.__originalRouter();
+            
+            let postData = {
+                courseID: self.courseID,
+                senceID: self.senceID,
+                teamID: params.teamID || 'defaultTeamID',
+                resumeLastRead: 'NO',
+                source: params.source ? params.source : '',
+                preview: self.isPreview || false
+            }
+            initializationDeligate({
+                initializeFunc: self.initialize.bind(self, postData)
+            })
+        }
+
+        computed = {
+            isActiveHotCard() {
+                let self = this;
+                if(self.cardCurrentInfo.length == 0)return;
+                let includeArray = ['poll','textSelectionVer2','order','fullimage']; 
+                return includeArray.indexOf(self.cardCurrentInfo[0].type) == -1 ? true : false ;
+            }
+        }
+        
+        onShow() {
+            let self = this
+            /* 获取组队状态缓存值 */
+            getStorageAsync({key:'groupDrawStatus'}).then(response => {
+                self.groupDrawStatus = response;
+                self.$apply();
+            }).catch( error => {
+                let postData = {
+                    token: self.systemInfo.token
+                }
+                fetch.todayStatus(postData).then((response) => {
+                     
+                    self.groupDrawStatus = response.groupDrawStatus;//组队状态
+                    /* 缓存设置组队状态 */
+                    setStorageAsync({
+                        key:'groupDrawStatus',
+                        value:self.groupDrawStatus
+                    }).catch(error => console.log('设置组队状态失败'))
+
+                    self.$apply()
+                }).catch( error => console.log('获取组队状态值失败'))
+            })
+            /* 获取组队弹窗弹出次数 */
+            getStorageAsync({key:'groupDrawStatusNum'}).then(response => {
+                self.groupDrawStatusNum = response ? response : 0;
+                self.$apply();
+            })
+            /* 获取课程信息->领取按钮判断S */
+            let courseData = {
+                token: self.systemInfo.token,
+                courseID: self.courseID,
+                source: self.source
+            }
+            self.__getCourseDetail(courseData);
+            /* 获取课程信息->领取按钮判断E */
+            // 通知卡片组件，重置初始化数据
+            self.$broadcast('broadcast-reset-status')
+            if (self.cardCurrentInfo.length) {
+                self.$broadcast('broadcast-learning-discuss')
+            }
+        }
+        
+        /**
+         * 课程信息
+         */
+        __getCourseDetail(data) {
+            let self = this 
+            fetch.courseDetail(data).then(response => {
+                self.courseDetail = response;
+                self.$apply();
+            })
+        }
+
+        /**
+         * 初始化接口数据
+         * @returns {boolean}
+         */
+        initialize({
+            courseID,
+            senceID,
+            teamID,
+            resumeLastRead,
+            source,
+            preview
+        }) {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token,
+                senceID,
+                courseID,
+                teamID,
+                source: source,
+                preview: preview
+            }
+            self.isLoaded = false
+            return store.dispatch(fetchCardsWithPreview(postData)).then((response) => {
+                
+                self.senceName = response.senceName;
+                self.senceThumb = response.imageUrl;
+
+                /* 是否为第一次打开微课学习页 */
+                if(response.isOpenScene){
+                    wx.redirectTo({url: `/pages/course-module/course-first-learning?courseID=${self.courseID}&senceID=${self.senceID}&teamID=${self.teamID}&source=${self.source}&resumeLastRead=${self.resumeLastRead}&isExprience=${self.isExprience}&isFromTodayListing=${self.isFromTodayListing}&preview=${self.isPreview}`});
+                    return
+                }
+
+                let cards = self.__dataRegroup(response);
+                
+                self.cardsOriginList = deepCopy(cards); // 给swiper使用的数据
+                self.cardsList = cards;
+
+
+                // 恢复上次学习的进度
+                let index = _.findIndex(self.cardsList, {
+                    id: response.lastCardID
+                }) || 0
+                if (!self.resumeLastRead || self.resumeLastRead == 'NO') {
+                    index = -1 !== index ? index : 0
+                } else {
+                    index = self.resumeLastRead > cards.length ? 0 : parseInt(self.resumeLastRead) - 1;
+                }
+                index = -1 !== index ? index : 0;
+
+                self.cardCurrentInfo.push(self.cardsList[index])
+                self.cardCurrent = index
+                self.isShowPreviewMask = self.cardCurrent == 3 && self.isPreview ? true : false ;
+                
+                self.$broadcast('broadcast-learning-discuss-reset', self.cardCurrentInfo[0])
+                self.$broadcast('broadcast-reset-status', self.cardCurrentInfo[0])
+                
+                // 提审 判断
+                getStorageAsync({
+                    key: 'isIosClosed'
+                }).then(data => {
+                    self.isInspect = data && self.isIos ? true : false;
+                    self.$apply();
+                }).catch(error => {
+                    console.log(error)
+                })
+
+                self.isLoaded = true
+                self.__hasInitAnimation()
+                self.$apply()
+
+                wepy.$instance.globalData.getLoadHuilder({
+                    pageTheme: response.senceName
+                }) // ga统计
+
+            }).catch(error => {
+                self.isLoaded = true
+                console.log('fail to initialize lesson', error)
+            })
+        }
+        /**
+         * 重组接口返回的数据信息
+         * @returns {response}
+         */
+        __dataRegroup(response) {
+            let self = this
+            let length = response.cards.length - 1;
+            let result = response.cards;
+            _.each(result, (data, index) => {
+                data.buttonShow = true
+                if (!data.fullImageBottomtText) {
+                    switch (data.type) {
+                        case 'textSelectionVer2':
+                            data.fullImageBottomtText = !data.allowToNext ? '请选择答案': index == length ? '点击完成微课':'继续学习'
+                            // 由于但选择题，可能是复制出来的，导致选项id是相同的
+                            _.each(data.select, (item) => {
+                                item.sId = _.clone(item.id)
+                                item.id = data.id + item.id
+                            })
+                            break
+                        case 'session':
+                            data.fullImageBottomtText = !data.allowToNext ? '请先回复' : index == length ?'点击完成微课':'继续学习'
+                            data.buttonShow = false
+                            // 由于但选择题，可能是复制出来的，导致选项id是相同的
+                            _.each(data.select, (item) => {
+                                item.sId = _.clone(item.id)
+                                item.id = data.id + item.id
+                            })
+                            break
+                        case 'order':
+                            let trueSequence = _.isArray(data.trueSequence) ? data.trueSequence : data.trueSequence.split(',');
+                            let select = data.select
+                            
+                            _.each(trueSequence, (optionId, optionIndex) => {
+                                _.each(select, (item) => {
+                                    if (item.id == optionId) {
+                                        item.index = optionIndex + 1
+                                    }
+                                })
+                            })
+                            data.select = select;
+                            
+                            data.fullImageBottomtText = !data.allowToNext ? '请选择先后顺序': index == length ? '点击完成微课':'继续学习';
+
+                            if (data.allowToNext) {
+                                data.selectedInfo = {}
+                                data.select = _.sortBy(data.select,item => {
+                                    return item.selectIndex
+                                })
+
+                                let trueSequence = _.isArray(data.trueSequence) ? data.trueSequence : data.trueSequence.split(',')
+                                _.each(trueSequence, (item, index) => {
+                                    let params = _.find(data.select, {
+                                        id: item
+                                    })
+                                    data.selectedInfo[item] = {
+                                        index: index,
+                                        isSelected: true,
+                                        id: item,
+                                        weight: params.weight,
+                                        isError: params.selectIndex !== params.index ? true : false,
+                                        selectIndex: params.selectIndex
+                                    }
+                                })
+                            }
+                            break
+                        case 'hotSpot':
+                            data.fullImageBottomtText = '继续学习'
+                            let prop = (self.systemInfo.windowWidth * 0.86) / data.ImageWidth
+                            data.imgWidth = Math.ceil(prop * data.ImageWidth)
+                            data.imgHeight = Math.ceil(prop * data.ImageHeight)
+                            data.hotSpotPosition = []
+                            _.each(data.hotSpotFlag, (item) => {
+                                let obj = {}
+                                let remainder = item % 7
+                                let divisor = item / 7
+                                item = parseInt(item)
+                                obj.location = item
+                                obj.top = 0 !== remainder ? Math.floor(divisor) * 10 : (divisor - 1) * 10
+                                obj.left = 0 !== remainder ? (remainder - 1) * 14.3 : 6 * 14.3
+                                data.hotSpotPosition.push(obj)
+                            })
+                            break
+                        case 'multiplePoll':
+                        case 'poll':
+                            data.fullImageBottomtText = data.isDone ? '继续学习' : '请投票'
+                            data.allowToNext = data.isDone // 没做的不能继续学习出
+                            if (data.isDone) {
+                                let ballotTotal = _.reduce(data.select, (memo, data) => {
+                                    return memo + data.ballot
+                                }, 0) // 统计全部投票人数
+                                _.each(data.select, (data) => {
+                                    data.prop = Math.floor(data.ballot / ballotTotal * 1000) / 10
+                                })
+                            }
+                            break
+                        default:
+                            data.fullImageBottomtText = index !== length && (data.fullImageBottomtText || '继续学习')
+                    }
+                }
+                if (index === length) {
+                    data.lastCard = true
+                    if ('front' === response.cards[length].type && '继续学习' == response.cards[length - 1].fullImageBottomtText) {
+                        response.cards[length - 1].fullImageBottomtText = '即学即练'
+                    } else {
+                        data.fullImageBottomtText = data.fullImageBottomtText || '点击完成微课'
+                    }
+                }
+                // 是否是交互卡
+                if (-1 !== _.indexOf(self.interactionType, data.type)) {
+                    data.isInteraction = true
+                    data.fullImageColorIsDark = false // 不开启深色
+                }
+            })
+
+            return result
+        }
+        /**
+         * 计算返回到微课入口页面
+         * @private
+         */
+        __originalRouter() {
+            let self = this
+            let routers = getCurrentPages()
+            let lenght = routers.length - 2
+            self.routerDelta = 1
+            lenght > 1 && _.find(routers, (data, index) => {
+                let item = routers[lenght - index]
+                if (-1 === _.indexOf(self.skipRoutes, item.route)) {
+                    return data
+                } else {
+                    self.routerDelta++
+                }
+            })
+        }
+        /**
+         * 初始化卡片的运动效果
+         */
+        __hasInitAnimation() {
+            let self = this
+            if (-1 !== _.indexOf(self.anmiationCard, self.cardsList[self.cardCurrent].type)) {
+                self.cardsList[self.cardCurrent].isStartAnimation = true
+                self.$apply()
+            }
+        }
+        /**
+         * 触摸滑动结束后更新数据
+         * @returns {type} 有则发送请求记录学习到第几张卡片
+         */
+        __touchEnd(type) {
+            let self = this
+            self.cardCurrentInfo.splice(0, 1, self.cardsList[self.cardCurrent])
+            self.startTouches = {}
+            self.isAnimationFinish = false
+            self.$broadcast('broadcast-learning-discuss-reset', self.cardCurrentInfo[0])
+            self.$broadcast('broadcast-reset-status', self.cardCurrentInfo[0])
+            type && self.__recordProgress()
+            self.$apply()
+        }
+        /**
+         * 发送请求记录学习到第几张卡片
+         * @returns {type} 有则发送
+         */
+        __recordProgress() {
+            let self = this
+            let current = self.cardCurrentInfo[0];
+            
+            let postData = {
+                token: self.systemInfo.token,
+                senceID: self.senceID,
+                courseID: self.courseID,
+                cardID: current.id,
+                requestFlag: current.type == 'front' ? '去课后练习过场页' : self.requestFlag,
+                teamID: self.teamID,
+                source: self.source
+            }
+            fetch.markCard(postData).then(() => {}).catch(error => {})
+        }
+        /**
+         * 提交做题答案结果
+         * @returns {event}
+         */
+        __sumbitResult(event) {
+            let self = this
+            let current = self.cardCurrentInfo[0]
+            // 如果没有选中的信息
+            if (!current.selectedItem) {
+                self.isShowTotast = true;
+                self.$apply();
+                setTimeout(() => {
+                    self.isShowTotast = false;
+                    self.$apply();
+                }, 500)
+                return
+            }
+            let item = _.find(current.select, {
+                id: current.selectedItem.id
+            })
+            self.isAnswerOver = -1 !== _.indexOf(self.feedbackResult, current.type) ? true : false // 做题环节结束
+            current.allowToNext = true
+            current.isAnswerOver = true
+            current.fullImageBottomtText = !current.lastCard ? '继续学习' : '点击完成微课'
+            self.cardsList[self.cardCurrent].allowToNext = true
+            self.cardsList[self.cardCurrent].fullImageBottomtText = current.fullImageBottomtText
+            self.cardCurrentInfo[0].isAnswerOver = true;
+            //点击完成排序时赋值selectedIndex
+            self.cardsList[self.cardCurrent].select.map((item,index) => {
+                for(var jtem in self.cardCurrentInfo[0].selectedInfo) {
+                    if(item.id == jtem){
+                        self.cardsList[self.cardCurrent].select[index].selectIndex = jtem.index + 1
+                    }
+                }
+            })
+
+            self.$apply();
+            self.__noticeBroadcast(current)
+            self.__sumbitScore()
+            self.__sumbitFeedBack()
+            self.__recordProgress()
+        }
+        /**
+         * 通知对应的子组件
+         * @returns {event}
+         */
+        __noticeBroadcast(data) {
+            let self = this
+            let component = '';
+            let current = self.cardCurrentInfo[0];
+            switch (data.type) {
+                case 'textSelectionVer2':
+                    component = 'broadcast-single-choive'
+                    break
+                case 'session':
+                    component = 'broadcast-session'
+                    break
+                case 'order':
+                    component = 'broadcast-sort'
+                    break
+                case 'multiplePoll':
+                case 'poll':
+                    data.isDone = true
+                    component = 'broadcast-poll'
+                    break
+            }
+            component && self.$broadcast(component, current)
+        }
+        /**
+         * 提交做题答案
+         * @returns {event}
+         */
+        __sumbitScore() {
+            let self = this
+            let current = self.cardCurrentInfo[0];
+            let json;
+            if (current.type === 'order') {
+                json = JSON.parse(current.json)
+            } else {
+                json = {
+                    optionID: current.json
+                }
+            }
+            if (-1 !== _.indexOf(self.feedbackResult, current.type)) {
+                let postData = {
+                    token: self.systemInfo.token,
+                    senceID: self.senceID,
+                    cardID: current.id,
+                    score: current.score,
+                    message: current.selectedItem.option, // 选中选项的name
+                    weight: current.selectedItem.weight, // 选中选项的权重
+                    abilityGroup: current.abilityGroup,
+                    abilitySkill: current.abilitySkill,
+                    json: json, // 选中选项的id或顺序
+                    source: self.source,
+                    practiceType:0
+                }
+                fetch.sendCardScore(postData).then(() => {
+                    console.log('练习上报成功')
+                }).catch(error => {
+                    console.log('练习上报失败', error)
+                })
+                return
+            }
+            // 投票
+            fetch.sendPollSelection({
+                token: self.systemInfo.token,
+                cardID: current.id,
+                optionList: current.selectedItem.id
+            })
+        }
+        /**
+         * 提交反馈信息
+         * @returns {event}
+         */
+        __sumbitFeedBack() {
+            let self = this
+            let current = self.cardCurrentInfo[0]
+            let postData = {
+                token: self.systemInfo.token,
+                senceID: self.senceID,
+                courseID: self.courseID,
+                cardID: current.id,
+                type: current.type
+            }
+            fetch.sendFeedBackSelect(postData).catch(error => {
+                console.log('fail to sendFeedBack to backend', error)
+            })
+        }
+        /**
+         * 延时定时器
+         * @returns {event}
+         */
+        __interval() {
+            let self = this
+            self.isShowCollection = false
+            self.isShowFirstCollection = false
+            self.$apply()
+        }
+
+
+        methods = {
+            getSubscribe() {
+                let self = this
+                wepy.$instance.globalData.getHuilder('预览/订阅', 'click', '')
+                if( self.groupDrawStatusNum == 0 && (self.groupDrawStatus == -1 || self.groupDrawStatus == 2)){
+                    self.showTeamDrawToastInBottom = true
+                    self.groupSource = 'course-learning-subscribe'
+                    self.$apply()
+                } else {
+                    wepy.navigateTo({url: `/pages/course-module/course-subscribe`})
+                }
+            },
+            /* 注册成为体验会员 */
+            getRegisterMember(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            site
+                        }
+                    },
+                    detail: {
+                        encryptedData,
+                        errMsg,
+                        iv
+                    }
+                } = event
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            let self = this
+                            store.dispatch(refreshUserInformations({
+                                phone: response
+                            }))
+                            wepy.showToast({
+                                title:'新人权益领取成功',
+                                icon:'none'
+                            })
+                            self.isPreview = false;
+                            self.$apply();
+                            let postData = {
+                                token: self.systemInfo.token,
+                                senceId: self.senceID,
+                                courseId: self.courseID,
+                            }
+                            fetch.registerByPreview(postData)
+                        })
+                        .catch((error) => {
+                            console.log(error)
+                        })
+                    }, 0);
+                })
+                
+            },
+            getBackStep() {
+                let self = this
+                if(self.isShowPreviewMask) {
+                    if(!self.isInspect && self.groupDrawStatusNum == 0 && (self.groupDrawStatus == -1 || self.groupDrawStatus == 2)) {
+                        wepy.$instance.globalData.getHuilder('微课预览/退出/组队弹窗出现', 'click', '')
+                        self.showTeamDrawToastInTop = true
+                        self.groupSource = 'course-learning-back'
+                        self.$apply()
+                    } else {
+                        wx.navigateBack({delta: 1});
+                    }
+                } else {
+                    if(!self.isExprience && !self.isPreview) {
+                        wx.showModal({
+                            title: '确定要退出吗?',
+                            content: '中断会使学习效果降低72%',
+                            confirmText:'继续学习',
+                            confirmColor:'#007AFF',
+                            cancelText:'明天见',
+                            cancelColor:'#8F8E94',
+                            success (res) {
+                                if (res.confirm) {
+                                    wepy.$instance.globalData.getHuilder('.微课学习/退出弹窗/继续学习', 'click', '')
+                                } else if (res.cancel) {
+                                    wepy.$instance.globalData.getHuilder('.微课学习/退出弹窗/明天见', 'click', '')
+                                    if (!self.isExprience) {
+                                        return wx.navigateBack({
+                                                delta: 1
+                                            })
+                                        
+                                    } else {
+                                        return wepy.switchTab({ url: '/pages/tabPages/home'})
+                                    }
+                                }
+                            }
+                        })
+                    } else {
+                        wx.navigateBack({ delta: 1 })
+                    }
+                }
+                
+            },
+            getShowStatus() {
+                let self = this;
+                // self.$broadcast('broadcast-learning-discuss-show', 1)
+            },
+            /**
+             * 关闭遮罩层
+             */
+            getCloseMask() {
+                let self = this
+                self.isAnswerOver = false
+                self.cardCurrentInfo[0].allowToNext = true
+                self.cardCurrentInfo[0].fullImageBottomtText = '继续学习'
+                self.cardsList[self.cardCurrent].allowToNext = true
+                self.cardsList[self.cardCurrent].fullImageBottomtText = '继续学习'
+                self.$apply()
+            },
+            /**
+             * 禁止滑块跟随手势移动
+             * @returns {boolean}
+             */
+            getCatchTouchMove() {
+                return false
+            },
+            /**
+             * 开始触摸
+             * @param event
+             */
+            getSwipperStart(event) {
+                let self = this
+                self.startTouches = event.changedTouches[0]
+            },
+            /**
+             * 结束触摸
+             * @param event
+             */
+            getSwipperEnd:_.debounce(function(event) {
+                let self = this
+                /*if ('association' === self.cardCurrentInfo[0].type) {
+                    return
+                }*/
+                self.endTouches = event.changedTouches[0]
+                let space = self.cardCurrentInfo[0].allowToNext ? 10 : 80
+                let distanceX = self.startTouches.pageX - self.endTouches.pageX
+                let distanceY = Math.abs(self.startTouches.pageY - self.endTouches.pageY)
+                // 切换动画未完成，不允许继续学习
+                if (_.isEmpty(self.startTouches) || distanceY > 80) { // 
+                    return false
+                }
+                let isLastCard = self.cardCurrent < self.cardsList.length - 1
+                let nextCard = self.cardsList[self.cardCurrent] // 判断下一张卡片是否需要完成交互才能进行l
+                if (distanceX > space && isLastCard) { // 向右
+                    if (!nextCard.allowToNext) {
+                        self.isShowTotast = true
+                        setTimeout(() => {
+                            self.isShowTotast = false
+                            self.$apply()
+                        }, 1500)
+                        self.__touchEnd()
+                        return
+                    }
+                    self.cardCurrent += 1;
+                    self.isShowPreviewMask = self.cardCurrent == 3 && self.isPreview ? true : false ;
+                    self.__interval()
+                    self.__touchEnd(1)
+                } else if (distanceX < -space && self.cardCurrent) { // 向左
+                    self.cardCurrent -= 1
+                    self.__interval()
+                    self.__touchEnd(1)
+                }
+            },0),
+            /**
+             * 继续学习下一个卡片
+             */
+            getContinue: _.debounce(function(){
+                let self = this
+                let current = self.cardCurrentInfo[0]
+                // 最后一张卡，跳转到完成页面
+                if (current.lastCard && current.allowToNext) {
+                    let url = '';
+                    wepy.$instance.globalData.getHuilder('微课学习/完成页', 'click', `${self.senceName}`)
+                    //数据库埋点
+                    let postData = {
+                        token: self.systemInfo.token,
+                        body: {
+                            json: {
+                                pageType: "微课学习页",
+                                eventType: "完成",
+                                componentName: "最后一张卡片",
+                                courseID:self.courseID,
+                                senceID: self.senceID
+                            }
+                        }
+                    }
+                    reportApi.doUserBehaviourLog(postData);
+                    
+                    //发送完成接口
+                    let finishData = {
+                        token: self.systemInfo.token,
+                        courseID: self.courseID,
+                        senceID: self.senceID,
+                        requestFlag: self.requestFlag,
+                        teamID: self.teamID,
+                        source: self.source
+                    }
+                    fetch.sendFinish(finishData).then(response => {
+                        
+                        //跳转到学课完成页or初体验完成页
+                        if (self.isExprience) {
+                            return wx.navigateTo({
+                                url: `/pages/other-module/exprience-over?courseID=${self.courseID}&senceID=${self.senceID}&teamID=${self.teamID}&source=${self.source}`
+                            })
+                        } else {
+                            return wx.navigateTo({
+                                url: `/pages/course-module/course-learn-complete?courseID=${self.courseID}&senceID=${self.senceID}&teamID=${self.teamID}&source=${self.source}&isReview=${self.isReview}&isFromTodayListing=${self.isFromTodayListing}&cardID=${self.cardID}`
+                            })
+                        }
+                    }).catch(error => {
+                        console.log(error)
+                    })
+                    return false
+                }
+                wepy.$instance.globalData.getHuilder('微课学习/下一页', 'click', `${self.senceName}`)
+                // 是否交互卡片
+                if (!current.allowToNext) {
+                    self.__sumbitResult();
+                } else {
+                    this.isAnswerOver = false;
+                    self.cardCurrent += 1;
+                    self.isShowPreviewMask = self.cardCurrent == 3 && self.isPreview ? true : false;
+                    self.cardCurrentInfo.splice(0, 1, self.cardsList[self.cardCurrent])
+                    self.$broadcast('broadcast-learning-discuss-reset', self.cardCurrentInfo[0])
+                    self.$broadcast('broadcast-reset-status', self.cardCurrentInfo[0])
+                    self.__interval()
+                    self.__hasInitAnimation()
+                    self.__recordProgress()
+                }
+            },0),
+            /**
+             * 提交答案之后的按钮，前往下一张卡片
+             */
+            getNextCard() {
+                let self = this
+                self.cardsList[self.cardCurrent].allowToNext = true
+                self.isAnswerOver = false
+                self.cardCurrent += 1
+                self.isShowPreviewMask = self.cardCurrent == 3 && self.isPreview ? true : false;
+                self.cardCurrentInfo.splice(0, 1, self.cardsList[self.cardCurrent])
+                self.$broadcast('broadcast-learning-discuss-reset', self.cardCurrentInfo[0])
+                self.__interval()
+                self.__hasInitAnimation()
+            },
+            /**
+             * 全图卡热点卡生成分享图片
+             * @returns {boolean}
+             */
+            getShare() {
+                let self = this
+                if (self.isSubmit) {
+                    return
+                }
+                self.isSubmit = true
+                let postData = {
+                    token: self.systemInfo.token,
+                    courseID: self.courseID,
+                    senceID: self.senceID,
+                    width: 750
+                }
+                fetch.getCourseQrCode(postData).then(({
+                    imageUrl: shareImage
+                }) => {
+                    self.isSubmit = false
+                    wepy.$instance.globalData.getHuilder('微课学习/分享', 'click', `${self.senceName}`)
+                    let shareImages = {
+                        senceThumb: self.senceThumb,
+                        cardImage: self.cardCurrentInfo[0].bigimage,
+                        shareImage
+                    }
+                    // 通知组件，生成图片预览
+                    self.$broadcast('card-share-images-list', shareImages)
+                }).catch(error => {
+                    self.isSubmit = false
+                })
+            },
+            /**
+             * 收藏重点卡
+             * @param
+             */
+            getCollectionRecord() {
+                let self = this
+                if (self.isSubmit) {
+                    return
+                }
+                wepy.$instance.globalData.getHuilder('微课学习/收藏', 'click', `${self.senceName}`)
+                self.isSubmit = true
+                let item = self.cardCurrentInfo[0]
+                let postData = {
+                    token: self.systemInfo.token,
+                    courseID: self.courseID,
+                    senceID: self.senceID,
+                    cardID: item.id,
+                    teamID: self.teamID,
+                    flag: item.userIsSelected ? 0 : 1
+                }
+                self.isShowCollection = false
+                fetch.collectionRecord(postData).then((response) => {
+                    item.userIsSelected = !item.userIsSelected
+                    item.cardCollectionCount = response.cardCollectionCount
+                    wx.showToast({
+                        title: response.message
+                    })
+                    self.isSubmit = false
+                    let index = _.findIndex(self.cardsList, {
+                        id: item.id
+                    })
+                    self.cardsList[index].userIsSelected = item.userIsSelected
+                    self.cardsList[index].cardCollectionCount = item.cardCollectionCount
+                    self.$apply()
+                }).catch(error => {
+                    self.isSubmit = false
+                })
+            }
+        }
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            },
+            /* 监听组队弹窗不感兴趣按钮事件 */
+            'on-hide-teamdraw': (data) => {
+                let self = this
+                if(data.type == '0') {
+                    wepy.navigateTo({url: `/pages/course-module/course-subscribe`})
+                } else {
+                    wx.navigateBack({
+                        delta: 1
+                    })
+                }
+            },
+            /**
+             * 交互卡，选择，排序卡
+             * @param data
+             */
+            'on-interaction': (data) => {
+                let self = this
+                let item = _.find(self.cardsList, {
+                    id: data.id
+                })
+                if ('session' === item.type || 'hotSpot' === item.type || 'association' === item.type) {
+                    self.isAnswerOver = true
+                    item.allowToNext = true
+                }
+                let resultData = _.extend(item, data);
+                _.each(self.cardsList,(m,index) => {
+                    if(m.id == resultData.id) {
+                        self.cardsList.splice(index,1,resultData);
+                        self.$apply()
+                    }
+                })
+                
+                self.cardCurrentInfo.splice(0, 1, item)
+                self.$apply()
+                self.$broadcast('broadcast-learning-discuss-reset', self.cardCurrentInfo[0])
+            },
+            /**
+             * 添加想法
+             * @param data
+             */
+            'on-learning-discuss': (data) => {
+                let self = this
+                self.cardCurrentInfo[0].viewsCount += 1
+                self.$apply()
+            },
+            /**
+             * 分享卡片统计
+             * @param data
+             */
+            'on-share-card': (data) => {
+                let self = this
+                let postData = {
+                    token: self.systemInfo.token,
+                    courseID: self.courseID,
+                    senceID: self.senceID,
+                    cardID: self.cardCurrentInfo[0].id
+                }
+                fetch.courseShareCount(postData).then((response) => {
+                    self.cardCurrentInfo[0].userShareCount = response.userShareCount
+                    self.$apply()
+                }).catch(error => {})
+            }
+        }
+    }
+</script>

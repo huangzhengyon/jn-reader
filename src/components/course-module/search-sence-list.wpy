@@ -1,0 +1,278 @@
+<template>
+    <view class="ui-search-result">
+        <view class="ui-sence-list" wx:if="{{max}}">
+            <repeat for="{{senceList}}" wx:key="index">
+                <view class="cell-list-item" wx:if="{{index < max}}" data-item="{{item}}" @tap.stop="getCourseDetails">
+                    <view class="cell-content">
+                        <view class="cell-text">
+                            <view class="cell-title">
+                                <block wx:for="{{item.senceNameArr}}" wx:for-item="jtem" wx:for-index="jndex" wx:key="{{optionIndex}}">
+                                    <text class="{{jtem.active ? 'cell-active':''}}">{{jtem.name}}</text>
+                                </block>
+                            </view>
+                            <view class="cell-subtitle">
+                                <block wx:for="{{item.subTitleArr}}" wx:for-item="jtem" wx:for-index="jndex" wx:key="{{optionIndex}}">
+                                    <text class="{{jtem.active ? 'cell-active':''}}">{{jtem.name}}</text>
+                                </block>
+                            </view>
+
+                            <view class="cell-description">来自：<view class="cell-text cell-margin">
+                                <block wx:for="{{item.courseNameArr}}" wx:for-item="jtem" wx:for-index="jndex" wx:key="{{optionIndex}}">
+                                    <text class="{{jtem.active ? 'cell-active':''}}">{{jtem.name}}</text>
+                                </block>
+                            </view> <view class="cell-text">第{{item.senceSortStr}}节</view></view>
+                        </view>
+                        <view class="cell-right-icon">
+                            <text class="icon-right-arrow"></text>
+                        </view>
+                    </view>
+                </view>
+            </repeat>
+        </view>
+        <view class="ui-sence-list" wx:else>
+            <repeat wx:for="{{senceList}}" wx:key="index">
+                <view class="cell-list-item {{isHotSence ? 'cell-hot-list':''}}" data-item="{{item}}" @tap.stop="getCourseDetails">
+                    <view class="ui-hot-icon" wx:if="{{index < 3}}">
+                        <image src="../../assets/img/hot-list-icon.svg" wx:if="{{isHotSence}}"></image>
+                    </view>
+                    <view class="cell-content">
+                        <view class="cell-text">
+                            <view class="cell-title">
+                                <block wx:for="{{item.senceNameArr}}" wx:for-item="jtem" wx:for-index="jndex" wx:key="{{optionIndex}}">
+                                    <text class="{{jtem.active && !hideLighlight ? 'cell-active':''}}">{{jtem.name}}</text>
+                                </block>
+                            </view>
+                            <view class="cell-subtitle">
+                                <block wx:for="{{item.subTitleArr}}" wx:for-item="jtem" wx:for-index="jndex" wx:key="{{optionIndex}}">
+                                    <text class="{{jtem.active && !hideLighlight ? 'cell-active':''}}">{{jtem.name}}</text>
+                                </block>
+                            </view>
+
+                            <view class="cell-description">来自：<view class="cell-text cell-margin">
+                                <block wx:for="{{item.courseNameArr}}" wx:for-item="jtem" wx:for-index="jndex" wx:key="{{optionIndex}}">
+                                    <text class="{{jtem.active && !hideLighlight ? 'cell-active':''}}">{{jtem.name}}</text>
+                                </block>
+                            </view> <view class="cell-text">第{{item.senceSortStr}}节</view></view>
+                        </view>
+                        <view class="cell-right-icon">
+                            <text class="icon-right-arrow"></text>
+                        </view>
+                    </view>
+                </view>
+            </repeat>
+        </view>
+    </view>
+</template>
+<script>
+import wepy from 'wepy';
+import { getStore, connect } from 'wepy-redux';
+import { fetch, report as reportApi } from '../../api';
+import { navigateToLesson, getStorageAsync} from '../../utils';
+
+export default class senceSearchList extends wepy.component {
+    
+    props = {
+        sence:{
+            type: Array,
+            default:[]
+        },
+        max:{
+            type:Number,
+            default:0
+        },
+        hasLearned: {
+            type: String,
+            default: 0
+        },
+        isHotSence: {
+            type: String,
+            default: 0
+        },
+        hideLighlight: {
+            type: String,
+            default: 0
+        }
+    }
+
+    components = {
+
+    }
+    watch = {
+        sence(newValue, oldValue) {
+            newValue && this.getHilightStrArray()
+        }
+    }
+    data = {
+        senceList:[],//改造后的数组
+        inputValueArray:[],//搜索关键字拆分后的数组
+    }
+
+    onLoad() {
+        
+    }
+
+    getHilightStrArray() {
+        let self = this
+        getStorageAsync({key: 'inputValue'}).then((response) => {
+            self.inputValueArray = response.split("");
+            self.senceList = self.sence.map(item => {
+                let senceNameArr = item.senceName.split("").map(i => {
+                    let obj = {
+                        name:i,
+                        active:self.inputValueArray.indexOf(i) > -1 ? true : false
+                    }
+                    return obj
+                });
+                let subTitleArr = item.subTitle.split("").map(i => {
+                    let obj = {
+                        name:i,
+                        active:self.inputValueArray.indexOf(i) > -1 ? true : false
+                    }
+                    return obj
+                });
+                let courseNameArr = item.courseName.split("").map(i => {
+                    let obj = {
+                        name:i,
+                        active:self.inputValueArray.indexOf(i) > -1 ? true : false
+                    }
+                    return obj
+                });
+                return Object.assign({},item,{senceNameArr,subTitleArr,courseNameArr})
+            })
+            self.$apply()
+        }).catch(error => {
+            console.log('获取搜索关键字失败')
+        });
+    }
+
+    methods = {
+        /**
+         * 课程详情页
+         * @param event
+         */
+        getCourseDetails(event) {
+            let self = this
+            let {
+                currentTarget: {
+                    dataset: {
+                        item,
+                        type
+                    }
+                }
+            } = event
+            switch (type) {
+                case 'course':
+                    wepy.$instance.globalData.getHuilder(`搜索页/课程/课程详情页`, 'click', `${item.courseName}`)
+                    break;
+                case 'hot':
+                    wepy.$instance.globalData.getHuilder(`搜索页/热门课程/课程详情页`, 'click', `${item.courseName}`)
+                    break;
+            }
+            if(self.hasLearned) {
+                self.$parent.$navigate(`/pages/course-module/course-cover`, {
+                    courseID:item.courseId,
+                    senceID:item.senceId
+                })
+            } else {
+                self.$parent.$navigate(`/pages/course-module/course-cover`, {
+                    courseID:item.courseId,
+                    senceID:item.senceId
+                })
+            }
+        }
+    }
+}
+</script>
+<style lang="less" scoped>
+@import '../../assets/style/theme';
+.ui-search-result {
+    background: @background-white;
+    .ui-sence-list {
+        .cell-list-item {
+            .flex-between();
+            width: 686rpx;
+            margin: 0 auto;
+            padding: 32rpx 0;
+            box-sizing: border-box;
+            border-bottom: solid 1rpx @border-gray;
+            &:last-child {
+                border-bottom: none;
+            }
+            .cell-course-image {
+                .flex-center();
+                .cell-icon {
+                    width: 120rpx;
+                    height: 120rpx;
+                    border-radius: @border-radius-12;
+                }
+            }
+            .cell-content {
+                flex: 1;
+                height: 144rpx;
+                .flex-between();
+                .cell-text {
+                    .cell-title {
+                        font-size: 32rpx;
+                        line-height: 48rpx;
+                        color: @color-black-59;
+                        font-weight: bold;
+                        max-width: 448rpx;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                    .cell-subtitle {
+                        font-size: 28rpx;
+                        line-height: 44rpx;
+                        color: @color-gray-8c;
+                        max-width: 530rpx;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                    .cell-description {
+                        font-size: 24rpx;
+                        line-height: 40rpx;
+                        color: @color-gray-8c;
+                        max-width: 530rpx;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        .flex-start();
+                        .cell-margin {
+                            margin-right: 10rpx;
+                        }
+                    }
+                    .cell-learned-number {
+                        font-size: 24rpx;
+                        line-height: 40rpx;
+                        color: @color-gray-8c;
+                    }
+                    .cell-active {
+                        color: @color-yellow;
+                    }
+                }
+                .cell-right-icon {
+                    .icon-right-arrow {
+                        color: @color-gray-BF;
+                        font-size: 24rpx;
+                    }
+                }
+            }
+        }
+        .cell-hot-list {
+            padding-left: 56rpx;
+            position: relative;
+            .ui-hot-icon {
+                position: absolute;
+                left: 0;
+                top: 40rpx;
+                image {
+                    width: 36rpx;
+                    height: 32rpx;
+                }
+            }
+        }
+    }
+}
+</style>

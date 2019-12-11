@@ -1,0 +1,120 @@
+<template>
+    <view class="ui-member-limited-module" wx:if="{{show}}">
+        <view class="ui-member-limited-mask"></view>
+        <view class="ui-member-limited-content">
+            <view class="ui-content-image">
+                <image mode="widthFix" class="cell-image" src="http://wx-small.runwise.cn/image/bell.svg"></image>
+                <image mode="widthFix" @tap.stop="closeToast" class="cell-close" src="../../assets/img/alert-close.svg"></image>
+            </view>
+            
+            <view class="ui-member-limited-title">体验结束</view>
+            <view class="ui-member-limited-text">您的24小时会员体验期已结束</view>
+            <view class="ui-content-button">
+                <button @tap.stop="getSubscribe">去续费</button>
+            </view>
+        </view>
+    </view>
+</template>
+<script>
+    import wepy from 'wepy'
+    export default class memberToast extends wepy.component {
+        props = {
+            show: {
+                type: Boolean
+            }
+        }
+        data = {}
+        watch = {
+            show(newValue,oldValue) {
+                console.log(newValue,oldValue)
+            }
+        }
+        methods = {
+            /* 去续费 */
+            getSubscribe(){
+                wepy.$instance.globalData.getHuilder('今日页/会员到期提醒', 'click', '')
+                wepy.navigateTo({url:'/pages/course-module/course-subscribe'})
+                this.show = false
+                this.$apply()
+            },
+            /* 关闭弹窗 */
+            closeToast() {
+                this.show = false
+                this.$apply();
+            }
+        }
+    }
+</script>
+<style lang="less" scoped>
+@import '../../assets/style/theme';
+.ui-member-limited-module {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    .flex-center();
+    z-index: @z-index-highest;
+    .ui-member-limited-mask {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: @background-mask-normal-4;
+    }
+    .ui-member-limited-content {
+        width: 622rpx;
+        height: 628rpx;
+        border-radius:@border-radius-24;
+        background:@background-white;
+        margin: 0 auto;
+        position: relative;
+        z-index: @z-index-lower;
+        .flex-center();
+        flex-wrap:wrap;
+        .ui-content-image {
+            .cell-image {
+                width: 186rpx;
+                margin-top: 48rpx;
+            }
+            .cell-close {
+                width: 64rpx;
+                height: 64rpx;
+                position: absolute;
+                top:-86rpx;
+                right:-33rpx;
+            }
+        }
+        .ui-member-limited-title {
+            width:100%;
+            text-align:center;
+            color:@color-black;
+            font-size:48rpx;
+            font-weight:bold;
+        }
+        .ui-member-limited-text {
+            width: 100%;
+            font-size:32rpx;
+            color:@color-gray-64;
+            text-align: center;
+        }
+        .ui-content-button {
+            .flex-center();
+            padding: 32rpx 0;
+            button {
+                width: 490rpx;
+                height: 88rpx;
+                background: @background-blue;
+                color: @color-white;
+                border-radius: @border-radius-44;
+                font-size: 30rpx;
+                margin: 0;
+                padding: 0;
+                .flex-center();
+                font-weight: bold;
+            }
+        }
+    }
+}
+</style>

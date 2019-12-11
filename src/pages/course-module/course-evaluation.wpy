@@ -1,0 +1,344 @@
+<template>
+    <jn-header title="评价"></jn-header>
+    <view class="evaluation-article" style="height: calc(100% - {{headerHeigth}}px)">
+        <view class="ui-star-box" :class="{'ipx':isIphonex}">
+            <view class="cell-star-title">你愿意将本课推荐给朋友吗</view>
+            <view class="ui-star-item">
+                <text wx:for="{{ [1, 2, 3, 4, 5] }}" wx:key="{{ index }}" @tap.stop="changeScore" data-score="{{ item }}"
+                    class="{{item <= score ? 'icon-selete-star' : 'icon-not-star'}}"></text>
+            </view>
+            <view class="cell-star-tip" v-if="score">{{starTip[score-1]}}</view>
+        </view>
+
+        <view class="ui-more-demand">
+            <view class="ui-view-box" @tap="handleCommentfocus">
+                <div class="cell-view-div" @tap="handleCommentfocus" :class="{'cell-view-div-has':comment , 'cell-view-div-unshow' : !isShowDiv}">{{ comment ? comment :'欢迎分享你对本课的看法~'}}</div>
+                <textarea class="cell-view-area" placeholder="欢迎分享你对本课的看法~" placeholder-class="cell-view-placeholder"  value="{{comment}}"  :class="{'cell-view-area-show':isShowArea}" bindblur="handleCommentblur" focus="{{isShowArea}}"
+                        bindinput="handleCommentInput"  bindfocus="handleCommentfocus"/>
+                <view class="cell-view-area-tip" wx-if="{{comment.length < 15}}"> 还差{{15 - comment.length}}个字可获赠5个即能币！</view>
+            </view>
+        </view>
+        <view class="ui-commit-box {{isIphonex ? 'is-iphonex' : ''}}" wx:if="{{senceStarIsCanTick}}">
+            <view class="cell-commit-item active" hover-class="cell-commit-hover" :class="{ active : isCommit}" @tap="getEvaluationButton">提交
+            </view>
+        </view>
+        <ScoreModal />
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import { getStore, connect } from 'wepy-redux'
+    import { share as shareApi, auth as authApi, sence as senceApi } from '../../api'
+    import header from '../../components/common/header'
+    import { showErrorPage } from '../../utils'
+    import ScoreModal from '../../components/ScoreModal/index'
+    const store = getStore()
+
+    @connect({
+        avatar(state) {
+            return state.user.avatarUrl
+        },
+        userName(state) {
+            return state.user.nickName
+        }, // mapState 即getters
+        token(state) {
+            return state.user.token
+        },
+        entrance(state) {
+            return state.entrance
+        },
+        role(state) {
+            return state.user.role
+        },
+        entranceScenceID(state) {
+            return state.entrance.scenceID
+        }
+    })
+    export default class Evaluation extends wepy.page {
+        components = {
+            ScoreModal,
+            'jn-header': header
+        }
+
+        data = {
+            activedIndex:0,//默认index
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isShowArea:false,
+            isShowDiv:true,
+            animationData: {},
+            headerHeigth:0,
+            startPoint:[0,0],
+            starTip:[
+                '“不愿意，本课对我无帮助”',
+                '“不太愿意，课程有待改善”',
+                '“或许我会推荐给需要的朋友”',
+                '“还不错，应该会推荐”',
+                '“很棒，很愿意会推荐”'
+            ],
+            isChoiceDemand:false,
+            isShowParticipation:false,
+            isShowContent:false,
+            isContentNum:0,
+            isParticipationtNum:0,
+            isApplcationNum:0,
+            isShowApplcation:false,
+            participationNum:0,
+            contentNum:0,
+            applcationNum:0,
+            isLoaded: false,
+            isAbleToEdit: true,
+            courseID: 'defaltCourseID',
+            senceID: 'defaltSenceID',
+            teamID: 'defaultTeamID',
+            submitIsShown: true,
+            comment: '',
+            score: 0,
+            participationScore: 1,
+            contentScore: 1,
+            applcationScore: 1,
+            senceStarIsCanTick:null,//是否能修改评价
+        } // end data
+        computed = {
+            computeStrLength(){
+                return 15-this.comment.replace(/\s/g,"").length
+            },
+            isCommit() {
+                return  this.participationScore && this.contentScore && this.applcationScore
+            }
+        }
+
+        methods = {
+            /* 修改评价星级 */
+            changeScore(event) {
+                let self = this;
+                let {currentTarget:{dataset:{score}}} = event;
+                if (!self.senceStarIsCanTick) return;
+                self.score = score - 0;
+                self.$apply();
+            },
+            
+            //失去焦点
+            handleCommentblur() {
+                this.isShowArea = false
+                this.isShowDiv = true
+            },
+            //获得焦点
+            handleCommentfocus() {
+                if(!this.senceStarIsCanTick)return;
+                this.isShowArea = true;
+                this.isShowDiv = false
+            },
+            
+            
+            
+            // 点击提交按钮触发
+            getEvaluationButton() {
+                wepy.$instance.globalData.getHuilder('微课评价/提交','click', '')
+                this.handleSubmit()
+            },
+            handleCommentInput({ detail: { value } }) {
+                this.comment = value
+            },
+        } // end methods
+        handleSubmit() {
+            let self = this
+        
+            let mBundle = {
+                courseID: this.courseID,
+                senceID: this.senceID,
+                comment: this.comment,
+                score: this.score,
+                teamID: this.teamID,
+            } // end mBundle
+
+
+
+            wx.reportAnalytics('evaluate', {
+                role: this.role,
+                nickname: this.userName,
+                channel: this.entrance.mappers[this.entrance.scenceID],
+            });
+
+            senceApi.sendEvaluation({
+                token: this.token,
+                body: mBundle
+            })
+                .then((data) => {
+                    self.$navigate('/pages/course-module/course-evaluation-complete',{
+                        courseID: self.courseID,
+                        senceID: self.senceID,
+                        teamID: self.teamID
+                    })
+                })
+                .catch(error => {
+                    console.log('submit evaluation error', error)
+                })
+
+        }
+
+        onShow() {
+            var animation = wx.createAnimation({
+                duration: 500,
+                timingFunction: 'ease',
+            })
+            this.animation = animation
+            this.setData({
+                animationData: animation.export()
+            })
+            var m = true;
+            setInterval(function () {
+                if(m){
+                    this.animation.translateY(14).step()
+                    m = !m;
+                } else {
+                    this.animation.translateY(0).step()
+                    m = !m;
+                }
+
+                this.setData({
+                    animationData: this.animation.export()
+                })
+            }.bind(this), 500)
+
+        }
+
+
+        onLoad({courseID, senceID, teamID='defaultTeamID',score, skillName, senceStarIsCanTick}) {
+            this.courseID = courseID
+            this.senceID = senceID
+            this.teamID = teamID
+            this.senceStarIsCanTick = senceStarIsCanTick == 'true' ? true : false ;
+            wepy.$instance.globalData.getLoadHuilder({pageTheme: skillName}) // ga统计
+            this.$apply()
+            if(score)this.score = score
+            senceApi.prepareEvaluation({ courseID, senceID, token: this.token })
+                .then(({ score, comment, isAbleToEdit }) => {
+                    this.isAbleToEdit = isAbleToEdit
+                    if(score){this.score = score}
+                    this.comment = comment
+                    this.applcationScore = this.applcationNum + 1
+                    this.contentScore = this.contentNum  + 1
+
+
+                    this.participationScore = this.participationNum + 1
+                    
+                    
+                    
+                    this.$apply()
+                })
+                .catch(error => {
+                    console.log('get evalutaion error', error)
+                    showErrorPage()
+                })
+        } // end onLoad
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>
+
+<style lang="less">
+    @import "../../assets/style/theme";
+    .ui-unable-edit-box {padding-bottom: 120rpx}
+    .ui-listen-box {
+        display: flex;align-items: center;padding: 40rpx;border-bottom:2rpx solid #f1f2f5;justify-content: space-between;
+        .cell-listen-title-item{font-size:36rpx;color:@color-black;opacity:.9;font-family:PingFangSC-Medium}
+    }
+    .ui-listen-box.ipx{height: 200rpx;padding: 18rpx 0;justify-content:center}
+    .cell-listen-title {font-size: 36rpx;opacity: 0.9;font-family: PingFangSC-Medium;color: @color-black;}
+    .cell-listen-content{font-family: PingFangSC-Regular;font-size: 24rpx;color: #abb5b6;text-align:center;margin-top: 28rpx}
+    .cell-anonym-img {width: 32rpx;height: 32rpx;margin-right: 8rpx}
+    .ui-anonym-box{font-family: PingFangSC-Regular;font-size: 28rpx;color: @color-black;display: flex;height: 32rpx;align-items: center;}
+    .ui-evaluation-box {
+        padding: 16rpx 0 30rpx 40rpx;border-bottom:2rpx solid #f1f2f5;
+    }
+    .ui-evaluation-box.ipx {padding: 32rpx 0 40rpx 40rpx;}
+    .cell-anonym-box{
+        display: flex;font-size: 32rpx;color: @color-black;align-items: center;border-bottom:2rpx solid #f1f2f5;padding: 30rpx 40rpx;
+        .cell-anonym-img{display: flex;align-items: center;margin-left: 8rpx}
+        .cell-anonym-tip{font-size: 28rpx;color: #B6BBC1;}
+    }
+    .cell-evaluation-title {opacity: 0.9;font-family: PingFangSC-Medium;font-size: 32rpx;color: @color-black;margin-bottom: 32rpx}
+    .cell-evaluation-face{width: 64rpx;height: 64rpx;margin-right: 40rpx}
+    .ui-evaluation-content {
+        display: flex;flex-wrap: wrap;margin-top:18rpx;
+        .cell-evaluation-content {font-family: PingFangSC-Medium;font-size: 24rpx;color: @color-black;background: #F1F2F5;border-radius: 4px;width: 200rpx;height: 60rpx;line-height: 60rpx;text-align: center;margin-right: 24rpx;margin-top: 16rpx}
+        .cell-evaluation-content.actived{background: @color-blue;color: #fff}
+    }
+    .ui-commit-box{
+        position:absolute;width:100%;display: flex;justify-content: center;bottom:24rpx;
+        &.is-iphonex {
+            bottom: 68rpx;
+        }
+        .cell-commit-item{background:@background-gray-F4;border-radius: @border-radius-20;width:702rpx;height: 100rpx;color:#8E8E93;font-family: PingFangSC-Semibold;font-size: 36rpx;text-align: center;line-height: 100rpx}
+        .cell-commit-item.active{background: @color-blue;color:@color-white}
+        .cell-commit-item.active.cell-commit-hover{background: @background-blue-hover}
+    }
+    .ui-star-box {width: 100%;height: 440rpx;padding-top: 30rpx;display: flex;flex-direction: column;align-items:center;border-top: 2rpx solid #f1f2f5;box-sizing: border-box}
+    .ui-star-box.ipx {height: 520rpx;padding-top: 60rpx;}
+    .cell-star-title{font-size: 36rpx;color: @color-black;opacity: 0.9;font-family: PingFangSC-Medium;}
+    .ui-star-item {
+        margin: 72rpx 0;
+        text{margin: 0 15rpx;font-size: 70rpx;color:@color-blue;}
+    }
+    .cell-star-tip {font-size: 30rpx;color: @color-gray;width: 100%;text-align: center}
+
+    .ui-more-demand {width: 100%;height: 598rpx;box-sizing: border-box;padding: 32rpx 40rpx}
+    .cell-demand-title {font-size: 36rpx;color: @color-black;opacity: 0.9;font-family: PingFangSC-Medium;margin-bottom: 48rpx}
+    .ui-demand-box{display: flex;flex-wrap: wrap;}
+    .cell-demand-item {background: #EFEFF4;border-radius: @border-radius-8;font-size: 24rpx;color: @color-black;width: 200rpx;height: 64rpx;display: flex;justify-content: center;align-items: center;margin: 0 20rpx 32rpx 0}
+    .cell-demand-item.actived {background: @color-blue;color:#fff}
+    .cell-view-area{background:#F1F2F5;border-radius: @border-radius-8;width:670rpx;height:240rpx;font-size: 32rpx;padding: 24rpx 26rpx;box-sizing: border-box;display:none;position:absolute;top:0;z-index:3;color: #5A696B;display:none;line-height: 40rpx}
+    .cell-view-div{color: @color-black;box-sizing: border-box;z-index: 2;background:#F1F2F5;border-radius: 8rpx;width:670rpx;height:240rpx;font-size: 32rpx;padding: 24rpx 26rpx;box-sizing: border-box;position:absolute;top:0;line-height: 40rpx}
+    .cell-view-area-show{display:flex; align-items:flex-start;line-height: 40rpx;color:@color-black;}
+    .cell-view-div-unshow {display: none;}
+    .cell-view-div.cell-view-div-has{color:@color-black;}
+    .ui-view-box{position: relative;width: 670rpx;height:240rpx;}
+    .cell-view-area-tip{font-size: 26rpx;color:@color-gray;position: absolute;bottom: 20rpx;right:24rpx;z-index: 4; }
+    .cell-view-placeholder{font-size: 32rpx;color: @color-gray;}
+    .cell-scroll-item{width: 70rpx;height: 70rpx;}
+    .ui-scroll-item{text-align: center}
+    .ui-scroll-box{height: 100rpx;padding-top:72rpx;box-sizing: border-box;display:flex;justify-content:center;position: absolute;bottom: 70rpx;left:50%;transform:translate(-50%,0);width: 100%;}
+
+    .evaluation-article {width: 100%;height: 100%;background-color: #FFF;box-sizing: border-box;}
+    .evaluation-article__wrapper {width: 100%;}
+    .evaluation-article__wrapper::-webkit-scrollbar {width: 0 !important;height: 0 !important;display: none;color: transparent !important; }
+    .evaluation-article__title {line-height: 100%;margin-right: 40rpx;display: inline-block;font-weight: bolder;font-size: 40rpx;color: #000;font-family: PingFangSC-Semibold;}
+    .evaluation-article__wrapper__header {height: 240rpx;padding: 32rpx 0  40rpx 44rpx;box-sizing: border-box;align-items: center;border-bottom: 20rpx solid #F1F2F5;flex-wrap: wrap;align-content: space-between;}
+    .ui-evaluation-title {font-family: PingFangSC-Medium;font-size: 18px;color: @color-black;line-height: 18px;}
+    .evaluation-tips {color: #F5A623;font-family: PingFangSC-Regular;font-size: 28rpx}
+    .evaluation-article__wrapper__header-star {width: 74rpx;height: 70rpx;padding: 50rpx 30rpx 0 0;}
+    .evaluation-article__wrapper__header-star.first-child {padding-left: 0;}
+    .evaluation-article__wrapper__evaluated-section__anonymous-container {height: 100rpx;align-items: center;width: 100%;border-bottom: 2rpx solid #F1F2F5;}
+    .evaluation-article__wrapper__evaluated-section__anonymous-container__text {line-height: 100%;margin-right: 20rpx;margin-left: 40rpx;}
+    .evaluation-article__wrapper__evaluated-section__anonymous-container__icon {width: 40rpx;height: 40rpx;margin-right: 40rpx;}
+    .evaluation-article__wrapper__evaluated-section__anonymous-container__tip {color: #B6BBC1;font-family: PingFangSC-Regular;font-size: 28rpx;}
+    .evaluation-article__wrapper__evaluated-section {width: 100%;padding: 0 40rpx;box-sizing: border-box;align-items: flex-start;border-bottom: 2rpx solid #F1F2F5;}
+    .evaluation-article__wrapper__evaluated-section.last-one {border-bottom: 20rpx solid #F1F2F5;}
+    .evaluation-article__wrapper__evaluated-section__title {margin-top: 48rpx;margin-bottom: 16rpx;color: @color-black;font-family: PingFangSC-Mediu;font-size: 36rpx;font-weight: bold;}
+    .evaluation-article__wrapper__evaluated-section__subtitle {color: #294657;font-family: PingFangSC-Regular;font-size: 28rpx;}
+    .evaluation-article__wrapper__evaluated-section__expression-wrapper {padding: 48rpx 0;box-sizing: content-box;}
+    .evaluation-article__wrapper__evaluated-section__expression-wrapper__icon {width: 64rpx;height: 64rpx;margin-right: 40rpx;}
+    .evaluation-article__wrapper__evaluated-section__btn-group {flex-wrap: wrap;align-content: flex-start;box-sizing: content-box;}
+    .evaluation-article__wrapper__evaluated-section__btn-group-btn {height: 56rpx;line-height: 56rpx;color: #2db7b5 !important;font-family: PingFangSC-Semibold;font-size: 24rpx;background-color: #F0F0F7 !important;border: 0 !important;margin-left: 0;margin-right: 24rpx;margin-bottom: 24rpx;padding-left: 20rpx;padding-right: 20rpx;}
+    .evaluation-article__wrapper__evaluated-section__btn-group-btn:last-child {margin-bottom: 48rpx;}
+    .evaluation-article__wrapper__evaluated-section__btn-group-btn.actived {background-color: #2db7b5 !important;color: #fff !important;}
+    .evaluation-article__wrapper__comment-detail {padding: 48rpx 40rpx 120rpx;box-sizing: content-box;}
+    .evaluation-article__wrapper__comment-detail-title {margin-bottom: 48rpx;color: @color-black;font-family: PingFangSC-Mediu;font-size: 36rpx;font-weight: bold;}
+    .evaluation-article__wrapper__comment-detail-textarea {width: calc(~"100% - 48rpx");padding: 24rpx 24rpx 0;height: 264rpx;background-color: #F1F2F5;border-top-right-radius: 8rpx;border-top-left-radius: 8rpx;font-size: 32rpx;line-height: 40rpx;text-align: justify;color: #294657;font-family: PingFangSC-Regular;opacity: .5;}
+    .evaluation-article__wrapper__comment-detail-textarea-tip{width: calc(~"100% - 48rpx");background-color: rgba(241,242,245, .5);font-family: PingFangSC-Regular;font-size: 12px;color: #A1A9AB;text-align: right;line-height: 50rpx;height: 50rpx;border-bottom-left-radius: 8rpx;border-bottom-right-radius: 8rpx;padding:10rpx 24rpx;}
+    .evaluation-article__wrapper__fixed-footer {width: 400rpx;height: 100rpx;line-height: 100rpx;margin: 0 auto;background-color: #2db7b5 !important;border: 0 !important;border-radius: 50rpx;color: #FFF !important;font-family: PingFangSC-Semibold;font-size: 36rpx;}
+    .button-disabled{background-color: rgba(45,183,181, .2) !important;}
+    .evaluation-article__wrapper__fixed-footer::after {border-radius: 0 !important;}
+    .evaluation-article__wrapper__empty-view {height: 120rpx;background-color: transparent;}
+    .evaluation-article__message-board-label{margin-top: 40rpx;margin-bottom: 56rpx;color: #294657;font-family: PingFangSC-Regular;font-size: 32rpx;}
+    .evaluation-article__message-board-cb-item{display: flex;margin-right: -12rpx;margin-bottom: 24rpx;}
+    .evaluation-article__message-board-cb-item::after{
+        border: 0 !important;}
+    .evaluation-article__message-board-cb-bridge{width: 32rpx;height: 32rpx;border: #2db7b5 solid 2rpx;border-radius: 50%;position: relative;right: 18rpx;top: -18rpx;background-color: #ffffff;color: #2db7b5;font-family: PingFangSC-Medium;font-size: 20rpx;display: flex;justify-content: center;align-items: center;}
+</style>

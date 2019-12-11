@@ -1,0 +1,289 @@
+<template>
+    <scroll-view>
+        <view class="team-comment-body">
+            <jn-header title="课程评价"></jn-header>
+            <view class="team-comment-body-top-view">
+                <image class="team-comment-body-top-view-img" mode="aspectFill" src="{{imageUrl}}" />
+                <view class="team-comment-body-top-view-text-content">
+                    <view class="team-comment-body-top-view-title">{{name}}</view>
+                    <view class="team-comment-body-top-view-desc">{{skillGroup}}</view>
+                </view>
+                <view class="team-comment-body-top-view-right">
+                    <text class="team-comment-body-top-view-right-num">{{senceAverageScore||'5.0'}}</text>
+                    <text class="team-comment-body-top-view-right-desc">/5</text>
+                </view>
+            </view>
+            <view class="team-comment-content" wx:for="{{userScoreList}}" wx:key="{{index}}">
+                <view class="team-comment-content-top-view">
+                    <image class="team-comment-content-top-view-img" mode="aspectFill" src="{{item.avatarUrl}}" />
+                    <view class="team-comment-body-top-view-text-content">
+                        <view class="team-comment-content-top-view-title">{{item.name||item.nickName}}</view>
+                        <view class="team-comment-content-top-view-desc">{{(item.department?item.department+' ':'')+item.position}}</view>
+                    </view>
+                    <view class="team-comment-content-top-view-right">
+                        <text class="team-comment-content-top-view-right-num">{{item.star}}</text>
+                        <text class="team-comment-content-top-view-right-desc">/5</text>
+                    </view>
+                </view>
+                <view class="team-comment-content-subject {{index===0?'border-none':''}}" wx:for="{{item.subjectList}}" wx:key="{{index}}">
+                    <view class="team-comment-content-subject-title-row">
+                        <text class="team-comment-content-subject-title-row-text">{{item.subjectName}}</text>
+                        <view class="team-comment-content-subject-title-row-right">
+                            <text class="team-comment-content-subject-title-row-right-num">{{item.score}}</text>
+                            <!-- <text class="team-comment-content-subject-title-row-right-desc">/5</text> -->
+                        </view>
+                    </view>
+                    <view class="team-comment-content-subject-desc">{{item.labelList}}</view>
+                </view>
+                <view class="team-comment" wx:if="{{item.message}}">{{item.message}}</view>
+            </view>
+        </view>
+    </scroll-view>
+</template>
+<style lang="less" scoped>
+    @import "../../../assets/style/theme";
+    .border-none {
+        border: 0 !important;
+    }
+    .team-comment-body {
+        height: 100%;
+        width: 100%;
+        border-bottom: 120rpx solid #fff;
+    }
+    .team-comment-content {
+        padding: 0 36rpx;
+        border-top: 20rpx solid #f1f2f5;
+    }
+    .team-comment {
+        margin: 36rpx 0;
+        min-height: 242rpx;
+        width: calc(~"100% - 48rpx");
+        border-radius: 16rpx;
+        background-color: #f1f2f5;
+        padding: 24rpx;
+        color: #303f48;
+        font-family: PingFangSC-Regular;
+        font-size: 28rpx;
+        line-height: 48rpx;
+    }
+    .team-comment-content-subject {
+        width: 100%;
+        height: 140rpx;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-top: 2rpx solid #f1f2f5;
+    }
+    .team-comment-content-subject-title-row {
+        display: flex;
+        justify-content: space-between;
+    }
+    .team-comment-content-subject-title-row-text {
+        color: #303f48;
+        font-family: PingFangSC-Semibold;
+        font-size: 32rpx;
+        font-weight: bold;
+    }
+    .team-comment-content-subject-title-row-right {
+        display: flex;
+        align-items: center;
+    }
+    .team-comment-content-subject-title-row-right-num {
+        color: #F8AC00;
+        font-family: PingFangSC-Semibold;
+        font-size: 40rpx;
+        font-weight: bold;
+    }
+    .team-comment-content-subject-title-row-right-desc {
+        color: #303f48;
+        font-family: PingFangSC-Regular;
+        font-size: 28rpx;
+        margin-left: 8rpx;
+        margin-top: 6rpx;
+    }
+    .team-comment-content-subject-desc {
+        color: #697d89;
+        font-family: PingFangSC-Regular;
+        font-size: 28rpx;
+        margin-top: 12rpx;
+    }
+    .team-comment-content-top-view {
+        width: 100%;
+        height: 180rpx;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .team-comment-content-top-view-img {
+        width: 110rpx;
+        height: 110rpx;
+        border-radius: 50%;
+    }
+    .team-comment-content-top-view-right {
+        display: flex;
+        align-items: center;
+    }
+    .team-comment-content-top-view-right-num {
+        color: #F8AC00;
+        font-family: PingFangSC-Semibold;
+        font-weight: bold;
+        font-size: 48rpx;
+        line-height: 48rpx;
+    }
+    .team-comment-content-top-view-right-desc {
+        color: #303f48;
+        font-family: PingFangSC-Regular;
+        font-size: 36rpx;
+        margin-left: 8rpx;
+        line-height: 36rpx;
+        margin-top: 8rpx;
+    }
+    .team-comment-content-top-view-title {
+        color: #303f48;
+        font-family: PingFangSC-Semibold;
+        font-size: 36rpx;
+        font-weight: bold;
+        /* line-height: 36rpx; */
+    }
+    .team-comment-content-top-view-desc {
+        color: #697d89;
+        font-family: PingFangSC-Regular;
+        font-size: 28rpx;
+        line-height: 28rpx;
+        margin-top: 12rpx;
+        white-space: pre;
+    }
+    .team-comment-body-top-view {
+        height: 240rpx;
+        width: 100%;
+        border-top: 20rpx solid #f1f2f5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .team-comment-body-top-view-img {
+        width: 128rpx;
+        height: 128rpx;
+        margin-left: 36rpx;
+    }
+    .team-comment-body-top-view-text-content {
+        flex: 1;
+        margin: 24rpx;
+    }
+    .team-comment-body-top-view-title {
+        color: #303f48;
+        font-family: PingFangSC-Semibold;
+        font-size: 32rpx;
+        font-weight: bold;
+        line-height: 48rpx;
+    }
+    .team-comment-body-top-view-desc {
+        color: #697d89;
+        font-family: PingFangSC-Regular;
+        font-size: 28rpx;
+        line-height: 32rpx;
+        margin-top: 12rpx;
+    }
+    .team-comment-body-top-view-right {
+        margin-right: 36rpx;
+        display: flex;
+        align-items: center;
+    }
+    .team-comment-body-top-view-right-num {
+        color: #F8AC00;
+        font-family: PingFangSC-Semibold;
+        font-weight: bold;
+        font-size: 48rpx;
+        line-height: 48rpx;
+    }
+    .team-comment-body-top-view-right-desc {
+        color: #303f48;
+        font-family: PingFangSC-Regular;
+        font-size: 36rpx;
+        margin-left: 8rpx;
+        line-height: 36rpx;
+        margin-top: 8rpx;
+    }
+</style>
+<script>
+    import wepy from "wepy"
+    import {getStore, connect} from "wepy-redux"
+    import loadingMixin from "../../../mixins/loading"
+    import header from '../../../components/common/header'
+    import {team as teamApi} from '../../../api'
+    const store = getStore()
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        }, // mapState 即getters
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        }
+    })
+    export default class TeamLearningCommentDetail extends wepy.page {
+        mixins = [loadingMixin] // end mixins
+
+        components = {
+            'jn-header': header,
+        } // end components
+        data = {
+            teamID: '',
+            senceID: '',
+            skillGroup: '',
+            name: '',
+            imageUrl: '',
+            senceAverageScore: '',
+            userScoreList: [],
+        }; // end data
+        computed = {
+            computedlabel() {
+            }
+        } // end computed
+        onShow() {}
+        onLoad({
+            teamID,
+            senceID
+        }) {
+            this.teamID = teamID
+            this.senceID = senceID
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            this.getDetail()
+            this.$apply()
+        }
+        getDetail() {
+            teamApi.showAdminToSenceScorePage({
+                    token: this.token,
+                    teamID: this.teamID,
+                    senceID: this.senceID
+                })
+                .then(response => {
+                    if (!response) return
+                    this.skillGroup = response.skillGroup
+                    this.name = response.name
+                    this.imageUrl = response.imageUrl
+                    this.userScoreList = response.userScoreList
+                    this.senceAverageScore = response.senceAverageScore
+                    for (let scoreItem of this.userScoreList) {
+                        if (scoreItem.subjectList.length) {
+                            for (let one of scoreItem.subjectList) {
+                                one.labelList = one.labelList.join('，')
+                            }
+                        }
+                    }
+                    this.$apply()
+                })
+        }
+        events = {} // end events
+        methods = {
+            handleBeginLearn() {
+                return wx.navigateBack()
+            }
+        }
+    }
+</script>

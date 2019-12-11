@@ -1,0 +1,319 @@
+<template>
+    <view class="module-overview-box">
+        <jn-header title="训练营评价总览"></jn-header>
+        <!-- 平均分S -->
+        <view class="ui-average-box">
+            <view class="ui-seek-bar">
+                <view class="cell-title">用户是否愿意向好友推荐该训练营活动?</view>
+                <view class="cell-bar-box">
+                    <view class="cell-bar">
+                        <view class="cell-bar-percent" style="width:{{teamScorePercent}}%"></view>
+                    </view>
+                    <view class="cell-bar-text" wx:if="{{teamScore > 0}}">{{teamScore}}</view>
+                </view>
+            </view>
+            <view class="ui-seek-bar">
+                <view class="cell-title">用户全程投入训练营的学习了吗？</view>
+                <view class="cell-bar-box">
+                    <view class="cell-bar">
+                        <view class="cell-bar-percent" style="width:{{teamDegreesPercent}}%"></view>
+                    </view>
+                    <view class="cell-bar-text">{{teamDegrees}}</view>
+                </view>
+            </view>
+            <view class="ui-seek-bar">
+                <view class="cell-title">训练营的学习帮助用户掌握技能了吗？</view>
+                <view class="cell-bar-box">
+                    <view class="cell-bar">
+                        <view class="cell-bar-percent" style="width:{{teamMasterPercent}}%"></view>
+                    </view>
+                    <view class="cell-bar-text">{{teamMaster}}</view>
+                </view>
+            </view>
+            <view class="ui-seek-bar">
+                <view class="cell-title">训练营学到的技能对用户的工作有指导吗？</view>
+                <view class="cell-bar-box">
+                    <view class="cell-bar">
+                        <view class="cell-bar-percent" style="width:{{teamGuidePercent}}%"></view>
+                    </view>
+                    <view class="cell-bar-text">{{teamGuide}}</view>
+                </view>
+            </view>
+        </view>
+        <!-- 平均分E -->
+        <!-- 留言板S -->
+        <view class="ui-message-board">
+            <view class="ui-theme-title">留言板</view>
+            <block wx:for="{{userCommentDetail}}" wx:key="{{index}}">
+                <view class="ui-message-list">
+                    <view class="ui-list-user">
+                        <image src="{{item.avatarUrl}}"></image>
+                    </view>
+                    <view class="ui-list-content">
+                        <view class="cell-user-name">{{item.nickName}}</view>
+                        <view class="cell-content">
+                            <view class="cell-textarea">{{item.comment}}</view>
+                        </view>
+                    </view>
+                </view>
+            </block>
+        </view>
+        <!-- 留言板E -->
+        <!-- 其他需求S -->
+        <view class="ui-other-demand">
+            <view class="ui-demand-title">其他需求</view>
+            <view class="ui-demand-content">
+                <button class="cell-item" wx:for="{{otherNeed}}" wx:key="{{index}}">{{item.needLabel}}({{item.count}})</button>
+            </view>
+        </view>
+        <!-- 其他需求E -->
+        <!-- 评价详情S -->
+        <view class="ui-evalution-list">
+            <view class="ui-evalution-title">评价详情</view>
+            <view class="ui-evalution-content">
+                <block wx:for="{{userCommentDetail}}" wx:key="{{index}}">
+                    <view class="cell-user" data-index="{{index}}" @tap.stop="getCommentDetail">
+                        <image src="{{item.avatarUrl}}"></image>
+                        <view class="cell-user-name">{{item.nickName}}</view>
+                    </view>
+                </block>
+            </view>
+        </view>
+        <!-- 评价详情E -->
+    </view>
+</template>
+<script>
+import wepy from 'wepy'
+import { getStore, connect } from 'wepy-redux'
+import { fetch } from '../../api'
+import Loading from '../../components/common/loading'
+import loadingMixin from '../../mixins/loading'
+import header from '../../components/common/header'
+import { showErrorPage } from '../../utils'
+import _ from 'underscore'
+
+const store = getStore()
+
+@connect({
+    token(state) {
+        return state.user.token
+    }
+})
+
+export default class overviewEvalution extends wepy.page{
+    components = {
+      'jn-header': header
+    }
+
+    data = {
+        teamID:'',//训练营id
+        userCommentDetail:[],//评价详情用户列表和留言板
+        otherNeed:[],//其他需求
+        teamScore:'',//是否愿意向好友推荐指数
+        teamScorePercent:'',//是否愿意向好友推荐指数百分比
+        teamDegrees:'',//用户投入度
+        teamDegreesPercent:'',//用户投入度百分比
+        teamGuide:'',//指导度
+        teamGuidePercent:'',//指导度百分比
+        teamMaster:'',//掌握度
+        teamMasterPercent:'',//掌握度百分比
+    }
+
+    methods = {
+        getCommentDetail(event) {//查看某个学员的评价
+            let self = this;
+            let {currentTarget: {dataset: {index}}} = event
+            self.$navigate(`/pages/training-camp-module/evaluation`, {teamID: self.teamID,userID: self.userCommentDetail[index].userid})
+        }
+    }
+
+    onLoad(params) {
+        params && (this.teamID = params.teamID);
+        this.__getTeamCommentDetailForAdmin();
+    }
+
+    onShow() {
+        wepy.$instance.globalData.getLoadHuilder() // ga统计
+    }
+    /**
+     * 获取训练营总评价
+     * @param token:  用户token
+     * @param teamID: 训练营id
+     */
+    __getTeamCommentDetailForAdmin() {
+        let self = this 
+        let postData = {
+            token:self.token,
+            teamID:self.teamID
+        }
+        fetch.getTeamCommentDetailForAdmin(postData).then(response => {
+            self.userCommentDetail = response.userCommentDetail;
+            self.otherNeed = response.otherNeed;
+            self.teamScore = (response.teamScore - 0).toFixed(1);
+            self.teamScorePercent = (self.teamScore / 5.0) * 100;
+            _.each(response.detailScore, (item) => {
+                if(item.type == 'participation'){
+                    self.teamDegrees = (item.avg - 0).toFixed(1)
+                }else if(item.type == 'skills'){
+                    self.teamMaster = (item.avg - 0).toFixed(1)
+                }else if(item.type == 'practice'){
+                    self.teamGuide = (item.avg - 0).toFixed(1)
+                }
+            })
+            self.teamDegreesPercent = (self.teamDegrees / 5.0)*100;
+            self.teamMasterPercent = (self.teamMaster / 5.0)*100;
+            self.teamGuidePercent = (self.teamGuide / 5.0)*100;
+            self.$apply();
+        })
+    }
+
+}
+</script>
+<style lang="less" scoped>
+    @import '../../assets/style/theme.less';
+    .module-overview-box{
+        padding: 40rpx 0;
+        .ui-average-box{
+            padding: 0 40rpx;
+            box-sizing: border-box;
+            border-bottom: solid 16rpx @background-gray-F1;
+            .ui-seek-bar{
+                .cell-title{
+                    color: @color-black;
+                    font-size: 32rpx;
+                }
+                .cell-bar-box{
+                    display:flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    padding: 20rpx 0 60rpx;
+                    .cell-bar{
+                        width: 300rpx;
+                        height: 20rpx;
+                        border-radius: 10rpx;
+                        background:linear-gradient(to right,rgba(239, 239, 244, 0.45), rgba(239, 239, 244, 0.95));
+                        position: relative;
+                        .cell-bar-percent{
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            bottom: 0;
+                            background: #E5E8EC;
+                            background-image: linear-gradient(141deg, #FFE900 0%, #FFBB0B 99%);
+                            border-radius: 10rpx;
+                            z-index: @z-index-normal;
+                        }
+                    }
+                    .cell-bar-text{
+                        color: @color-yellow-FB;
+                        margin-left: 60rpx;
+                        font-size: 32rpx;
+                    }
+                }
+            }
+        }
+        .ui-message-board{
+            padding: 0 40rpx;
+            .ui-theme-title{
+                font-size: 32rpx;
+                color: @color-black;
+                font-weight: bold;
+                line-height: 3;
+            }
+            .ui-message-list{
+                display: flex;
+                justify-content: flex-start;
+                align-items: flex-start;
+                &+.ui-message-list{
+                    margin-top: 32rpx;
+                }
+                .ui-list-user{
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    image{
+                        width: 80rpx;
+                        height: 80rpx;
+                        border-radius: 50%;
+                    }
+                }
+                .ui-list-content{
+                    margin-left: 20rpx;
+                    width: 100%;
+                    .cell-user-name{
+                        font-size: 30rpx;
+                        color: @color-black;
+                        font-weight: bold;
+                    }
+                    .cell-content{
+                        padding: 32rpx;
+                        margin-top: 14rpx;
+                        background: @background-gray-F1;
+                        border-radius: 2rpx 32rpx 32rpx 32rpx;
+                        .cell-textarea{
+                            font-size: 28rpx;
+                            color: @color-black;
+                        }
+                    }
+                }
+            }
+        }
+        .ui-other-demand{
+            padding: 0 40rpx;
+            .ui-demand-title{
+                font-size: 32rpx;
+                color: @color-black;
+                font-weight: bold;
+                line-height: 3;
+            }
+            .ui-demand-content{
+                .flex-start();
+                flex-wrap: wrap;
+                .cell-item{
+                    padding: 0 30rpx;
+                    color: @color-blue;
+                    background: @background-poll-blue;
+                    border-radius: @border-radius-8;
+                    font-size: 24rpx;
+                    margin-right: 20rpx;
+                    margin-bottom: 20rpx;
+                }
+            }
+        }
+        .ui-evalution-list{
+            padding: 0 40rpx;
+            .ui-evalution-title{
+                font-size: 32rpx;
+                color: @color-black;
+                font-weight: bold;
+                line-height: 3;
+            }
+            .ui-evalution-content{
+                .flex-start();
+                flex-wrap: wrap;
+                .cell-user{
+                    .flex-center();
+                    width: 144rpx;
+                    flex-wrap: wrap;
+                    margin-right: 20rpx;
+                    margin-bottom: 30rpx;
+                    
+                    image{
+                        width: 80rpx;
+                        height: 80rpx;
+                        border-radius: 50%;
+                    }
+                    .cell-user-name{
+                        width: 100%;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        font-size: 24rpx;
+                        margin-top: 20rpx;
+                        text-align: center;
+                    }
+                }
+            }
+        }
+    }
+</style>

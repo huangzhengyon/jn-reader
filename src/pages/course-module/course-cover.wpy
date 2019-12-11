@@ -1,0 +1,1054 @@
+<style lang="less" scoped>
+    @import '../../assets/style/theme.less';
+    .ui-course-cover {
+        position: relative;
+        background-size: cover;
+        
+        view {
+            box-sizing: border-box
+        }
+        .ui-content {
+            
+            .ui-dec {
+                
+                .ui-dec-image {
+                    width: 100%;
+                    height: 890rpx;
+                    overflow: visible;
+                    .ui-scroll-list {
+                        box-sizing: border-box;
+                        width: 100%;
+                        white-space: nowrap;
+                        height: 900rpx;
+                        
+                        .ui-scroll-item {
+                            display: inline-block;
+                            overflow: visible;
+                            image {
+                                width: 600rpx;
+                                height: 800rpx;
+                                border-radius: @border-radius-32;
+                                box-shadow: @box-shadow-hight;
+                            }
+                        }
+                        .ui-practice-item {
+                            display: inline-block;
+                            overflow: visible;
+                            .ui-practice-box {
+                                padding: 50rpx;
+                                width: 600rpx;
+                                height: 800rpx;
+                                border-radius: @border-radius-32;
+                                box-shadow: @box-shadow-hight;
+                                box-sizing: border-box;
+                                position: relative;
+                                .cell-logo-box {
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    image {
+                                        width: 168rpx;
+                                    }
+                                }
+                                .cell-image-box {
+                                    width: 500rpx;
+                                    height: 256rpx;
+                                    margin-top: 34rpx;
+                                    .flex-center();
+                                    image {
+                                        height: 100%;
+                                    }
+                                }
+                                .cell-practice-content {
+                                    
+                                    .cell-title {
+                                        font-size: 24rpx;
+                                        color: @color-gray-8c;
+                                        margin: 64rpx 0 8rpx;
+                                    }
+                                    .cell-content {
+                                        font-size: 24rpx;
+                                        line-height: 40rpx;
+                                        color: @color-black;
+                                        display: inline-block;
+                                        word-break:break-all;
+                                        white-space:pre-wrap;
+                                        text-overflow: -o-ellipsis-lastline;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+                                        display: -webkit-box;
+                                        -webkit-line-clamp: 3;
+                                        -webkit-box-orient: vertical;
+                                    }
+                                    .cell-buttons {
+                                        border-top: solid 1rpx @border-gray;
+                                        position: absolute;
+                                        left: 0;
+                                        right: 0;
+                                        bottom: 30rpx;
+                                    }
+                                    .cell-button {
+                                        width: 256rpx;
+                                        height: 88rpx;
+                                        .flex-center();
+                                        color: @color-blue;
+                                        background: @background-gray-F5;
+                                        border-radius: @border-radius-88;
+                                        font-size: 32rpx;
+                                        margin-left: 50%;
+                                        margin-top: 20rpx;
+                                        font-weight: bold;
+                                        transform: translateX(-50%);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .ui-image-box {
+                        width: 100%;
+                        height: 900rpx;
+                        text-align: center;
+                        image {
+                            width: 600rpx;
+                            height: 800rpx;
+                            border-radius: @border-radius-16;
+                            box-shadow: @box-shadow-hight;
+                        }
+                    }
+                }
+            }
+            
+            .cell-tip {
+                font-size: 32rpx;
+                color: rgba(255, 255, 255, 0.60);
+            }
+            .cell-name {
+                font-size: 40rpx;
+                color: #FFF;
+                font-weight: bold;
+                margin: 10rpx 0;
+                width: 444rpx;
+            }
+            .cell-small-font {
+                font-size: 30rpx;
+            }
+            .cell-target {
+                font-size: 28rpx;
+                color: rgba(255, 255, 255, 0.80);
+            }
+            .ui-get {
+                margin: 0 48rpx 48rpx;
+                .cell-title {
+                    font-size: 40rpx;
+                    color: #FFF;
+                    font-weight: bold;
+                    margin-top: 64rpx;
+                }
+                .cell-content {
+                    margin-top: 18rpx;
+                    font-size: 32rpx;
+                    color: rgba(255, 255, 255, 0.80);
+                }
+            }
+            .ui-icon-list {
+                padding: 0 32rpx;
+                margin: 0 32rpx;
+                background: @background-white;
+                .flex-between();
+                .ui-icon-num {
+                    font-size: 28rpx;
+                    color: @color-gray-8c;;
+                    margin-bottom: 28rpx;
+                    &:nth-child(3){
+                        margin-right: 40rpx;
+                    }
+                    .cell-title {
+                        font-size: 40rpx;
+                        font-weight: bold;
+                        font-family: "DIN Alternate";
+                        text {
+                            font-size: 26rpx;
+                            font-weight: normal;
+                            margin-left: 4rpx
+                        }
+                    }
+                    .cell-dec {
+                        font-size: 20rpx;
+                        color: @color-gray-BF;
+                    }
+                }
+            }
+        }
+        .ui-sence-title {
+            margin-top: -76rpx;
+            .cell-name {
+                width: 14em;
+                margin: 0 auto;
+                text-align: center;
+                font-size: 40rpx;
+                color: @color-black;
+                line-height: 64rpx;
+                margin-top: 32rpx;
+            }
+            .cell-target {
+                width: 600rpx;
+                margin: 0 auto;
+                text-align: center;
+                font-size: 24rpx;
+                color: @color-gray-8c;
+                margin-bottom: 24rpx;
+            }
+            .cell-belong-course {
+                text-align: center;
+                button {
+                    padding: 0 24rpx;
+                    height: 44rpx;
+                    line-height: 44rpx;
+                    display: inline-block;
+                    background: @background-gray-F6;
+                    border-radius: @border-radius-32;
+                    font-size: 20rpx;
+                    color: @color-gray-8c;
+                    margin-bottom: 48rpx;
+                    padding-right: 32rpx;
+                    text {
+                        font-size: 19rpx;
+                        color: @color-gray-8c;
+                        line-height: 48rpx;
+                        position: absolute;
+                        top: 0;
+                        right: 12rpx;
+                        bottom: 0;
+                    }
+                }
+                
+            }
+        }
+        .ui-preview-list {
+            box-sizing: border-box;
+            width: 100%;
+            margin: 16rpx 0 48rpx;
+            height: 504rpx;
+            white-space: nowrap;
+            .ui-list {
+                height: 600rpx;
+                .ui-item {
+                    display: inline-block;
+                    box-sizing: border-box;
+                    width: 376rpx;
+                    height: 500rpx;
+                    margin-right: 20rpx;
+                    &:first-of-type {
+                        margin-left: 48rpx;
+                    }
+                    &:last-of-type {
+                        margin-right: 48rpx;
+                    }
+                    image {
+                        width: 376rpx;
+                        border-radius: 20rpx;
+                        height: 500rpx;
+                        margin: 0
+                    }
+                }
+            }
+        }
+        .ui-comment {
+            margin: 34rpx 0 90rpx;
+            .cell-comment-title {
+                font-size: 20px;
+                color: @color-black-26;
+                font-weight: bold;
+                padding-left: 48rpx;
+                margin-bottom: 40rpx;
+            }
+            .ui-comments-box {
+                padding-bottom: 20rpx;
+                
+                .ui-comments-list {
+                    height: 400rpx
+                }
+                view {
+                    box-sizing: border-box;
+                }
+                .ui-item {
+                    border-radius: 20rpx;
+                    height: 400rpx;
+                    padding: 24rpx 32rpx 46rpx;
+                    width: 676rpx;
+                    background: @background-gray-F6;
+                    margin: 0 auto;
+                    margin-bottom: 32rpx;
+                }
+                .ui-top {
+                    height: 80rpx;
+                    .ui-user {
+                        font-size: 32rpx;
+                        justify-content: space-between;
+                        .cell-user-box {
+                            .flex-start();
+                            .cell-name {
+                                width: 294rpx;
+                                color: @color-gray-8c;
+                                text-indent: .3rem;
+                                line-height: 1;
+                                margin-top: 6rpx;
+                            }
+                            image {
+                                width: 80rpx;
+                                height: 80rpx;
+                                border-radius: 50%;
+                                margin-right: 12rpx;
+                            }
+                        }
+                        
+                        .cell-date {
+                            font-size: 28rpx;
+                            width: 190rpx;
+                            line-height: 44rpx;
+                            color: @color-gray-8c;
+                            text-align: right;
+                            margin-bottom: 32rpx;
+                        }
+                        
+                    }
+                    .ui-star text {
+                        margin-left: 10rpx;
+                        font-size: 26rpx;
+                        color: @color-blue;
+                    }
+                }
+                .ui-message {
+                    height: 140rpx;
+                    font-size: 30rpx;
+                    color: @color-black-59;
+                    line-height: 48rpx;
+                    white-space: pre-wrap;
+                    word-break: break-all;
+                    -webkit-line-clamp: 3;
+                    margin-top: 40rpx
+                }
+            }
+            .cell-not-comment {
+                width: 676rpx;
+                height: 400rpx;
+                background-color: rgba(255, 255, 255, 0.2);
+                color: #fff;
+                border-radius: 20rpx;
+                ;
+                line-height: 400rpx;
+                text-align: center;
+                margin: auto
+            }
+        }
+        .cell-margin {
+            width: 100%;
+            height: 240rpx;
+        }
+        .ui-btn-box {
+            position: fixed;
+            width: 100%;
+            bottom: 16rpx;
+            left: 0;
+            right: 0;
+            background: transparent;
+            z-index: 3;
+            height: auto;
+            .ui-voice {
+                width: 100rpx;
+                height: 100rpx;
+                border-radius: 20rpx;
+                margin-right: 20rpx;
+                background: #fff;
+                text {
+                    color: #007AFF;
+                    font-size: 52rpx;
+                    &.cell-max {
+                        font-size: 74rpx;
+                    }
+                }
+                .cell-init-audio {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    .icon-sound {
+                        margin-bottom: -10rpx;
+                    }
+                    .cell-sound-text {
+                        font-size: 24rpx;
+                        color: @color-blue;
+                        width: 100%;
+                        text-align: center;
+                    }
+                }
+                &.cell-hover {
+                    background: rgba(255, 255, 255, 0.80);
+                }
+            }
+            .ui-preview {
+                width: 100rpx;
+                height: 100rpx;
+                border-radius: 20rpx;
+                margin-right: 20rpx;
+                background: @background-blue;
+                .flex-center();
+                flex-wrap: wrap;
+                box-shadow: @box-shadow-poll;
+                image {
+                    width: 40rpx;
+                    height: 40rpx;
+                    margin-bottom: -12rpx;
+                }
+                text {
+                    font-size: 24rpx;
+                    width: 100%;
+                    line-height: 0;
+                    text-align: center;
+                    color: @color-white;
+                    z-index: @z-index-normal;
+                }
+            }
+            .cell-btn {
+                width: 552rpx;
+                height: 100rpx;
+                border-radius: 20rpx;
+                color: @color-white;
+                text-align: center;
+                line-height: 100rpx;
+                font-weight: bold;
+                font-size: 34rpx;
+                background: @background-blue;
+                
+                &.cell-not-audio {
+                    width: 650rpx;
+                    margin: auto
+                }
+            }
+            &.is-iphonex {
+                bottom: 68rpx;
+            }
+        }
+        .worth-wraper {
+            margin-top: 60rpx;
+            width: 750rpx;
+            height: 560rpx;
+            overflow: hidden;
+            scroll-view {
+                width: 100%;
+                white-space: nowrap;
+            }
+            .worth-list {
+                display: inline-block;
+                margin-left: 30rpx;
+                padding-bottom: 60rpx; //加个padding值，这样高度大于scroll-view外面包裹的元素
+                .worth-item-img {
+                    margin-right: 20rpx;
+                    width: 290rpx;
+                    height: 560rpx;
+                    display: inline-block;
+                }
+            }
+        }
+        /* 你将学到S */
+        .ui-purpose-module {
+            padding: 48rpx 0;
+            margin: 0 32rpx;
+            border-top: solid 1rpx @border-gray;
+            border-bottom: solid 1rpx @border-gray;
+            .ui-get {
+                .cell-title {
+                    font-size: 40rpx;
+                    color: @color-black-26;
+                    font-weight: bold;
+                    margin-bottom: 16rpx;
+                }
+                .cell-content {
+                    font-size: 32rpx;
+                    color: @color-black-59;
+                    line-height: 2;
+                }
+            }
+        }
+        /* 你将学到E */
+    }
+</style>
+
+<template>
+    <mloading wx:if="{{ !isLoaded  }}" />
+    <view class="ui-course-cover">
+        <jn-header hiddenButton background="#FAFAFA" :className.sync="headerBackground" buttonAfter :isRedirctRoute.sync="isRedirctRoute" :id.sync="courseID" :routeUrl.sync="coursePage">
+            <button slot="cursor-button" class="cell-back main-center cross-center" @tap.stop="getBackStep">
+                <view class="cell-after main-center cross-center">
+                    <text class="icon-back"></text>
+                </view>  
+            </button>
+        </jn-header>
+        <view class="ui-content">
+            <view class="ui-dec">
+                <view class="ui-dec-image">
+                    <swiper class="ui-scroll-list" next-margin="32rpx" previous-margin="76rpx" wx:if="{{bannerImageList.length > 1}}" current="{{current}}">
+                        <repeat for="{{bannerImageList}}" key="index" index="index" item="item">
+                            <swiper-item class="ui-scroll-item" wx:if="{{!item.type}}">
+                                <image class="cell-fullimage" src="{{item}}"></image>
+                            </swiper-item>
+                            <swiper-item class="ui-practice-item" wx:else>
+                                <view class="ui-practice-box">
+                                    <view class="cell-logo-box">
+                                        <image mode="widthFix" src="http://wx-small.runwise.cn/image/practice-icon.png"></image>
+                                    </view>
+                                    <view class="cell-image-box">
+                                        <image mode="aspectFill" src="{{item.bigimage}}" wx:if="{{item.bigimage}}"></image>
+                                        <image mode="widthFix" src="http://wx-small.runwise.cn/image/imageID3514ab7ecdf4df919a2c50508470.svg" wx:else></image>
+                                    </view>
+                                    <view class="cell-practice-content">
+                                        <view class="cell-title">练习背景</view>
+                                        <view class="cell-content">{{item.description}}</view>
+                                        <view class="cell-buttons">
+                                            <button data-id="{{item.id}}" class="cell-button" @tap.stop="getPractice">立即挑战</button>
+                                        </view>
+                                    </view>
+                                </view>
+                            </swiper-item>
+                        </repeat>
+                    </swiper>
+                    <view class="ui-image-box" wx:else>
+                        <image src="{{bannerImageList[0]}}"></image>
+                    </view>
+                </view>
+                <view class="ui-sence-title">
+                    <view class="cell-name">{{courseDetail.senceName}}</view>
+                    <view class="cell-target {{courseDetail.senceName.length > 12 ? 'text-overflow' : ''}}">{{courseDetail.senceTarget}}</view>
+                    <view class="cell-belong-course" @tap.stop="getCourseDetails">
+                        <button>所属课程:{{courseDetail.courseName}}<text class="icon-right-arrow"></text></button>
+                    </view>
+                </view>
+            </view>
+            <view class="ui-icon-list">
+                <view class="ui-icon-num">
+                    <view class="cell-title cross-center">
+                        {{courseDetail.avgStar}}
+                        <text class="{{courseDetail.star>=1 ? 'icon-selete-star' : 'icon-not-star'}}"></text>
+                        <text class="{{courseDetail.star>=2 ? 'icon-selete-star' : 'icon-not-star'}}"></text>
+                        <text class="{{courseDetail.star>=3 ? 'icon-selete-star' : 'icon-not-star'}}"></text>
+                        <text class="{{courseDetail.star>=4 ? 'icon-selete-star' : 'icon-not-star'}}"></text>
+                        <text class="{{courseDetail.star>=5 ? 'icon-selete-star' : 'icon-not-star'}}"></text>
+                    </view>
+                    <view class="cell-dec">{{courseDetail.views}}人评分</view>
+                </view>
+                <view class="ui-icon-num">
+                    <view class="cell-title">{{courseDetail.learns}}</view>
+                    <view class="cell-dec">人已学</view>
+                </view>
+                <view class="ui-icon-num">
+                    <view class="cell-title">{{courseDetail.collects}}</view>
+                    <view class="cell-dec">人收藏</view>
+                </view>
+            </view>
+        </view>
+        <view class="ui-purpose-module">
+            <view class="ui-get">
+                <view class="cell-title">你将学到：</view>
+                <text class="cell-content">{{courseDetail.showPoint}}</text>
+            </view>
+        </view>
+        <view class="ui-comment">
+            <view class="cell-comment-title">精选点评：</view>
+            <view class="ui-comments-box" wx:if="{{courseDetail.commentList.length}}">
+                <block wx:for="{{courseDetail.commentList}}" wx:index="{{ index }}" wx:key="{{ index }}" wx:for-item="item">
+                    <view class="ui-item">
+                        <view class="ui-top main-justify">
+                            <view class="ui-user cross-center">
+                                <view class="cell-user-box">
+                                    <image mode="scaleToFill" src="{{item.avatarUrl}}" />
+                                    <view>
+                                        <view class="cell-name text-overflow">{{item.nickName ? item.nickName : '即能用户'}}</view>
+                                        <view class="ui-star">
+                                            <text class="{{item.star>=1 ? 'icon-selete-star' : 'icon-not-star'}}"></text>
+                                            <text class="{{item.star>=2 ? 'icon-selete-star' : 'icon-not-star'}}"></text>
+                                            <text class="{{item.star>=3 ? 'icon-selete-star' : 'icon-not-star'}}"></text>
+                                            <text class="{{item.star>=4 ? 'icon-selete-star' : 'icon-not-star'}}"></text>
+                                            <text class="{{item.star>=5 ? 'icon-selete-star' : 'icon-not-star'}}"></text>
+                                        </view>
+                                    </view>
+                                </view>
+                                
+                                <view class="cell-date">{{item.createTime}}</view>
+                            </view>
+                        </view>
+                        <view class="ui-message wrap-nowrap text-overflow-t">{{item.message}}</view>
+                    </view>
+                </block>
+            </view>
+            <view class="ui-comments-box" wx:else>
+                <view class="ui-item">
+                    <view class="ui-message wrap-nowrap text-overflow-t">sorry，暂无评论～</view>
+                </view>
+            </view>
+        </view>
+        <view class="ui-btn-box cross-center main-center {{isIphonex ? 'is-iphonex':''}}">
+            <view class="ui-voice cross-center main-center" hover-class="cell-hover" @tap.stop="getAudio" wx:if="{{courseDetail.audioUrl}}">
+                <view wx:if="{{0 == audioStep}}" class="cell-init-audio">
+                    <text class="icon-sound"></text>
+                    <view class="cell-sound-text">介绍</view>
+                </view>
+                <text wx:elif="{{1 == audioStep}}" class="icon-stop cell-max maxAnimation"></text>
+                <text wx:else="{{2 == audioStep}}" class="icon-play cell-max maxAnimation"></text>
+            </view>
+            <view class="ui-preview cross-center main-center" hover-class="cell-hover" wx:if="{{!isMembership && !isInspect}}" @tap.stop="previewCourse">
+                <image mode="scaleToFill" src="../../assets/img/Preview-white.svg"></image>
+                <text class="cell-preview-text">预览</text>
+            </view>
+            <!-- 新用户按钮 -->
+            <button class="cell-btn" open-type="{{!phone ? 'getPhoneNumber' : ''}}" @getphonenumber.stop="getRegisterMember" @tap.stop="getRegisterMember" form-type="submit" :class="{'cell-not-audio' : !courseDetail.audioUrl && isMembership}" hover-class="cell-hover"
+                wx:if="{{!phone && !isInspect}}">立即注册，全场免费体验24小时</button>
+            
+            <!-- 会员/非会员 -->
+            <button class="cell-btn" hover-class="cell-hover" :class="{'cell-not-audio' : !courseDetail.audioUrl && isMembership}" wx:if="{{phone && !isInspect}}" @tap.stop="fetchLesson">
+                <text wx:if="{{isMembership}}">{{isDoneLearning ? '再学一次':'马上学习'}}</text>
+                <text wx:else>马上订阅Plus会员</text>
+            </button>
+
+            <!-- 预览按钮 -->
+            <button class="cell-btn" hover-class="cell-hover" :class="{'cell-not-audio' : !courseDetail.audioUrl}" wx:if="{{!isMembership && isInspect}}" @tap.stop="previewCourse">预览</button>
+            
+            <!-- 审核状态的按钮 -->
+            <button class="cell-btn" hover-class="cell-hover" :class="{'cell-not-audio' : !courseDetail.audioUrl}" wx:if="{{isMembership && isInspect}}" @tap.stop="checkLesson">{{isDoneLearning ? '再学一次':'马上学习'}}</button>
+        </view>
+    </view>
+    <view></view>
+    <!-- 组队弹窗 -->
+    <team-draw-member :showByTop.sync="showTeamDrawToastInTop" :showByBottom.sync="showTeamDrawToastInBottom" :groupSource.sync="groupSource"></team-draw-member>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header'
+    import {
+        fetch,
+        report as reportApi
+    } from "../../api";
+    import {
+        setStorageAsync
+    } from '../../utils'
+    import {
+        getStore,
+        connect
+    } from "wepy-redux";
+    import {
+        getUserPhone,
+        refreshUserInformations
+    } from '../../redux/models/user'
+    import Loading from '../../components/common/loading'
+    import {
+        initializationDeligate,
+        navigateToLesson,
+        getStorageAsync
+    } from '../../utils';
+    import teamDrawMember from '../../components/team-module/team-draw-members';
+    const store = getStore();
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        isIos(state) {
+            return state.user.platform === 'ios'
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+    export default class TeamLearningAnnounce extends wepy.page {
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+            'team-draw-member': teamDrawMember, //组队弹窗
+        }
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isLoaded:false,
+            headerBackground: 'background-transparent',
+            innerAudioContext: null,
+            isAudio: true,
+            paramsInfo: {},
+            courseDetail: {},
+            isRedirctRoute: false,
+            courseID: '',
+            coursePage: 'courseDetails',
+            audioStep: 0,
+            indexList: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三'],
+            circular:true,//
+            isInspect: false, //是否为审核需要隐藏状态,true为需要隐藏(只有IOS需要隐藏)
+            isMember: false, //是否为会员
+            isExprienceMember: null, //是否为体验会员
+            showTeamDrawToastInTop: false, //是否展示组队弹窗(头部返回触发)
+            showTeamDrawToastInBottom: false, //是否展示组队弹窗(底部按钮触发)
+            groupDrawStatus: null, //组队状态
+            groupDrawStatusNum: null, //组队弹窗缓存的次数
+            groupSource: '', //表示弹窗触发的入口
+            resume: '', //学习进度
+            bannerImage:'',//顶部重点卡
+            bannerImageList:[],//顶部重点卡数组
+            isDoneLearning:null,//是否学完微课
+            isDonePractice:null,//是否完成练习
+            practiceCard:{},//练习题卡
+        };
+        computed = {
+            isMembership() {
+                return this.isMember || this.isExprienceMember
+            },
+            /* 默认展示第一张还是最后一张swiper-item */
+            current() {
+                return this.isDoneLearning && !this.isDonePractice ? this.bannerImageList.length - 1 : 0
+            },
+            /* 是否为回顾 */
+            isReview() {
+                return this.isDoneLearning && this.isDonePractice
+            }
+        }
+        onLoad(params) {
+            let self = this;
+            self.paramsInfo = params;
+            console.log(params)
+            self.innerAudioContext = wx.createInnerAudioContext(); //初始化音频
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            self.innerAudioContext.onEnded(() => {
+                self.audioStep = 0;
+                self.isAudio = true
+                self.$apply()
+            })
+            if (params.isRedirctRoute) {
+                self.isRedirctRoute = true;
+                self.courseID = params.courseID;
+                self.$apply()
+            }
+            let rounter = getCurrentPages()
+            // 如果==1，说明是分享出来的
+            if (1 === rounter.length) {
+                self.isRedirctRoute = true
+                self.$apply()
+            }
+            self.$apply()
+        }
+        onShow() {
+            let self = this;
+            initializationDeligate({
+                initializeFunc: self.initialize.bind(self)
+            })
+            wx.setInnerAudioOption({
+                obeyMuteSwitch: false
+            }); // 音频不遵循系统静音开关
+            /* 获取组队状态缓存值 */
+            getStorageAsync({
+                key: 'groupDrawStatus'
+            }).then(response => {
+                self.groupDrawStatus = response;
+                self.$apply();
+            }).catch(error => {
+                let postData = {
+                    token: self.systemInfo.token
+                }
+                fetch.todayStatus(postData).then((response) => {
+                    self.groupDrawStatus = response.groupDrawStatus; //组队状态
+                    /* 缓存设置组队状态 */
+                    setStorageAsync({
+                        key: 'groupDrawStatus',
+                        value: self.groupDrawStatus
+                    }).catch(error => console.log('设置组队状态失败'))
+                    self.$apply()
+                }).catch(error => console.log('获取组队状态值失败'))
+            })
+            /* 获取组队弹窗弹出次数 */
+            getStorageAsync({
+                key: 'groupDrawStatusNum'
+            }).then(response => {
+                self.groupDrawStatusNum = response ? response : 0;
+                self.$apply();
+            })
+            self.$apply()
+        }
+        onHide() {
+            this.innerAudioContext.stop(); // 关闭音频
+        }
+        onUnload() {
+            this.innerAudioContext.stop(); // 关闭音频
+        }
+        initialize() {
+            let self = this
+            // 通知组件
+            self.__fetchInit()
+        }
+        /**
+         * 服务通知数据上报
+         */
+        __report() {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token,
+                body: {
+                    pageType: 'courseCover',
+                    eventType: 'clickSencePreviewCard',
+                    componentName: '微课封面页',
+                    senceID: this.paramsInfo.senceID,
+                    courseID: this.paramsInfo.courseID,
+                    cpnPresentName: '点击大图'
+                }
+            }
+            reportApi.doUserBehaviourLog(postData)
+        }
+        methods = {
+            /* 去练习题页 */
+            getPractice(event) {
+                let self = this
+                let {currentTarget:{dataset:{id}}} = event
+                wepy.$instance.globalData.getHuilder('微课封面页/重点卡/练习题/去做练习','click','')
+                wepy.navigateTo({
+                    url: `/pages/course-module/course-exercises?courseID=${self.paramsInfo.courseID}&senceID=${self.paramsInfo.senceID}&teamID=${self.paramsInfo.teamID}&source=${self.paramsInfo.source}&isReview=${self.isReview}&isFromTodayListing=${self.paramsInfo.isFromTodayListing}`
+                })
+            },
+            /* 返回课程详情页 */
+            getCourseDetails() {
+                let self = this
+                wepy.$instance.globalData.getHuilder('微课专题/所属课程', 'click', this.courseDetail.senceName)
+                wepy.navigateTo({url: `/pages/course-module/course-details?id=${this.paramsInfo.courseID}`})
+            },
+            /* head返回事件 */
+            getBackStep() {
+                let self = this
+                if (!self.isInspect && !self.isMembership && self.groupDrawStatusNum == 0 && (self.groupDrawStatus == -1 || self.groupDrawStatus == 2)) {
+                    self.showTeamDrawToastInTop = true
+                    self.groupSource = 'course-cover-back'
+                    self.$apply()
+                } else {
+                    self.isRedirctRoute ? wepy.switchTab({
+                        url: '/pages/tabPages/course'
+                    }) : wx.navigateBack({
+                        delta: 1
+                    });
+                }
+            },
+            previewCourse() { //预览微课
+                let self = this;
+                //ga埋点
+                wepy.$instance.globalData.getHuilder('封面页/预览微课', 'click', this.courseDetail.senceName)
+                //数据库埋点
+                let postData = {
+                    token: self.systemInfo.token,
+                    body: {
+                        json: {
+                            pageType: "封面页",
+                            eventType: "微课列表",
+                            componentName: "预览微课",
+                            courseID: self.paramsInfo.courseID,
+                            cpnPresentName: "点击预览",
+                            senceID: self.paramsInfo.senceID
+                        }
+                    }
+                }
+                reportApi.doUserBehaviourLog(postData);
+                navigateToLesson({
+                    courseID: self.paramsInfo.courseID,
+                    senceID: self.paramsInfo.senceID,
+                    resumeLastRead: 0,
+                    source: self.paramsInfo.source,
+                    preview: true
+                })
+                self.$apply()
+            },
+            getAudio() {
+                let self = this;
+                self.innerAudioContext.src = self.courseDetail.audioUrl;
+                if (self.isAudio) {
+                    self.innerAudioContext.play();
+                    wepy.$instance.globalData.getHuilder('封面页/播放语音', 'click', this.courseDetail.senceName)
+                    self.audioStep = 1;
+                    self.isAudio = false
+                    self.$apply()
+                } else {
+                    self.innerAudioContext.pause();
+                    wepy.$instance.globalData.getHuilder('封面页/暂停语音', 'click', this.courseDetail.senceName)
+                    self.audioStep = 2;
+                    self.isAudio = true
+                    self.$apply()
+                }
+                self.$apply()
+            },
+            getCardsPreview(event) {
+                let {
+                    currentTarget: {
+                        dataset: {
+                            index
+                        }
+                    }
+                } = event
+                let list = this.courseDetail.cardsPreview
+                wepy.$instance.globalData.getHuilder('封面页/点击大图', 'click', '')
+                this.__report()
+                wx.previewImage({
+                    current: list[index],
+                    urls: list
+                })
+            },
+            /* 注册成为体验会员 */
+            getRegisterMember(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            site
+                        }
+                    },
+                    detail: {
+                        encryptedData,
+                        errMsg,
+                        iv
+                    }
+                } = event
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                                let self = this
+                                store.dispatch(refreshUserInformations({
+                                    phone: response
+                                }))
+                                wepy.showToast({
+                                    title: '新人权益领取成功',
+                                    icon: 'none'
+                                })
+                                self.initialize()
+                            })
+                            .catch((error) => {
+                                console.log(error)
+                            })
+                    }, 0);
+                })
+            },
+            /* 开始学课 */
+            fetchLesson() {
+                let self = this
+                if (self.isMembership) {
+                    wepy.$instance.globalData.getHuilder('封面页/马上学习', 'click', this.courseDetail.senceName)
+                    navigateToLesson({
+                        courseID: self.paramsInfo.courseID,
+                        senceID: self.paramsInfo.senceID,
+                        resumeLastRead: self.resume,
+                        source: self.paramsInfo.source
+                    })
+                } else {
+                    if (!self.isInspect && self.groupDrawStatusNum == 0 && (self.groupDrawStatus == -1 || self.groupDrawStatus == 2)) {
+                        self.showTeamDrawToastInBottom = true
+                        self.groupSource = 'course-cover-subscribe'
+                        self.$apply()
+                    } else {
+                        wepy.$instance.globalData.getHuilder('封面页/订阅页', 'click', this.courseDetail.senceName)
+                        wepy.navigateTo({
+                            url: `/pages/course-module/course-subscribe`
+                        })
+                    }
+                }
+            },
+            /* 审核状态 直接学课 */
+            checkLesson() {
+                let self = this
+                navigateToLesson({
+                    courseID: self.paramsInfo.courseID,
+                    senceID: self.paramsInfo.senceID,
+                    resumeLastRead: self.paramsInfo.resumeLastRead,
+                    source: self.paramsInfo.source
+                })
+            }
+        };
+        __fetchInit() {
+            let self = this;
+            let postData = {
+                token: self.systemInfo.token,
+                senceID: self.paramsInfo.senceID,
+                courseId: self.paramsInfo.courseID
+            }
+            fetch.sencePreviewInfo(postData).then(res => {
+                
+                self.courseDetail = res.data;
+                self.isMember = res.data.isMember;
+                self.bannerImage = res.data.essenceImageList[0];
+                self.bannerImageList = res.data.essenceImageList;
+                self.isExprienceMember = res.data.isExprienceMember;
+                self.resume = res.data.resume ? res.data.resume : 0;
+
+                self.isDoneLearning = res.data.isDoneLearning;
+
+                self.isDonePractice = res.data.isDonePractice;
+                self.practiceCard = res.data.practiceCard;
+
+                if(self.practiceCard) {
+                    self.bannerImageList.push(res.data.practiceCard)
+                }
+                
+                getStorageAsync({
+                    key: 'isIosClosed'
+                }).then((response) => {
+                    self.isInspect = response && self.isIos ? true : false;
+                    self.$apply();
+                }).catch(error => {
+                    console.log(error)
+                })
+                self.isLoaded = true;
+                self.$apply()
+            }).catch((error) => {
+                console.log(error)
+            })
+        }
+
+        events = {
+            /* 监听组队弹窗不感兴趣按钮事件 */
+            'on-hide-teamdraw': (data) => {
+                let self = this
+                if (data.type == '0') {
+                    wepy.navigateTo({
+                        url: `/pages/course-module/course-subscribe`
+                    })
+                } else {
+                    self.isRedirctRoute ? wepy.switchTab({
+                        url: '/pages/tabPages/course'
+                    }) : wx.navigateBack({
+                        delta: 1
+                    });
+                }
+            }
+        }
+        /**
+         * 分享
+         * @param options
+         * @returns {{title: string, path: string, success: success, fail: fail}}
+         */
+        onShareAppMessage(options) {
+            let self = this
+            wepy.$instance.globalData.getHuilder('课程封面页/分享', 'click', '')
+            wepy.$instance.globalData.getReportFlow('share')
+            let title = ''
+            if (self.systemInfo.nickName) {
+                title = `${self.systemInfo.nickName}邀请你一起学《${self.courseDetail.senceName}》`
+            } else {
+                title = `跟我一起来学《${self.courseDetail.senceName}》吧`
+            }
+            return {
+                title: title,
+                path: `/pages/course-module/course-cover?senceID=${self.paramsInfo.senceID}&courseID=${self.paramsInfo.courseID}`,
+                success(res) {
+                    console.log('转发成功')
+                    // 向后台上报分享行为
+                    fetch.reportSharing({
+                        token: self.systemInfo.token,
+                        type: shareDictionary.RECEIVE_COURSE_COVER.type
+                    })
+                },
+                fail(res) {
+                    console.log('转发失败')
+                }
+            }
+        }
+    }
+</script>

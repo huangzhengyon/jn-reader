@@ -1,0 +1,379 @@
+<template>
+    <view class="ui-task-box">
+        <view class="ui-task-container">
+            <view class="ui-content">
+                <view class="ui-learn-swiper">
+                    <repeat for="{{taskarr}}" key="index" index="index" item="item" wx:if="{{taskarr.length}}">
+                        <view class="ui-swiper-item">
+                            <view class="cell-item-title">
+                                <image class="cell-title-logo" src="../../assets/img/task-title-logo.svg"></image>
+                                <view class="cell-text">今日学习清单</view>
+                            </view>
+                            <view class="cell-item-content">
+                                <repeat for="{{item.senceList}}" index="index" key="key" item="jtem">
+                                    <view class="cell-content-list" data-index="{{jtem.index}}" data-jtem="{{jtem}}" @tap.stop="getLessonCover">
+                                        <view class="cell-content cell-left">
+                                            <view class="micro-lesson">
+                                                <view class="micro-lesson-subtitle">{{item.courseName}}</view>
+                                                <view class="micro-lesson-title">{{jtem.senceName}}</view>
+                                            </view>
+                                        </view>
+                                        <view class="cell-content cell-right" wx:if="{{!disabled}}">
+                                            <view class="cell-right-status" wx:if="{{jtem.buttonStatus != 'finish'}}">
+                                                <circular :resume.sync="jtem.senceResume" :counts.sync="jtem.cardCount" :percent.sync="jtem.percent" blue="true" wx:if="{{jtem.buttonStatus == 'continue'}}"></circular>
+                                                <button class="cell-start-button" wx:else>开始</button>
+                                                <text class="icon-right-arrow" wx:if="{{jtem.buttonStatus == 'continue'}}"></text>
+                                            </view>
+                                            <view class="cell-right-status" wx:else>
+                                                <view class="cell-content-checkbox">
+                                                    已学完<text class="icon-right-arrow"></text>
+                                                </view>
+                                            </view>
+                                        </view>
+                                        <view class="cell-content cell-right" wx:else>
+                                            <image class="ui-locked-icon" src="../../assets/img/locked2.svg"></image>
+                                        </view>
+                                    </view>
+                                </repeat>
+                            </view>
+                        </view>
+                    </repeat>
+                    <view class="ui-swiper-item" wx:if="{{!taskarr.length}}">
+                        <view class="cell-item-title">
+                            <image class="cell-title-logo" src="../../assets/img/task-title-logo.svg"></image>
+                            <view class="cell-text">今日学习清单</view>
+                        </view>
+                        <view class="cell-item-content">
+                            <view class="cell-item-empty">
+                                今天没有新的任务哦
+                                <!-- <view class="ui-get-course-button" @tap.stop="getCourseLists">获取新课程</view> -->
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy';
+    import {
+        getStore,
+        connect
+    } from 'wepy-redux';
+    import {
+        navigateToLesson,
+        count
+    } from '../../utils';
+    import circular from '../common/circular';
+    import {
+        fetch,
+        report as reportApi
+    } from '../../api';
+    const store = getStore()
+    @connect({
+        token(state) {
+            return state.user.token
+        },
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class taskBlock extends wepy.component {
+        props = {
+            taskarr: {
+                type: Array,
+                default: []
+            },
+            disabled: {
+                type: Boolean,
+                default: false
+            }
+        }
+        components = {
+            circular, //进度圈
+        }
+        
+        data = {
+
+        }
+        computed = {
+            /* 是否完成了今日学习清单 */
+            isFinished() {
+                if (!this.taskarr || !this.taskarr.length || !this.taskarr[0].senceList[0].buttonStatus) return false;
+                let result = this.taskarr[0].senceList[0].buttonStatus ? this.taskarr[0].senceList[0].buttonStatus : '';
+                return result == 'finish' ? true : false
+            }
+        }
+        methods = {
+            getCourseLists() { //去课程tab页
+                let self = this;
+                wepy.switchTab({
+                    url: '/pages/tabPages/course'
+                })
+            },
+            getLessonCover() {
+                let self = this
+                let jtem = this.taskarr[0].senceList[0];
+                if(self.disabled)return
+                let postData = {
+                    token: self.token,
+                    body: {
+                        json: {
+                            pageType: "今日页",
+                            eventType: "马上学习",
+                            componentName: "学习清单",
+                            userID: self.systemInfo.userid,
+                            cpnPresentName: "",
+                            senceID: ''
+                        }
+                    }
+                }
+                reportApi.doUserBehaviourLog(postData);
+                if (jtem.buttonStatus == 'finish') {
+                    wepy.$instance.globalData.getHuilder('今日页/课程任务/去封面页', 'click', '')
+                    self.$parent.$navigate(`/pages/course-module/course-cover`, {
+                        senceID: jtem.senceid,
+                        courseID: jtem.courseid,
+                        isFromTodayListing:true
+                    })
+                } else {
+                    wepy.$instance.globalData.getHuilder('今日页/课程任务/去学课', 'click', '')
+                    navigateToLesson({
+                        courseID: jtem.courseid,
+                        senceID: jtem.senceid,
+                        resumeLastRead: jtem.senceResume,
+                        source: '',
+                        isFromTodayListing: true
+                    })
+                }
+            }
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+    @import '../../assets/style/theme';
+    .ui-task-box {
+        margin: 32rpx;
+        position: relative;
+        z-index: @z-index-slightly;
+        background: @background-white;
+        border-radius: @border-radius-24;
+        box-shadow: @box-shadow-hight;
+        .ui-title {
+            font-weight: bold;
+            font-size: 44rpx;
+            padding-left: 44rpx;
+            height: 86rpx;
+        }
+        .ui-content {
+            .ui-learn-swiper {
+                margin: 0 auto;
+                .ui-swiper-item {
+                    overflow: hidden;
+                    .cell-item-title {
+                        height: 84rpx;
+                        padding: 0 30rpx;
+                        font-size: 38rpx;
+                        color: @color-black;
+                        border-bottom: none;
+                        position: relative;
+                        overflow: hidden;
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        image {
+                            width: 40rpx;
+                            height: 40rpx;
+                        }
+                        .cell-text {
+                            font-size: 26rpx;
+                            color: @color-gray;
+                            position: relative;
+                            padding-left: 16rpx;
+                            /* &::before {
+                                content: '';
+                                width: 8rpx;
+                                height: 32rpx;
+                                position: absolute;
+                                left: 0;
+                                top: 50%;
+                                transform: translateY(-50%);
+                                border-radius: @border-radius-12;
+                                background: @background-blue;
+                            } */
+                        }
+                        .cell-text-finish {
+                            &::before {
+                                background: @color-yellow-F9;
+                            }
+                        }
+                    }
+                    .cell-item-content {
+                        max-height: 468rpx;
+                        border-top: none;
+                        overflow: hidden;
+                        padding: 0 30rpx;
+                        .cell-content-list {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            height: 154rpx;
+                            border-top: solid 1rpx @border-gray;
+                            .cell-content {
+                                display: flex;
+                                justify-content: flex-start;
+                                align-items: center;
+                                .micro-lesson {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: flex-start;
+                                    flex-direction: column;
+                                    .micro-lesson-title {
+                                        font-size: 32rpx;
+                                        color: @color-black;
+                                        font-weight: bold;
+                                        margin-bottom: 20rpx;
+                                    }
+                                    .micro-lesson-subtitle {
+                                        font-size: 26rpx;
+                                        color: @color-gray;
+                                        line-height: 2;
+                                    }
+                                }
+                            }
+                            .cell-left {
+                                flex: 3;
+                                .cell-content-checkbox {
+                                    width: 48rpx;
+                                    height: 48rpx;
+                                    border: 2rpx solid @color-black;
+                                    margin-right: 24rpx;
+                                    position: relative;
+                                    border-radius: 50%;
+                                    image {
+                                        width: 100%;
+                                        height: 100%;
+                                    }
+                                }
+                                .cell-content-checkbox-active {
+                                    border: none;
+                                }
+                            }
+                            .cell-right {
+                                flex: 1;
+                                display: flex;
+                                justify-content: flex-end;
+                                align-items: center;
+                                .ui-locked-icon {
+                                    width: 32rpx;
+                                    height: 40rpx;
+                                }
+                                .cell-right-status {
+                                    .flex-center();
+                                    .icon-right-arrow {
+                                        color: @color-gray-BF;
+                                        font-size: 26rpx;
+                                        margin-top: 4rpx;
+                                        margin-left: 20rpx;
+                                    }
+                                    .cell-content-checkbox {
+                                        .flex-center();
+                                        color: @color-gray;
+                                        font-size: 32rpx;
+                                        .icon-right-arrow {
+                                            color: @color-gray-BF;
+                                            font-size: 26rpx;
+                                            margin-top: 4rpx;
+                                        }
+                                        image {
+                                            width: 48rpx;
+                                            height: 34rpx;
+                                        }
+                                    }
+                                    .cell-start-button {
+                                        width: 148rpx;
+                                        height: 60rpx;
+                                        .flex-center();
+                                        border-radius: @border-radius-32;
+                                        color: @color-blue;
+                                        background: @background-gray-F4;
+                                        font-size: 32rpx;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .cell-item-empty {
+                        height: 188rpx;
+                        margin: 0 30rpx;
+                        border-top: solid 1rpx @border-color;
+                        .flex-center();
+                        font-size: 28rpx;
+                        .ui-get-course-button {
+                            color: @color-blue;
+                        }
+                    }
+                    &+.ui-swiper-item {
+                        margin-top: 48rpx;
+                    }
+                }
+                .cell-item-button {
+                    padding: 0 30rpx 30rpx 30rpx;
+                    button {
+                        color: @color-white;
+                        background: @background-blue;
+                        border-radius: @border-radius-16;
+                        height: 84rpx;
+                        .flex-center();
+                        font-size: 34rpx;
+                    }
+                }
+                .ui-swiper-empty {
+                    margin: 0 32rpx;
+                    .cell-task-empty {
+                        height: 568rpx;
+                        background: @background-white;
+                        box-shadow: @box-shadow-hight;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        flex-wrap: wrap;
+                        border-radius: @border-radius-24;
+                        padding: 30rpx;
+                        box-sizing: border-box;
+                        .cell-empty-icon {
+                            width: 336rpx;
+                            height: 280rpx;
+                            margin: 10rpx;
+                            image {
+                                width: 100%;
+                                height: 100%;
+                            }
+                        }
+                        .cell-empty-text {
+                            font-size: 30rpx;
+                            color: @color-black;
+                        }
+                        .cell-empty-btn {
+                            button {
+                                width: 440rpx;
+                                height: 100rpx;
+                                color: @color-white;
+                                font-size: 34rpx;
+                                background: @background-blue;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                border-radius: @border-radius-16;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+</style>
+

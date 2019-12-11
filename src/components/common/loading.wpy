@@ -1,0 +1,23 @@
+<template>
+    <view class="module-loading main-center cross-center">
+        <view></view>
+        <view></view>
+        <view></view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    export default class Loading extends wepy.component {
+        props = {
+            isLoaded: {
+                type: Boolean
+            }
+        }
+        data = {}
+    }
+</script>
+
+<style lang="less">
+
+</style>

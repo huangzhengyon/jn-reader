@@ -1,0 +1,1316 @@
+<template>
+    <mloading wx:if="{{ !isLoaded }}"></mloading>
+    <jn-header :className.sync="headerBackground" buttonAfter :isHeadHeight="isHeadHeight"></jn-header>
+    <form bindsubmit="handleSavePushCode" report-submit>
+        <view class="ui-team-result-module {{isIphonex?'ui-team-result-iphonex':''}}" wx:if="{{showGroupResults}}">
+            <view class="ui-result-success" wx:if="{{isWinning}}">
+                <view class="ui-activity-banner">
+                    <view class="ui-activity-title {{isIphonex?'.ui-activity-title-iphonex':''}}">
+                        <view class="cell-subtitle">
+                            <view class="cell-text">第{{nper}}期</view>
+                            <view class="cell-text">组队抽奖结果</view>
+                        </view>
+                        <view class="cell-title">恭喜你获得！</view>
+
+                    </view>
+                    <view class="{{isIphonex?'ui-activity-day':'ui-activity-day ui-left-top'}}" >
+                        <text class="ui-day-text">{{drawResult}}</text>
+                        <text class="ui-day-text-small" wx:if="{{drawExtra != '-1'}}">+{{drawExtra}}</text> 
+                        <text>天</text>
+                    </view>
+                    <view class="{{isIphonex?'ui-activity-banner_bg':'ui-activity-banner_bg ui-left-top'}}" >
+                        <image src="http://wx-small.runwise.cn/image/imgWinAPrize.png" mode="widthFix"></image>
+                    </view>
+
+                </view>
+
+
+
+                <!--中奖-->
+                <view class="ui-activity-main">
+                    <view class="ui-activity-members">
+                        <repeat for="{{memberList}}" key="index" index="index" item="item">
+                            <view class="cell-member-box">
+                                <view class="cell-member-logo">
+                                    <image src="../../assets/img/team-leader.svg" wx:if="{{index == 0}}"></image>
+                                </view>
+                                <view class="cell-member-avatar">
+                                    <image class="cell-default" mode="widthFix" src="../../assets/img/team-default.svg" wx:if="{{!item.avatarUrl}}"></image>
+                                    <image class="cell-avatar" src="{{item.avatarUrl}}" wx:else></image>
+                                </view>
+                            </view>
+                        </repeat>
+                    </view>
+                    <view class="ui-activity-button">
+                        <button form-type="submit" @tap.stop="doReceiveGift" wx:if="{{!myGive}}">立即领取</button>
+                        <button form-type="submit" wx:elif="{{myGive}}" class="ui-btn-geted">已领取</button>
+                    </view>
+                </view>
+
+                <view class="ui-acivity-main-tips-bottom" >
+                    <view class="cell-tips" @tap.stop="getRecordList">{{openResultDay}}下午4点开奖，抽奖记录<text class="icon-right-arrow"></text></view>
+                </view>
+            </view>
+            <view class="ui-result-fail" wx:else>
+                <view class="ui-activity-banner">
+                    <view class="ui-activity-title">
+                        <view class="cell-subtitle">
+                            <view class="cell-text">第{{nper}}期</view>
+                            <view class="cell-text">组队抽奖结果</view>
+                        </view>
+                        <view class="cell-title">很遗憾，本次没有中奖～</view>
+
+                    </view>
+                        <view class="{{isIphonex?'ui-activity-banner_bg':'ui-activity-banner_bg ui-left-top'}}" >
+                        <image src="http://wx-small.runwise.cn/image/imgNoPrize.png" mode="widthFix"></image>
+                    </view>
+
+                </view>
+
+
+                <!--不中奖-->
+                <view class="ui-container-float">
+                    <view class="ui-activity-main" >
+                        <view class="ui-activity-tips">
+                            <view class="ui-unfinished-tip">
+                                <view class="cell-text">本期未满员，请组建新队伍噢～</view>
+                            </view>
+                        </view>
+                        <view class="ui-activity-members">
+                            <repeat for="{{memberList}}" key="index" index="index" item="item">
+                                <view class="cell-member-box">
+                                    <view class="cell-member-logo">
+                                        <image src="../../assets/img/team-leader.svg" wx:if="{{index == 0}}"></image>
+                                    </view>
+                                    <view class="cell-member-avatar">
+                                        <image class="cell-default" mode="widthFix" src="../../assets/img/team-default.svg" wx:if="{{!item.avatarUrl}}"></image>
+                                        <image class="cell-avatar" src="{{item.avatarUrl}}" wx:else></image>
+                                    </view>
+                                </view>
+                            </repeat>
+                        </view>
+                        <view class="ui-activity-button">
+                            <button  form-type="submit" open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getTeamMember" @tap.stop="createNewTeam">组建新队伍</button>
+                        </view>
+
+                    </view>
+
+                    <view class="ui-acivity-main-tips-bottom" >
+                        <view class="cell-tips" @tap.stop="getRecordList">{{openResultDay}}下午4点开奖，抽奖记录<text class="icon-right-arrow"></text></view>
+                    </view>
+
+                </view>
+            </view>
+        </view>
+
+        <view class="ui-team-learning-module {{isIphonex ? 'ui-team-learning-iphonex' : ''}}" wx:else>
+            <view class="ui-activity-banner">
+                <view class="ui-activity-title">
+                    <view class="cell-title">{{title}}</view>
+                    <view class="cell-subtitle">
+                        <view class="cell-text">第{{nper}}期</view>
+                        <view class="cell-text">{{date}}</view>
+                    </view>
+                </view>
+                <view class="ui-activity-banner_bg">
+                    <image src="https://wx-small.runwise.cn/image/group_banner_bg.png"></image>
+                </view>
+            </view>
+            <view class="ui-acivity-rules">
+                <view class="ui-rules-title">活动规则</view>
+                <view class="ui-rules-wrap">
+                    <block wx:for="{{rules}}" wx:key="index">
+                        <view class="cell-rules-item">{{index+1}}.{{item}}</view>
+                    </block>
+                </view>
+            </view>
+            <view class="ui-activity-main">
+                <view class="ui-activity-tips">
+                    <view class="ui-unfinished-tip" wx:if="{{!isFinished}}">
+                        <view class="cell-text">还差<text class="font-orange">{{gapNum}}</text>人成队</view>
+                    </view>
+                    <view class="ui-finished-tip" wx:elif="{{isJoinGroup}}">队伍已成，等待开奖</view>
+                    <view class="ui-finished-warn" wx:elif="{{openDraw}}">上期奖励已开奖，请新建队伍噢～</view>
+                    <view class="ui-finished-warn" wx:else>该队已满员，请新建队伍噢～</view>
+                </view>
+                <view class="ui-activity-members">
+                    <repeat for="{{memberList}}" key="index" index="index" item="item">
+                        <view class="cell-member-box">
+                            <view class="cell-member-logo">
+                                <image src="../../assets/img/team-leader.svg" wx:if="{{item.role == 'captain'}}"></image>
+                                <image src="../../assets/img/team-new-user.svg" wx:if="{{item.role == 'register'}}"></image>
+                            </view>
+                            <view class="cell-member-avatar">
+                                <image class="cell-avatar" wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" ></image>
+                                <image class="cell-default" mode="widthFix" src="../../assets/img/team-default.svg" wx:else></image>
+                            </view>
+                        </view>
+                    </repeat>
+                </view>
+                <view class="ui-activity-button" wx:if="{{!isFinished}}">
+                    <button open-type="share" form-type="submit" wx:if="{{isJoinGroup}}">邀请好友加入队伍</button>
+                    
+                    <button open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="beforeCreateNewTeam" form-type="submit" @tap.stop="createNewTeam" wx:elif="{{isDisabledTeam}}">组建新队伍</button>
+
+                    <button open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="beforeCreateNewTeam" form-type="submit" @tap.stop="createNewTeam" wx:elif="{{isCaptainMiss}}">成为队长，组建新队伍</button>
+
+                    <button open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getTeamMember" form-type="submit" @tap.stop="viewOwnTeam" wx:elif="{{hasOwnGroup}}">查看所在队伍</button>
+
+                    <button open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getTeamMember" form-type="submit" @tap.stop="handleTeamMember" wx:else>加入队伍</button>
+                </view>
+                <view class="ui-activity-button" wx:elif="{{!isJoinGroup}}">
+                    <button open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getTeamMember" form-type="submit" @tap.stop="viewOwnTeam" wx:if="{{showReviewButton}}">查看所在队伍</button>
+
+                    <button open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="beforeCreateNewTeam" form-type="submit" @tap.stop="createNewTeam" wx:else>组建新队伍</button>
+                </view>
+            </view>
+            <view class="ui-tips-module">
+                <view class="cell-tips" @tap.stop="getRecordList">{{openResultDay}}下午4点开奖，抽奖记录<text class="icon-right-arrow"></text></view>
+            </view>
+            
+            <view class="cell-margin-module"></view>
+        </view>
+        
+        <view class="ui-notice-module" wx:if="{{unclaimed}}">
+            <view class="ui-notice-mask"></view>
+            <view class="ui-notice-main">
+                <view class="ui-results-content">
+                    <image src="../../assets/img/members-result-bg.svg"></image>
+                    <view class="cell-text">上期奖励已成功发放：</view>
+                    <view class="cell-results">UpSkillPlus会员
+                        <text class="font-orange">{{lastDrawResult}}</text>
+                        <text class="font-orange" wx:if="{{lastDrawExtra > 0}}">+</text>
+
+                        <text class="font-orange" wx:if="{{lastDrawExtra > 0}}">{{lastDrawExtra}}</text>
+                        <text class="font-orange">天</text>
+                    </view>
+                </view>
+                <view class="ui-confirm-button" form-type="submit" @tap.stop="hideConfirm">
+                    <view class="cell-btn">我知道了</view>
+                </view>
+            </view>
+        </view>
+        <!-- 新人礼包弹窗 -->
+        <new-user-dialog :show.sync="newGive" :underCheck.sync="isInspect"></new-user-dialog>
+    </form>
+</template>
+<script>
+import wepy from 'wepy';
+import { getStore, connect } from 'wepy-redux';
+import PushMixin from '../../mixins/push';
+import Loading from '../../components/common/loading';
+import header from '../../components/common/header';
+import { getUserPhone, refreshUserInformations } from '../../redux/models/user';
+import { fetch, report as reportApi } from '../../api';
+import { shareDictionary, getStorageAsync, setStorageAsync, initializationDeligate } from '../../utils';
+import newUserDialog from '../../components/common/new-user-dialog';
+
+    const store = getStore()
+    @connect({
+        token(state) {
+            return state.user.token;
+        },
+        systemInfo(state) {
+            return state.user
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+
+export default class teamLearning extends wepy.page{
+    mixins = [PushMixin]
+    components = {
+        'mloading': Loading,
+        'jn-header': header,
+        'new-user-dialog': newUserDialog, //新人弹窗
+    }
+    data = {
+        isLoaded:false,//是否加载完成
+        isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+        isHeadHeight: false,//head相关,是否占高度
+        headerBackground: 'background-transparent',//head相关,背景
+        title:'组队抽取30天会员卡',//活动标题
+        nper:'14',//期数
+        date:'10.25',//日期
+        rules:['奖品为1天、3天、7天、30天的订阅会员。订阅会员可以免费学习全场内容。','队伍满员后队长额外获得一次抽奖机会。','队伍有新用户越多，整体中大奖的概率越高。','当队伍仅有你一人时，你可参加其他队伍。','每次的队伍都不能与之前的队伍完全相同。','三天为一期，每期下午4点开奖'],//活动规则
+        isFinished:false,//是否完成了组队
+        memberList:[],//组队成员数组
+        groupId:'',//当前队伍id
+        selfGroupId:'',//自己的队伍id
+        unclaimed:false,//是否有奖励未发放标识
+        gapNum:3,//还差多少人完成组队
+        isJoinGroup:false,//是否已经加入该队伍
+        isNewUser:false,//是否为新用户 默认否
+        shareTitle:'',//分享的标题
+        shareContent:'',//分享的内容
+        shareImg:'',//分享的封面图片
+        openDraw:false,//是否已开奖
+        myGive:false,//是否已领奖
+        isWinning:true,//是否中奖了
+        drawResult:0,//抽奖结果,天数
+        lastDrawResult:0,//上期奖励结果
+        drawExtra:0,//额外的抽奖结果,天数
+        lastDrawExtra:0,//上期奖励的额外抽奖结果
+        alreadyHaveGroup:false,//是否已有队伍
+        showReviewButton:false,//是否展示 查看我的队伍
+        isDisabledTeam:false,//队伍是否已失效
+        hasOwnGroup:false,//是否有自己的队伍
+        groupMaxNum:'',//最大人数
+        isButtonDisabled:false,//是否可以点加入队伍
+        isCaptainMiss:false,//是否队长去了别的队
+        newGive:false,//是否展示新人礼包
+        openResultDay:null,//开奖日期
+    }
+    
+    computed = {
+        showGroupResults() {
+            return this.openDraw && this.isJoinGroup
+        }
+    }
+    onLoad(params) {
+        let self = this
+        console.log(params)
+        self.groupId = params.groupId;
+        self.unclaimed = params.unclaimed == 'true' ? true : false;
+        self.lastDrawResult = params.drawResult;
+        self.lastDrawExtra = params.drawExtra;
+        self.$apply()
+    }
+    onShow() {
+        let self = this
+        wepy.$instance.globalData.getLoadHuilder() // ga统计
+        initializationDeligate({
+            initializeFunc: self.initialize.bind(self)
+        })
+
+    }
+
+    onHide() {
+
+    }
+
+    initialize() {
+        let self = this
+        self.__getGroupInfo()
+    }
+
+
+
+    __getGroupInfo() {
+        let self = this
+        let postData = {
+            token: self.systemInfo.token,
+            groupId: self.groupId
+        }
+        fetch.getGroupData(postData).then(response => {
+            //组队最大人数
+            self.memberList.length = response.groupMaxNum;
+            self.groupMaxNum = response.groupMaxNum;
+            //是否已完成组队
+            self.isFinished = response.userInfos.length == 3 ? true : false ;
+            //期数
+            self.nper = response.number;
+            //时间
+            self.date = (new Date(response.date).getMonth() + 1) + '.' + (new Date(response.date).getDate());
+            self.openResultDay = new Date(response.date).getFullYear() + '年' + (new Date(response.date).getMonth() + 1) + '月' + new Date(response.date).getDate() + '日';
+            //还差多少人完成组队
+            self.gapNum = response.userInfos && response.userInfos.length ? self.groupMaxNum - response.userInfos.length : self.groupMaxNum;
+            //是否为该队伍成员
+            self.isJoinGroup = response.userInfos.some(item => item.userId == self.systemInfo.userid)
+            //查询到的人数赋值到memberList数组
+            response.userInfos && response.userInfos.length && (response.userInfos.map((item,index) => {
+                self.memberList[index] = item
+            }))
+            //分享的信息
+            self.shareTitle = response.groupDrawShareInfo.shareTitle;
+            self.shareContent = response.groupDrawShareInfo.shareContent;
+            self.shareImg = response.groupDrawShareInfo.shareImg;
+            //是否已开奖
+            self.openDraw = response.openDraw;
+            //是否已领奖
+            self.myGive = response.myGive;
+            //获奖信息
+            response.drawResult && (self.drawResult = response.drawResult);
+            response.drawExtra && (self.drawExtra = response.drawExtra);
+            self.isWinning = response.drawResult != '-1' ? true : false;
+
+            self.isLoaded = true;
+            self.$apply();
+        })
+    }
+
+    /* *
+    * 加入队伍
+    * */
+    __joinThisGroup() {
+        let self = this
+        if(self.isButtonDisabled)return;
+        let postData = {
+            token: self.systemInfo.token,
+            groupId: self.groupId,
+            source: 'group-share',
+            register: self.isNewUser
+        }
+        self.isButtonDisabled = true;
+        self.$apply();
+        fetch.joinGroup(postData).then(response => {
+            let codeStatus = [1,2,3,4,5,6];
+            let code = response.code;
+            if(code == 0) {
+                wepy.showToast({
+                    title:'加入成功',
+                    icon:'none'
+                })
+                self.unclaimed = response.unclaimed;
+                self.lastDrawResult = Number(response.drawResult);
+                self.lastDrawExtra = Number(response.drawExtra);
+                self.$apply();
+                self.initialize();
+                if(self.isNewUser) {
+                    //ga埋点
+                    wepy.$instance.globalData.getHuilder('组队页/新人礼包出现', 'click', '')
+                    //数据库埋点
+                    let postData = {
+                        token: self.token,
+                        body: {
+                            json: {
+                                pageType: "组队页",
+                                eventType: "新人礼包出现",
+                                componentName: "",
+                                cpnPresentName: "",
+                            }
+                        }
+                    }
+                    let t = setTimeout(() => {
+                        self.newGive = true;
+                        self.$apply();
+                        clearTimeout(t);
+                    }, 500);
+                }
+                
+            } else if(code == -1) {
+                wepy.showToast({
+                    title:'加入失败',
+                    icon:'none'
+                })
+            } else if(codeStatus.indexOf(code) > -1) {
+                wepy.showToast({
+                    title:response.message,
+                    icon:'none'
+                })
+                if(code == 4) {
+                    self.isDisabledTeam = true
+                    self.$apply()
+                } else if(code == 2) {
+                    self.initialize()
+                } else if(code == 3) {
+                    self.selfGroupId = response.groupId;
+                    self.hasOwnGroup = true;
+                    self.$apply();
+                } else if(code == 5) {
+                    self.memberList = []
+                    self.memberList.length = self.groupMaxNum
+                    self.isCaptainMiss = true
+                    self.gapNum = self.groupMaxNum
+                    self.$apply()
+                } else if(code == 6) {
+                    self.isDisabledTeam = true
+                    self.$apply()
+                }
+            } 
+            self.isButtonDisabled = false
+            self.$apply()
+        }).catch(error => {
+            wepy.showToast({
+                title:error,
+                icon:'none'
+            })
+            throw new Error(error)
+        })
+    }
+
+    /* 创建新组队 */
+    __createNewTeam() {
+        let self = this
+        
+        if(self.isButtonDisabled)return;
+        let postData = {
+            token:self.systemInfo.token,
+            source: 'group-share'
+        }
+        self.isButtonDisabled = true;
+        self.$apply();
+        fetch.buildGroup(postData).then(response => {
+            let { groupId, unclaimed} = response;
+            if(response.code == 0) {
+                if(unclaimed) {
+                    self.unclaimed = unclaimed;
+                    self.lastDrawResult = response.drawResult;
+                    self.lastDrawExtra = response.drawExtra;
+                }
+                self.groupId = groupId;
+                self.memberList = [];
+                self.$apply();
+                self.initialize();
+                if(self.isNewUser) {
+                    //ga埋点
+                    wepy.$instance.globalData.getHuilder('组队页/新人礼包出现', 'click', '')
+                    //数据库埋点
+                    let postData = {
+                        token: self.token,
+                        body: {
+                            json: {
+                                pageType: "组队页",
+                                eventType: "新人礼包出现",
+                                componentName: "",
+                                cpnPresentName: "",
+                            }
+                        }
+                    }
+                    let t = setTimeout(() => {
+                        self.newGive = true;
+                        self.$apply();
+                        clearTimeout(t);
+                    }, 500);
+                }
+            } else if(response.code == 1) {
+                wepy.showToast({
+                    title: response.message,
+                    icon: 'none'
+                })
+                self.selfGroupId = response.groupId;
+                self.showReviewButton = true;
+                self.$apply();
+            } else {
+                wepy.showToast({
+                    title: response.message,
+                    icon: 'none'
+                })
+            }
+            
+            self.isButtonDisabled = false
+            self.$apply()
+        }).catch(error =>  {throw new Error(error)})
+    }
+    methods = {
+        /* 关闭弹窗并taost结果 */
+        hideConfirm() {
+            let self = this
+            self.unclaimed = false;
+            let num = self.lastDrawExtra != '-1' ? (Number(self.lastDrawResult) + Number(self.lastDrawExtra)) : Number(self.lastDrawResult) ;
+            wepy.showToast({
+                title:`会员天数+${num}`,
+                icon:'none'
+            })
+            self.$apply();
+        },
+        getRecordList() {
+            let self = this
+            wepy.navigateTo({url:`/pages/activity-module/team-draw-record?groupMaxNum=${self.groupMaxNum}`})
+        },
+        /* 查看自己的队伍 */
+        viewOwnTeam() {
+            let self = this
+            self.groupId = self.selfGroupId;
+            self.memberList = [];
+            self.__getGroupInfo();
+            self.$apply();
+        },
+        /* 领取奖励 立即领取 */
+        doReceiveGift() {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token,
+                groupId: self.groupId
+            }
+            fetch.receiveGroupGift(postData).then(() => {
+                wepy.showToast({
+                    title:'领取成功',
+                    icon: 'none'
+                })
+                self.myGive = true;
+                setTimeout(() => {
+                    wepy.switchTab({ url: '/pages/tabPages/course'})
+                }, 1500);
+                self.$apply();
+            }).catch(error => {
+                console.log(error)
+            })
+        },
+        /* 组建新队伍 */
+        createNewTeam() {
+            let self = this
+            if(!self.phone)return;
+            wepy.$instance.globalData.getHuilder('组队页/点击创建队伍', 'click', '')
+            self.__createNewTeam();
+        },
+        /* 加入队伍按钮 */
+        handleTeamMember() {
+            let self = this
+            if(!self.phone)return;
+            wepy.$instance.globalData.getHuilder('组队页/点击加入队伍', 'click', '')
+            self.__joinThisGroup();
+            
+        },
+        /* 创新新队伍前授权 */
+        beforeCreateNewTeam(event) {
+            let self = this
+            let { detail: { encryptedData, errMsg, iv } } = event
+            
+            wepy.login().then((res) => {
+                res.code && store.dispatch(refreshUserInformations({
+                    code: res.code
+                }))
+                setTimeout(() => {
+                    res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                        store.dispatch(refreshUserInformations({
+                            phone: response
+                        }))
+                        wepy.$instance.globalData.getHuilder('组队页/组建队伍/手机号码授权/授权', 'click', '')
+                        
+                        //数据库埋点
+                        let postData = {
+                            token: self.token,
+                            body: {
+                                json: {
+                                    pageType: "组队页",
+                                    eventType: "组件新队伍",
+                                    componentName: "手机号码授权",
+                                    cpnPresentName: "接受",
+                                }
+                            }
+                        }
+                        reportApi.doUserBehaviourLog(postData);
+
+                        self.isNewUser = true
+                        
+                        self.__createNewTeam();
+
+                        self.$apply();
+                    }).catch((error) => {
+                        console.log(error)
+                        if(error && error.indexOf('getPhoneNumber') > -1){
+                            wepy.$instance.globalData.getHuilder('组队页/组件队伍/手机号码授权/拒绝', 'click', '')
+                        }
+                    })
+                }, 0);
+            })
+        },
+        /* 加入队伍前授权 */
+        getTeamMember(event) {
+            let self = this
+            let { detail: { encryptedData, errMsg, iv } } = event
+            
+            wepy.login().then((res) => {
+                res.code && store.dispatch(refreshUserInformations({
+                    code: res.code
+                }))
+                setTimeout(() => {
+                    res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                        store.dispatch(refreshUserInformations({
+                            phone: response
+                        }))
+                        wepy.$instance.globalData.getHuilder('组队页/加入队伍/手机号码授权/授权', 'click', '')
+
+                        //数据库埋点
+                        let postData = {
+                            token: self.token,
+                            body: {
+                                json: {
+                                    pageType: "组队页",
+                                    eventType: "加入队伍",
+                                    componentName: "手机号码授权",
+                                    cpnPresentName: "接受",
+                                }
+                            }
+                        }
+                        reportApi.doUserBehaviourLog(postData);
+                        
+                        self.isNewUser = true
+                        
+                        self.__joinThisGroup();
+
+                        self.$apply();
+                    }).catch((error) => {
+                        console.log(error)
+                        if(error && error.indexOf('getPhoneNumber') > -1){
+                            wepy.$instance.globalData.getHuilder('组队页/加入队伍/手机号码授权/拒绝', 'click', '')
+                        }
+                    })
+                }, 0);
+            })
+        }
+    }
+
+    events = {
+        'on-newdialog-register':() => {
+            let self = this
+            //ga埋点
+            wepy.$instance.globalData.getHuilder('组队页/新人礼包出现/开始体验', 'click', '')
+            //数据库埋点
+            let postData = {
+                token: self.token,
+                body: {
+                    json: {
+                        pageType: "组队页",
+                        eventType: "新人礼包出现",
+                        componentName: "开始体验",
+                        cpnPresentName: "",
+                    }
+                }
+            }
+            reportApi.doUserBehaviourLog(postData);
+            wepy.switchTab({ url: '/pages/tabPages/course'})
+        },
+        /* 隐藏今日页新人礼包弹窗 */
+        'on-hide-newdialog': () => {
+            let self = this
+            self.newGive = false;
+            wepy.$instance.globalData.getHuilder('组队页/新人福利/关闭', 'click', '')
+            self.$apply();
+        },
+    }
+
+    onShareAppMessage(res) {
+        let self = this
+        wepy.$instance.globalData.getHuilder(`组队页/邀请好友加入队伍`, 'click', '')
+        //数据库埋点
+        let postData = {
+            token: self.token,
+            body: {
+                json: {
+                    pageType: "组队页",
+                    eventType: "邀请好友加入队伍",
+                    componentName: "",
+                    cpnPresentName: "",
+                }
+            }
+        }
+        reportApi.doUserBehaviourLog(postData);
+        wepy.$instance.globalData.getReportFlow('share')
+        fetch.reportSharing({
+            token: self.token,
+            type: shareDictionary.SHARE_TEAM_DRAW.type
+        })
+        return {
+            title: self.shareTitle,
+            path: `/pages/activity-module/team-learning?groupId=${self.groupId}`,
+            imageUrl: self.shareImg
+        };
+    }
+}
+</script>
+<style lang="less" scoped>
+    @import '../../assets/style/theme';
+    /* 组队中 */
+    .ui-team-learning-module {
+        transform: translate(0,-48rpx);
+        &.ui-team-learning-iphonex {
+            transform: translate(0,-48rpx);
+        }
+        .ui-activity-banner {
+            .flex-center();
+            .ui-activity-title {
+                position: absolute;
+                padding-right: 108rpx;
+                padding-bottom: 38rpx;
+                .cell-title {
+                    color: @color-white;
+                    font-size: 48rpx;
+                    font-weight: bold;
+                }
+                .cell-subtitle {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    .cell-text {
+                        font-size: 28rpx;
+                        color: @color-white;
+                        &+.cell-text {
+                            margin-left: 20rpx;
+                        }
+                    }
+                }
+            }
+            .ui-activity-banner_bg {
+                width: 100%;
+                image {
+                    width: 100%;
+                }
+            }
+        }
+        .ui-acivity-rules {
+            margin: 30rpx 96rpx 30rpx 80rpx;
+            .ui-rules-title {
+                font-size: 32rpx;
+                color: @color-black;
+                width: 574rpx;
+                padding-left: 16rpx;
+                position: relative;
+                &::after{
+                    content:'';
+                    width: 8rpx;
+                    height: 24rpx;
+                    background: @color-yellow;
+                    border-radius: @border-radius-16;
+                    position: absolute;
+                    top: 50%;
+                    left: 0;
+                    transform: translateY(-50%);
+                }
+            }
+            .ui-rules-wrap {
+                width: 590rpx;
+                padding-left: 16rpx;
+                box-sizing: border-box;
+                padding-top: 24rpx;
+                .cell-rules-item {
+                    font-size: 24rpx;
+                    color: @color-gray-8c;
+                }
+            }
+        }
+        .ui-activity-main {
+            padding: 20rpx 32rpx;
+            margin: 64rpx;
+            box-shadow: @box-shadow-hight;
+            border-radius: @border-radius-32;
+            .ui-activity-tips {
+                border-bottom: solid 1rpx @border-gray;
+                padding-bottom: 16rpx;
+                .ui-unfinished-tip {
+                    font-size: 28rpx;
+                    color: @color-gray-8c;
+                    .font-orange {
+                        color: @color-orange-F9;
+                    }
+                }
+                .ui-finished-tip {
+                    font-size: 28rpx;
+                    color: @color-orange-F9;
+                }
+                .ui-finished-warn {
+                    font-size: 28rpx;
+                    color: @color-red-wran;
+                }
+            }
+            .ui-activity-members {
+                .flex-between();
+                margin: 40rpx;
+                .cell-member-box {
+                    position: relative;
+                    .cell-member-logo {
+                        image {
+                            width: 100%;
+                            height: 32rpx;
+                            position: absolute;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                        }
+                    }
+                    .cell-member-avatar {
+                        width: 112rpx;
+                        height: 112rpx;
+                        border-radius: 50%;
+                        background: @border-gray;
+                        .flex-center();
+                        .cell-default {
+                            width: 44rpx;
+                        }
+                        .cell-avatar {
+                            width: 100%;
+                            height: 100%;
+                            border-radius: 50%;
+                        }
+                    }
+                }
+            }
+        }
+        .ui-activity-button {
+            button {
+                width: 558rpx;
+                height: 88rpx;
+                font-size: 32rpx;
+                margin: 12rpx 0;
+                font-weight: bold;
+                .flex-center();
+                color: @color-white;
+                background: @background-blue;
+                border-radius: @border-radius-48;
+            }
+        }
+        .ui-tips-module {
+            .flex-center();
+            margin-top: -20rpx;
+            .cell-tips {
+                font-size: 28rpx;
+                color: @color-gray-BF;
+                .flex-center();
+                .icon-right-arrow {
+                    font-size: 23rpx;
+                    color: @color-gray-BF;
+                }
+            }
+        }
+        .cell-margin-module {
+            width: 100%;
+            height: 200rpx;
+        }
+    }
+    /* 抽奖结果 */
+    .ui-team-result-module {
+        transform: translate(0,-48rpx);
+        &.ui-team-result-iphonex {
+            transform: translate(0,-48rpx);
+        }
+        .ui-result-success {
+            .ui-activity-banner {
+                .flex-center();
+                .ui-activity-title {
+                    width: 558rpx;
+                    position: absolute;
+                    top:144rpx;
+                    padding-bottom: 35rpx;
+                    .cell-title {
+                        color: @color-white;
+                        font-size: 64rpx;
+                        font-weight: bold;
+                        line-height: 1.7;
+                    }
+                    .cell-subtitle {
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        .cell-text {
+                            font-size: 28rpx;
+                            color: @color-white;
+                            &+.cell-text {
+                                margin-left: 20rpx;
+                            }
+                        }
+                    }
+                }
+                .ui-activity-title-iphonex {
+                    top: 190rpx;
+                }
+                .ui-activity-banner_bg {
+                    width: 100%;
+                    image {
+                        width: 100%;
+                    }
+                }
+
+                .ui-left-top{
+                    margin-top: -48rpx;
+                }
+
+
+                .ui-activity-day{
+                    color: #ffffff;
+                    position: absolute;
+                    top: 480rpx;
+                    left: 388rpx;
+                    z-index: 1;
+                    font-size: 24rpx;
+                    width: 160rpx;
+                    text-align: right;
+                    transform:rotate(-8deg);
+
+                    .ui-day-text{
+                        margin-right: 2rpx;
+                        font-size: 80rpx;
+                        font-weight: bold;
+                    }
+                    .ui-day-text-small{
+                        margin-right: 2rpx;
+                        font-size: 48rpx;
+                        font-weight: bold;
+                    }
+                }
+            }
+            .ui-acivity-rules {
+                margin: 30rpx 96rpx 30rpx 80rpx;
+                .ui-rules-title {
+                    font-size: 32rpx;
+                    color: @color-black;
+                    width: 574rpx;
+                    padding-left: 16rpx;
+                    position: relative;
+                    &::after{
+                        content:'';
+                        width: 8rpx;
+                        height: 24rpx;
+                        background: @color-yellow;
+                        border-radius: @border-radius-16;
+                        position: absolute;
+                        top: 50%;
+                        left: 0;
+                        transform: translateY(-50%);
+                    }
+                }
+                .ui-rules-wrap {
+                    width: 590rpx;
+                    padding-left: 16rpx;
+                    box-sizing: border-box;
+                    padding-top: 24rpx;
+                    .cell-rules-item {
+                        font-size: 24rpx;
+                        color: @color-gray-8c;
+                    }
+                }
+            }
+
+            .ui-acivity-main-tips-bottom {
+                font-size: 28rpx;
+                color: @color-gray-8c;
+                width: 100%;
+                text-align: center;
+                margin-top: 32rpx;
+            }
+
+            .ui-acivity-main-border{
+                box-shadow: @box-shadow-hight;
+                border-radius: @border-radius-32;
+            }
+            .ui-activity-main {
+                padding: 0rpx 32rpx;
+                margin:0 64rpx;
+
+                .ui-activity-tips-none {
+                    width: 100%;
+                    text-align: center;
+                    padding-bottom: 16rpx;
+                    .ui-unfinished-tip {
+                        font-size: 28rpx;
+                        color: @color-gray-8c;
+                        .font-orange {
+                            color: @color-orange-F9;
+                        }
+                    }
+                    .ui-finished-tip {
+                        font-size: 28rpx;
+                        color: @color-orange-F9;
+                    }
+                    .ui-finished-warn {
+                        font-size: 28rpx;
+                        color: @color-red-wran;
+                    }
+                }
+                .ui-activity-tips {
+                    border-bottom: solid 1rpx @border-gray;
+                    padding-bottom: 16rpx;
+                    .ui-unfinished-tip {
+                        font-size: 28rpx;
+                        color: @color-gray-8c;
+                        .font-orange {
+                            color: @color-orange-F9;
+                        }
+                    }
+                    .ui-finished-tip {
+                        font-size: 28rpx;
+                        color: @color-orange-F9;
+                    }
+                    .ui-finished-warn {
+                        font-size: 28rpx;
+                        color: @color-red-wran;
+                    }
+                }
+
+                .ui-activity-members {
+                    .flex-between();
+                    margin: 40rpx;
+                    .cell-member-box {
+                        position: relative;
+                        .cell-member-logo {
+                            image {
+                                width: 100%;
+                                height: 32rpx;
+                                position: absolute;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                            }
+                        }
+                        .cell-member-avatar {
+                            width: 112rpx;
+                            height: 112rpx;
+                            border-radius: 50%;
+                            background: @border-gray;
+                            .flex-center();
+                            .cell-default {
+                                width: 44rpx;
+                            }
+                            .cell-avatar {
+                                width: 100%;
+                                height: 100%;
+                                border-radius: 50%;
+                            }
+                        }
+                    }
+                }
+            }
+            .ui-activity-button {
+                button {
+                    width: 558rpx;
+                    height: 88rpx;
+                    font-size: 32rpx;
+                    margin: 12rpx 0;
+                    font-weight: bold;
+                    .flex-center();
+                    color: @color-white;
+                    background: @background-blue;
+                    border-radius: @border-radius-48;
+                }
+
+                .ui-btn-geted{
+                    background: @background-tint-blue;
+                }
+            }
+        }
+        .ui-result-fail {
+            .ui-activity-banner {
+                .flex-center();
+                .ui-activity-title {
+                    position: absolute;
+                    top:190rpx;
+                    padding-bottom: 35rpx;
+                    .cell-title {
+                        color: @color-white;
+                        font-size: 58rpx;
+                        font-weight: bold;
+                    }
+                    .cell-subtitle {
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        .cell-text {
+                            font-size: 28rpx;
+                            color: @color-white;
+                            &+.cell-text {
+                                margin-left: 20rpx;
+                            }
+                        }
+                    }
+                }
+                .ui-activity-banner_bg {
+                    width: 100%;
+                    image {
+                        width: 100%;
+                    }
+                }
+
+                .ui-left-top{
+                    margin-top: -48rpx;
+                }
+            }
+            .ui-acivity-rules {
+                margin: 30rpx 96rpx 30rpx 80rpx;
+                .ui-rules-title {
+                    font-size: 32rpx;
+                    color: @color-black;
+                    width: 574rpx;
+                    padding-left: 16rpx;
+                    position: relative;
+                    &::after{
+                        content:'';
+                        width: 8rpx;
+                        height: 24rpx;
+                        background: @color-yellow;
+                        border-radius: @border-radius-16;
+                        position: absolute;
+                        top: 50%;
+                        left: 0;
+                        transform: translateY(-50%);
+                    }
+                }
+                .ui-rules-wrap {
+                    width: 590rpx;
+                    padding-left: 16rpx;
+                    box-sizing: border-box;
+                    padding-top: 24rpx;
+                    .cell-rules-item {
+                        font-size: 24rpx;
+                        color: @color-gray-8c;
+                    }
+                }
+            }
+
+            .ui-acivity-main-tips-bottom {
+                font-size: 28rpx;
+                color: @color-gray-8c;
+                width: 100%;
+                text-align: center;
+                margin-top: 15rpx;
+            }
+
+            .ui-container-float{
+                position: absolute;
+                top:720rpx;
+                left: 0px;
+            }
+
+            .ui-activity-main {
+                overflow-x: hidden;
+                background-color: white;
+                padding: 20rpx 32rpx;
+                margin:64rpx 64rpx 0 64rpx;
+                box-shadow: @box-shadow-hight;
+                border-radius: @border-radius-32;
+                .ui-activity-tips-none {
+                    width: 100%;
+                    text-align: center;
+                    padding-bottom: 16rpx;
+                    .ui-unfinished-tip {
+                        font-size: 28rpx;
+                        color: @color-gray-8c;
+                        .font-orange {
+                            color: @color-orange-F9;
+                        }
+                    }
+                    .ui-finished-tip {
+                        font-size: 28rpx;
+                        color: @color-orange-F9;
+                    }
+                    .ui-finished-warn {
+                        font-size: 28rpx;
+                        color: @color-red-wran;
+                    }
+                }
+                .ui-activity-tips {
+                    border-bottom: solid 1rpx @border-gray;
+                    padding-bottom: 16rpx;
+                    .ui-unfinished-tip {
+                        font-size: 28rpx;
+                        color: @color-gray-8c;
+                        .font-orange {
+                            color: @color-orange-F9;
+                        }
+                    }
+                    .ui-finished-tip {
+                        font-size: 28rpx;
+                        color: @color-orange-F9;
+                    }
+                    .ui-finished-warn {
+                        font-size: 28rpx;
+                        color: @color-red-wran;
+                    }
+                }
+
+                .ui-activity-members {
+                    .flex-between();
+                    margin: 40rpx;
+                    .cell-member-box {
+                        position: relative;
+                        .cell-member-logo {
+                            image {
+                                width: 100%;
+                                height: 32rpx;
+                                position: absolute;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                            }
+                        }
+                        .cell-member-avatar {
+                            width: 112rpx;
+                            height: 112rpx;
+                            border-radius: 50%;
+                            background: @border-gray;
+                            .flex-center();
+                            .cell-default {
+                                width: 44rpx;
+                            }
+                            .cell-avatar {
+                                width: 100%;
+                                height: 100%;
+                                border-radius: 50%;
+                            }
+                        }
+                    }
+                }
+            }
+            .ui-activity-button {
+                button {
+                    width: 558rpx;
+                    height: 88rpx;
+                    font-size: 32rpx;
+                    margin: 12rpx 0;
+                    font-weight: bold;
+                    .flex-center();
+                    color: @color-white;
+                    background: @background-blue;
+                    border-radius: @border-radius-48;
+                }
+            }
+        }
+    }
+    /* 奖励已发放弹窗 */
+    .ui-notice-module {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        .flex-center();
+        z-index: @z-index-highest;
+        .ui-notice-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: @background-mask-normal-4;
+        }
+        .ui-notice-main {
+            width: 622rpx;
+            height: 596rpx;
+            background: @background-white;
+            border-radius: @border-radius-32;
+            box-shadow: @box-shadow-hight;
+            z-index: @z-index-lower;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: column;
+            .ui-results-content {
+                .flex-center();
+                flex-wrap: wrap;
+                image {
+                    width: 160rpx;
+                    height: 184rpx;
+                    margin: 60rpx 0 48rpx;
+                }
+                .cell-text {
+                    font-size: 28rpx;
+                    color: @color-gray-8c;
+                    width: 100%;
+                    text-align: center;
+                    margin-bottom: 20rpx;
+                }
+                .cell-results {
+                    font-size: 40rpx;
+                    color: @color-black;
+                    .font-orange {
+                        color: @color-orange-F9;
+                        font-weight: bold;
+                        display: inline-block;
+                    }
+                }
+            }
+            .ui-confirm-button {
+                width: 100%;
+                height: 120rpx;
+                border-top: solid 1rpx @border-gray;
+                .cell-btn {
+                    width: 100%;
+                    height: 100%;
+                    .flex-center();
+                    color: @color-blue;
+                    font-size: 32rpx;
+                }
+            }
+        }
+    }
+</style>

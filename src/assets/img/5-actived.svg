@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
+    <title>很好</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="36.316003%" y1="8.23464736%" x2="81.172247%" y2="88.2644151%" id="linearGradient-1">
+            <stop stop-color="#FFE900" offset="0%"></stop>
+            <stop stop-color="#FFBB0B" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="评价页标注" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-1771.000000, -497.000000)">
+        <g id="Group-3-Copy-2" transform="translate(1563.000000, 497.000000)">
+            <g id="很好" transform="translate(208.000000, 0.000000)">
+                <circle id="Oval-3-Copy-6" fill="url(#linearGradient-1)" cx="16" cy="16" r="16"></circle>
+                <path d="M16.5,27.5 C21.7467051,27.5 26,23.2467051 26,18 C21.7750917,18 11.3300485,18 7,18 C7,23.2467051 11.2532949,27.5 16.5,27.5 Z" id="Oval-3-Copy-7" fill="#FFFFFF"></path>
+                <path d="M12.2810922,14.2810922 C12.2810922,12.8135083 11.6735279,11.4878286 10.6962036,10.5418572 C9.75976428,9.63545929 8.48385457,9.07766504 7.07766504,9.07766504" id="Oval-4-Copy" stroke="#393939" stroke-width="2" stroke-linecap="round" transform="translate(9.679379, 11.679379) rotate(-45.000000) translate(-9.679379, -11.679379) "></path>
+                <path d="M25.2810922,14.2810922 C25.2810922,11.4073187 22.9514385,9.07766504 20.077665,9.07766504" id="Oval-4-Copy-2" stroke="#393939" stroke-width="2" stroke-linecap="round" transform="translate(22.679379, 11.679379) rotate(-45.000000) translate(-22.679379, -11.679379) "></path>
+            </g>
+        </g>
+    </g>
+</svg>

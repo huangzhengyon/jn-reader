@@ -1,0 +1,166 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .cell-canvas{width:375px;height:650px;background-color:@color-white;position:fixed;left:150%;top:0;z-index:@z-index-normal;}
+</style>
+
+<template>
+    <canvas class="cell-canvas" canvas-id="shareThumbCanvas" style="{{'width:'+cardShareInfo.width+'px;height:'+cardShareInfo.height+'px'}}"></canvas>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+
+    export default class shareThumb extends wepy.component {
+        props = {}
+
+        data = {
+            cardCanvas: null,
+            broadcastInfo: {},
+            thumbInfo: {},
+            cardShareInfo: {
+                width: 375,
+                height: 375,
+                prop: 1
+            }
+        }
+
+        methods = {}
+
+        events = {
+            'special-share-thumb': (info) => {
+                let self = this
+                self.broadcastInfo = info
+
+                let image = self.broadcastInfo.shareImage.replace('http://image.runwise.cn/', 'https://wx-small.runwise.cn/')
+                let shareImage = self.__loadingImages('shareImage', image)
+
+                self.cardCanvas = wx.createCanvasContext('shareThumbCanvas')
+                Promise.all([shareImage]).then(response => {
+                    self.thumbInfo = response[0].shareImage
+
+                    self.__initShareCard()
+                })
+            }
+        }
+
+        /**
+         * 加载图片资源
+         * @private image
+         */
+        __loadingImages(key, image) {
+            let self = this
+            return new Promise((resolve, reject) => {
+                wx.getImageInfo({
+                    src: image,
+                    success(res) {
+                        let info = {}
+                        info[key] = res
+                        resolve(info)
+                    },
+                    fail() {
+                        console.log(`生成${key}图片失败`)
+                    }
+                })
+            })
+        }
+        /**
+         * 绘画封面图
+         * @private
+         */
+        __initShareCard() {
+            let self = this
+            self.cardShareInfo.width = self.cardShareInfo.width
+            self.cardShareInfo.height = self.cardShareInfo.height
+
+            self.cardCanvas.setFillStyle('red')
+            self.cardCanvas.fillRect(0, 0, self.cardShareInfo.width, self.cardShareInfo.height)
+
+            self.cardCanvas.beginPath()
+            self.cardCanvas.drawImage(self.thumbInfo.path, 0, 0, self.cardShareInfo.width, self.cardShareInfo.height)
+            self.cardCanvas.closePath()
+            self.cardCanvas.stroke()
+
+            self.__drawText()
+        }
+
+        /**
+         * 绘画标注文案
+         * @private
+         */
+        __drawText(){
+            let self = this
+            let prop = self.cardShareInfo.prop
+            // 对标题进行分行拆分
+            let title = self.broadcastInfo.title
+            let titleList = []
+            for(let i=0,len=title.length;i<len;i++) {
+                if (0 === i%11) {
+                    titleList.push(title.substring((!i ? i : i+1), (i+1)*12))
+                }
+            }
+
+            let fontsize1 = Math.ceil(17 * prop) // 副标题
+            let fontsize2 = Math.ceil(26 * prop) // 正标题
+            let lineHeight =  Math.ceil(34 * prop) // 正标题行高，多行的时候使用
+            let x = Math.ceil(32 * prop) // x轴坐标
+            let y1 = Math.ceil(52 * prop) // 副标题y轴坐标
+            let y2 = Math.ceil(90 * prop) // 正标题y轴坐标
+
+            // 副标题绘画
+            self.cardCanvas.save()
+            self.cardCanvas.beginPath()
+            self.cardCanvas.setFillStyle('rgba(255,255,255,0.5)')
+            self.cardCanvas.setFontSize(fontsize1)
+            self.cardCanvas.fillText(self.broadcastInfo.screenName, x, y1)
+            self.cardCanvas.closePath()
+            self.cardCanvas.stroke()
+            // 正标题绘画
+            self.cardCanvas.save()
+            self.cardCanvas.beginPath()
+            self.cardCanvas.setFillStyle('white')
+            self.cardCanvas.setFontSize(fontsize2)
+            // 多行显示处理，写2行跟0.5是文本加粗
+            _.each(titleList, (item, index) => {
+                self.cardCanvas.fillText(item, x, y2 + 0.5 + (index * lineHeight))
+                self.cardCanvas.fillText(item, x + 0.5, y2 + (index * lineHeight))
+            })
+
+            self.cardCanvas.closePath()
+            self.cardCanvas.stroke()
+
+            // 监听绘画是否结束
+            self.cardCanvas.draw(false, () => {
+                self.__creatImage()
+            })
+        }
+
+        /**
+         * 生成图片
+         * @private
+         */
+        __creatImage() {
+            let self = this
+            let cardShareInfo = self.cardShareInfo
+
+            wx.canvasToTempFilePath({
+                destWidth: cardShareInfo.width * 3,
+                destHeight: cardShareInfo.height * 3,
+                fileType: 'jpg',
+                canvasId: 'shareThumbCanvas',
+                success(response) {
+                    self.$emit('share-thumb', response.tempFilePath)
+                }
+            })
+        }
+
+    }
+</script>

@@ -1,0 +1,486 @@
+<template>
+	<mloading wx:if="{{ !isLoaded  }}"/>
+	<jn-header title="训练营" hiddenButton statusBackground="#fff">
+		<button slot="cursor-button" class="cell-back ui-header-button" @tap.stop="getClosePage">
+			<text class="icon-back"></text>
+		</button>
+	</jn-header>
+
+	<view class="ui-training-camp" style="height: calc(100% - {{headerHeigth}}px)" wx:if="{{isLoaded}}">
+		<scroll-view class="ui-bar" scroll-x="{{ true }}"
+					 scroll-into-view="item-{{ activedAssortmentPage }}"
+					 wx:if="{{adminTeamBeforList.length || adminTeamDoingList.length || adminTeamEndList.length}}" scroll-with-animation="{{ true }}">
+			<view wx:for="{{ teamSort }}" wx:key="{{ index }}" id="item-{{ 0==index? 'source-zero': index }}"
+				  data-series-index="{{ index }}" class="cell-item"
+				  :class="{ actived: index==activedAssortmentIndex }" @tap.stop="handleSelectSeries">{{ item.label }}
+			</view>
+		</scroll-view>
+		<swiper class="ui-list {{!adminTeamBeforList.length && !adminTeamDoingList.length && !adminTeamEndList.length? 'empty' : ''}}"
+				indicator-dots="{{ false }}"
+				autoplay="{{ false }}"
+				circular="{{ false }}"
+				duration="300" interval="2000"
+				current="{{ activedAssortmentIndex }}"
+				bindchange="handleSwiperChanged">
+			<swiper-item wx:for="{{ teamSortTab }}" wx:key="{{ index }}" data-swiper-item-id="item-{{ index }}">
+				<!-- 我管理的 -->
+				<scroll-view wx:if="{{index===1}}"
+							 scroll-y="{{isScroll}}"
+							 bindscroll="getScroll"
+							 class="ui-scroll ui-admin-box">
+					<!-- 我管理的 adminTeamDoingList -->
+					<view wx:if="{{ adminList.length }}">
+						<repeat for="{{ adminList }}" item="item" index="index" key="index">
+							<view class="ui-team-item dir-top cross-center" @tap.stop="getTeamDetail" data-id="{{item.teamID}}"> 
+								<view class="ui-bg" style="background-image:url('{{item.imageUrl}}')">
+									<view class="ui-shadow">
+										<view>{{item.beginDate}} - {{item.endDate}}</view>
+										<view class="cell-name cross-end">{{item.name}}</view>
+										<view wx:if="{{'学员' == item.role}}">{{item.userCount}}人已报名</view>
+										<view wx:else>已完成 {{item.taskPlanProgress ? item.taskPlanProgress : 0}}% </view>
+									</view>
+								</view>
+								<view class="ui-admin ui-content cross-center">
+									<view class="ui-student cross-center">
+										<view class="ui-avatar cross-center">
+											<view wx:for="{{item.userAvatarUrlList}}" wx:for-index="avatarIndex"  wx:for-item="avatarItem" wx:key="{{avatarIndex}}">
+												<image src="{{avatarItem.avatarUrl}}" /> 
+											</view>
+										</view>
+										<view class="cell-num">{{item.userCount}}人已学</view>
+									</view>
+									<view class="cell-btn" @tap.stop="getAdminTeam" data-id="{{item.teamID}}">管理</view>
+								</view>
+							</view>
+						</repeat>
+					</view>
+					
+					<view class="cell-recommend-box" :class="{'has' : adminTeamDoingList.length || adminTeamBeforList.length}" wx:if="{{adminTeamEndList.length}}">已结束</view>
+					<view wx:if="{{adminTeamEndList.length}}">
+						<view class="ui-camp-item" wx:for="{{ adminTeamEndList }}"  wx:key="{{index}}" @tap.stop="getTeamDetail" data-id="{{item.teamID}}">
+							<view class="ui-box">
+								<image class="cell-img" src="{{item.imageUrl}}" />
+							</view>
+							<view class="ui-font">
+								<view class="cell-title">{{item.name}}</view>
+								<view class="cell-date">{{item.teamTimeTip}}
+									<text>，</text>
+									<text class="color-flag">{{item.progress+'% '}}</text>
+									<text>完成比例</text>
+								</view>
+							</view>
+						</view>
+					</view>
+					<view class="ui-team-height"></view>
+				</scroll-view>
+
+				<!-- 我参与的 -->
+				<scroll-view scroll-y="{{isScroll}}"
+							 bindscroll="getScroll"
+							 class="ui-scroll"
+							 style="" wx:if="{{index===0}}">
+					<view class="ui-partin-title-box" wx:if="{{ memberTeamStatus === 'sign' }}">
+						<view class="ui-parin-your-camp">你的训练营</view>
+						<view class="ui-parin-all-camp" @tap.stop="goAllCampList">
+							查看全部
+							<text class="iconfont icon-right-arrow"></text>
+						</view>
+					</view>
+
+					<repeat for="{{ studentList }}"  item="item" index="index" key="index">
+						<view class="ui-team-item dir-top cross-center"
+						 @tap.stop="getTeamDetail" data-id="{{item.teamID}}">
+							<view class="ui-bg" style="background-image:url('{{item.imageUrl}}')">
+								<view class="ui-shadow">
+									<view>{{item.beginDate}} - {{item.endDate}}</view>
+									<view class="cell-name cross-end">{{item.name}}</view>
+									<view>{{item.userCount}}人已报名</view>
+								</view>
+							</view>
+							<view class="ui-progress ui-content cross-center main-end dir-top">
+								<view class="ui-progress-item">
+									<view class="cell-team-progress" style="width:{{item.taskPlanProgress}}%"></view>
+									<view class="ui-my-progress" style="width:{{item.taskMyProgress}}%">
+										<view class="ui-icon" :class="{'ui-zero' : !item.taskMyProgress && item.taskPlanProgress}">
+											<text class="icon-box"></text>
+											<view>{{item.taskMyProgress ? item.taskMyProgress : 0}}%</view>
+										</view>
+									</view>
+								</view>
+								<view class="ui-tips main-justify cross-center">
+									<view>个人进度</view>
+									<view>计划进度</view>
+								</view>
+							</view>
+						</view>
+					</repeat>
+					
+
+					<!-- 我参与的 当列表为空时-->
+					<view class="ui-empty-list"
+						  wx:if="{{ !studentList.length}}">
+						<image class="cell-wecan" mode="widthFix" src="{{wetCanImg}}"/>
+						<view class="cell-btn" @tap.stop="getWetCan">复制微信号</view>
+					</view>
+
+					<!-- 为你推荐 -->
+					<view class="cell-recommend-box" :class="{'has' : teamDoingList.length || teamBeforList.length}" wx:if="{{teamCommendList.length}}">为你推荐</view>
+					<view wx:if="{{teamCommendList.length}}">
+						<view class="ui-camp-item" wx:for="{{ teamCommendList }}"   wx:key="{{index}}" @tap.stop="getIntroduction" data-team-i-d="{{item.teamID}}">
+							<view class="ui-box">
+								<image class="cell-img" src="{{item.imageUrl}}"></image>
+							</view>
+							<view class="ui-font">
+								<view class="cell-title">{{item.name}}</view>
+								<view class="cell-date">{{item.beginDate}}-{{item.endDate}}
+									<text>· </text>
+									<text class="cell-num">{{item.joinCount}}人</text> 报名
+								</view>
+							</view>
+						</view>
+					</view>
+					<view class="ui-team-height"></view>
+				</scroll-view>
+			</swiper-item>
+		</swiper>
+	</view>
+	<view></view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore,connect} from "wepy-redux"
+    import Loading from '../../components/common/loading'
+    import loadingMixin from '../../mixins/loading'
+    import header from '../../components/common/header'
+    import {team as teamApi, fetch } from '../../api'
+	import {initializationDeligate} from '../../utils'
+	import _ from 'underscore'
+
+    const store = getStore();
+    @connect({
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            return state.user.token;
+        }
+    })
+    export default class TraningCamp extends wepy.page {
+        mixins = [loadingMixin]
+
+        computed = {
+            teamSortTab() {
+                if(this.adminTeamBeforList.length || this.adminTeamDoingList.length || this.adminTeamEndList.length) {
+                    return [{lable:'我参与的'},{lable:'我管理的'}]
+                }else {
+                    return [{lable:'我参与的'}]
+                }
+            }
+        }
+
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+        }
+        data = {
+            headerHeigth: 68,
+            scrollTop: 0,
+            isScroll: true, // 是否能滚动
+            teamStatus: ['进行中', '未开始'],
+            isLoaded: false,
+            activedAssortmentIndex: 0, // 选中的系列index
+            activedAssortmentPage: 0, // 第几页
+            seriesPerPage: 2,
+            teamSort: [{
+                label: '我参与的'
+            },
+                {
+                    label: '我管理的'
+                }
+            ],//标题tab
+            adminTeam: {},
+            memberTeam: {},
+            teamCommendList: [],//为你推荐
+            adminTeamDoingList: [],//我管理的 课程
+            adminTeamEndList: [],//我管理的 已结束的
+            teamDoingList: [],//正在学习的课程
+            teamBeforList: [],//未开始的课程
+            adminTeamBeforList: [],//我管理的 未开始的
+			memberTeamStatus:'sign' ,//从未参加过 neverSign  曾经参加过sign
+			wetCanImg:'',
+			studentList:[],
+			adminList:[],
+        }
+
+        onLoad() {
+
+        }
+
+        onShow() {
+        	initializationDeligate({initializeFunc: this.initialize.bind(this)})
+        }
+
+        events = {
+            attendClass(courseID, resume, $event) {
+                try {
+                    wepy.navigateTo({
+                        url: `/pages/course-module/course-details?id=${courseID}&resume=${resume}`
+                    })
+                } catch (err) {
+                    console.log('handle attend classes err', err)
+                }
+            },
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            },
+           
+        }
+        methods = {
+			/* 
+            管理训练营详情页 
+            */
+            getAdminTeam(event) {
+                let self = this;
+                let {currentTarget: {dataset: {id}}} = event
+                self.$navigate('/pages/training-camp-module/my/main', {teamID:id})
+			},
+			/* 
+                训练营详情页 
+            */
+            getTeamDetail(event) {
+                let self = this;
+                let {currentTarget: {dataset: {id}}} = event
+                self.$navigate('/pages/training-camp-module/training-detail', {teamID:id})
+            },
+			getClosePage(){
+				wepy.switchTab({url: `/pages/tabPages/userCenter`})
+			},
+            //点击 全部 去到 全部训练营 列表
+            goAllCampList() {
+                this.$navigate('/pages/training-camp-module/all-training');
+            },
+            //当改变tab 触发下面的内容转变 触发
+            handleSwiperChanged({ detail: {current, source } }) {
+                if ('touch' !== source) return false // 不处理非手势滑动 切换
+                this.switchSeries({
+                    current,
+                    seriesPerPage: this.seriesPerPage
+                })
+            },
+
+            //点击 tab的时候触发
+            handleSelectSeries({ currentTarget: { dataset: { seriesIndex } } }) {
+                this.switchSeries({
+                    current: seriesIndex,
+                    seriesPerPage: this.seriesPerPage
+                })
+            },
+            //跳去报名页
+			getIntroduction(event){
+				let self = this;
+                let {currentTarget: {dataset: {teamID}}} = event
+                this.$navigate('/pages/training-camp-module/registration', {teamID})
+            },
+            /**
+             * 监听滚动条的位置
+             * @param
+             */
+            getScroll({ detail: { scrollTop } }) {
+                let self = this
+                setTimeout(() => {
+                    self.scrollTop = scrollTop
+                }, 100)
+			},
+			getWetCan() {
+				let self = this;
+				wx.setClipboardData({
+					data:'pascalbo',
+					success:() => {
+
+						wepy.$instance.globalData.getHuilder('团队学习', 'click', '复制微信')
+
+						wx.showToast({
+							title: '复制成功',
+							icon: 'success',
+							duration: 2000
+						})
+					},
+					fail:() => {
+						wx.showToast({
+							title: '复制失败',
+							duration: 2000
+						})
+					}
+				})
+			}
+        }
+        initialize() {
+			// 通知组件，生成图片预览
+			let self = this;
+            this.$broadcast('studying-bar')
+            teamApi.getMyTeamListByTabByCommend({token: this.token})
+			.then(res => {
+
+				this.teamDoingList = res.memberTeam.memberTeamDoingList //正在学习的 课程
+				this.teamCommendList = res.memberTeam.memberTeamCommendList //为你推荐的 课程
+				this.teamBeforList = res.memberTeam.memberTeamBeforList || res.memberTeam.memberTeamBeforeList || [] //还没开始的 课程
+				this.adminTeamDoingList = res.adminTeam.adminTeamDoingList //我管理的 课程
+				this.adminTeamEndList = res.adminTeam.adminTeamEndList //我管理的 已结束的
+				this.memberTeamStatus = res.memberTeam.memberTeamStatus //是否参加过训练营
+				this.adminTeamBeforList = res.adminTeam.adminTeamBeforList || []
+
+				self.studentList = _.union(self.teamBeforList,self.teamDoingList)
+				self.adminList = _.union(self.adminTeamDoingList,self.adminTeamBeforList)
+				if(!self.teamDoingList.length && !self.teamBeforList.length){
+					let postData = {
+						token: self.token,
+						imgKey: 'upjiang_imagecode',
+					}
+					fetch.commonImgUrl(postData).then((response) => {
+						self.wetCanImg = response.imgUrl
+						this.$apply()
+					})
+				}
+				this.isLoaded = true
+
+				this.$apply()
+
+
+                wepy.$instance.globalData.getLoadHuilder() // ga统计
+			})
+
+			.then(()=>{
+
+			})
+			.catch(error => {
+				throw error
+			})
+        }
+
+		switchSeries({current,seriesPerPage})
+		{
+            this.activedAssortmentIndex = current
+            this.activedAssortmentPage = `${current < seriesPerPage ? 0 : (current - seriesPerPage)}`
+        }
+    }
+</script>
+
+<style lang="less">
+	@import "../../assets/style/theme";
+	.ui-training-camp{
+		width:100%;height:100%;background-color:@background-white;
+		.ui-bar{
+			width:100%;height:96rpx;white-space:nowrap;overflow:hidden;border-bottom:2rpx solid @border-gray;padding-left:32rpx;
+			.cell-item{width:188rpx;height:96rpx;display:inline-block;position:relative;line-height:96rpx;letter-spacing:1.36rpx;font-size:30rpx;color:@color-blue;}
+			.cell-item.actived{font-weight: bold;font-size: 36rpx}
+		}
+	}
+	.ui-list{
+		width:100%;height:calc(~"100% - 96rpx");
+		.ui-scroll {
+			width:100%;height:100%;
+			&.ui-admin-box{padding-top: 40rpx}
+			.cell-recommend-box {font-size: 40rpx;font-weight:700;color: @color-black;letter-spacing: 0.04rpx;margin:20rpx 0 30rpx 40rpx;padding-left:16rpx;height:48rpx;line-height:48rpx;}
+			.cell-recommend-box.has{ margin-top: 96rpx !important}
+			.ui-camp-item {
+				height: 210rpx;width: 686rpx;display: flex;margin: 0 32rpx 0 32rpx;border-bottom:2rpx solid @border-gray;align-items:center;box-sizing:border-box;position: relative;
+				&:last-of-type{border:none}
+				.ui-box {
+					margin-right: 20rpx;
+					.cell-img {width: 240rpx;height: 144rpx;border-radius: @border-radius-12;}
+
+				}
+				.ui-font {
+					height: 144rpx;display: flex;flex-direction: column;
+					.cell-title {font-family: PingFangSC-Medium;font-size: 32rpx;color: @color-black;line-height: 24px;width: 422rpx;overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;height: 96rpx;}
+					.cell-date {
+						width: 422rpx;font-family: PingFangSC-Regular;font-size: 26rpx;color: @color-gray;margin-top: 6rpx;overflow: hidden;white-space: nowrap;text-overflow:ellipsis;
+						.cell-num{color: @color-black;}
+						.color-flag{color: @color-black;}
+					}
+				}
+			}
+			.ui-partin-title-box{
+				display: flex;height: 112rpx;width: 100;align-items:center;padding:0 40rpx;justify-content: space-between;
+				.ui-parin-your-camp {font-size: 40rpx;font-weight:700;color: @color-black;letter-spacing: 0.04rpx;line-height: 48rpx;}
+				.ui-parin-all-camp {
+					font-family: PingFangSC-Regular;font-size: 32rpx;color: @color-blue;cursor: pointer;
+					.icon-right-arrow{font-size: 28rpx}
+				}
+			}
+			.ui-empty-list{
+				text-align: center;
+				.cell-wecan{width: 750rpx;}
+				.cell-btn{width: 442rpx;height:96rpx;background: @background-gray-F4;border-radius: 20rpx;line-height: 96rpx;color:@color-blue;font-weight: bold;margin: 16rpx auto 96rpx;}
+			}
+		}
+	}
+	// 训练营 item 
+	.ui-team-item{
+		overflow:visible;margin-bottom:40rpx;height:560rpx;
+		view{box-sizing:border-box;}
+		.ui-bg{
+			height: 400rpx;border-radius: 32rpx 32rpx 0 0;background-repeat:none;background-size:100% 100%;width:670rpx;overflow: hidden;
+			.ui-shadow{
+				background: rgba(0,0,0,0.30);width: 100%;height: 100%;padding:36rpx 32rpx 26rpx;color:#fff;font-size: 26rpx;
+				.cell-name{font-size: 44rpx;height: 240rpx;margin-bottom:20rpx;font-weight: bold}
+			}
+		}
+		.ui-content{
+			background: #fff;height: 160rpx;width:670rpx;box-shadow: 0 40rpx 92rpx 0 rgba(0,0,0,0.10);border-bottom-left-radius: 32rpx;border-bottom-right-radius: 32rpx;
+		}
+		.ui-progress{
+			.ui-progress-item{
+				width: 606rpx;height: 12rpx;border-radius: 200rpx;background: #e9e5f1;position: relative;
+				.cell-team-progress{
+					background: #c2d5f5;border-radius: 200rpx;position: absolute;height: 100%;
+					&::after{content:'';position: absolute;width: 12rpx;height: 12rpx;background: #fff;border-radius: 50%;border:6rpx solid #c2d5f5;right: -17rpx;top:-50%;transform: translate(-50%,0)}
+				}
+				.ui-my-progress{
+					background: #007AFF;border-radius: 200rpx;position: absolute;height: 100%;
+					.ui-icon{
+						position: absolute;top: -55rpx;right:-25rpx;
+						text{font-size: 60rpx;color:#007AFF}
+						view{position: absolute;left: 50%;top: 50%;transform:translate(-50%,-50%);color:#fff;font-size: 16rpx;height: 26rpx;}
+						&.ui-zero{position: absolute;right:-31rpx;}
+					}
+				} 
+			}
+			.ui-tips{
+				height: 90rpx;padding:0 40rpx;font-size: 24rpx;color: #9B9B9B;
+				view{
+					padding-left:20rpx;position: relative;
+					&:first-of-type {
+						&::before{content: '';height: 12rpx;width: 12rpx;background: #007AFF;border-radius: 50%;position: absolute;left: 0;top: 50%;transform: translate(0,-50%)};
+					}
+					&:last-of-type{
+						&::before{content: '';height: 8rpx;width: 8rpx;background: #fff;border-radius: 50%;position: absolute;left: 0;top: 50%;transform: translate(0,-50%);border:4rpx solid #c2d5f5;}
+					}
+				}
+			}
+		}
+		.ui-admin{
+			.ui-student{
+				width: 470rpx;margin-left:32rpx;
+				.ui-avatar{
+					width: auto;
+					image{width: 80rpx;height: 80rpx;border-radius: 50%;border:4rpx solid #fff;}
+					view{
+						&:nth-of-type(1){left:0rpx;position: relative;}
+						&:nth-of-type(2){left:-20rpx;position: relative;}
+						&:nth-of-type(3){left:-36rpx;position: relative;}
+					}
+				}
+				.cell-num{font-size: 24rpx;color: #9B9B9B;position:relative;left:4rpx;}
+			}
+			
+			.cell-btn{width: 132rpx;height: 56rpx;background:#007AFF;border-radius: 100rpx;font-size: 30rpx;color:#fff;text-align: center;line-height: 56rpx;}
+		}
+		
+	}
+	.ui-list.empty{height:100%}
+	.ui-team-height{height:120rpx}
+</style>

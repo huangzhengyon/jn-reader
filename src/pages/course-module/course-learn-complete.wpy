@@ -1,0 +1,621 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .module-course-complete-box {
+        box-sizing: border-box;
+        width: 100%;
+        view {
+            box-sizing: border-box;
+        }
+        .ui-content {
+            height: 100%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+        }
+        .ui-title {
+            .flex-center();
+            flex-wrap: wrap;
+            image {
+                width: 412rpx;
+                margin: 32rpx auto;
+            }
+            .cell-text {
+                font-size: 48rpx;
+                width: 100%;
+                text-align: center;
+                color: @color-black;
+                font-weight: bold;
+                margin: 24rpx 0 48rpx;
+            }
+        }
+        .ui-banner {
+            height: auto;
+            margin: 40rpx 0;
+            margin-top: 0;
+            font-size: 48rpx;
+            font-weight: 700;
+            color: @color-black;
+        }
+        .ui-done-banner {
+            height: auto;
+            margin: 0;
+            flex-wrap: wrap;
+            image {
+                width: 600rpx;
+            }
+            .ui-subtitle {
+                color: @color-gray-95;
+                font-size: 32rpx;
+                margin: 40rpx 0;
+            }
+        }
+        .ui-results-module {
+            width: 670rpx;
+            box-shadow: @box-shadow-hight;
+            border-radius: @border-radius-32;
+            .cell-title {
+                height: auto;
+                font-size: 32rpx;
+                color: @color-black;
+                line-height: 44rpx;
+                padding: 28rpx 0;
+                border-bottom: solid 1rpx @border-gray;
+            }
+            .ui-star {
+                width: 100%;
+                text-align: center;
+                padding: 48rpx 0;
+                
+                text {
+                    display: inline-block;
+                    margin: 0 10rpx;
+                    font-size: 64rpx;
+                    color: @color-blue;
+                }
+                .ui-star-box {
+                    .flex-center();
+                    image {
+                        width: 72rpx;
+                        height: 72rpx;
+                        display: block;
+                        &+image{
+                            margin-left: 20rpx;
+                        }
+                    }
+                }
+                .ui-star-tip {
+                    font-size: 28rpx;
+                    color: @color-gray-A1;
+                    margin: 24rpx 0 40rpx;
+                }
+                .ui-textarea-box {
+                    width: 622rpx;
+                    height: 200rpx;
+                    border: solid 1rpx @background-gray-F5;
+                    background: @background-gray-F5;
+                    border-radius: @border-radius-16;
+                    margin: 0 auto;
+                    position: relative;
+                    .cell-view-area {
+                        width: 100%;
+                        height: 100%;
+                        padding: 16rpx 24rpx;
+                        box-sizing: border-box;
+                        text-align: left;
+                    }
+                    .cell-view-placeholder {
+                        font-size: 32rpx;
+                        color: @color-gray-D3;
+                        opacity: .5;
+                    }
+                    .cell-text-tips {
+                        position: absolute;
+                        bottom: 10rpx;
+                        right: 10rpx;
+                        font-size: 20rpx;
+                        color: @color-gray-97;
+                        .font-red {
+                            color: @color-red;
+                            font-size: 20rpx;
+                            margin: 0;
+                        }
+                    }
+                }
+            }
+        }
+        .ui-margin {margin-bottom: 228rpx;}
+        .cell-hover {
+            background-color: @background-blue-hover
+        }
+        .cell-margin {
+            width: 100%;
+            height: 700rpx;
+            display: block;
+        }
+        .ui-giving {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 16rpx;
+            .flex-center();
+            &.is-iphonex {
+                bottom: 68rpx;
+            }
+            .cell-title {
+                font-size: 26rpx;
+                color: @color-gray;
+                line-height: 36rpx;
+            }
+            button {
+                width: 670rpx;
+                height: 88rpx;
+                background-color: @background-blue;
+                font-size: 32rpx;
+                font-weight: 700;
+                color: @color-white;
+                border-radius: @border-radius-20;
+            }
+        }
+        .ui-next-sence {
+            padding-bottom: 80rpx;
+            &.is-iphonex {
+                padding-bottom: 114rpx
+            }
+            .cell-targe {
+                width: 100%;
+                padding-bottom: 10rpx;
+                font-size: 26rpx;
+                color: @color-gray;
+                line-height: 36rpx;
+                text-align: center;
+            }
+            .ui-sence {
+                width: 686rpx;
+                height: 156rpx;
+                padding: 22rpx;
+                background-color: @background-gray-F4;
+                border-radius: @border-radius-20;
+                margin: 0 auto;
+                image {
+                    width: 112rpx;
+                    height: 112rpx;
+                    border-radius: @border-radius-20;
+                }
+                button {
+                    width: 114rpx;
+                    height: 60rpx;
+                    background-color: @background-blue;
+                    font-size: 30rpx;
+                    color: @color-white;
+                    line-height: 60rpx;
+                    border-radius: @border-radius-32;
+                    text {
+                        margin: 0 auto;
+                    }
+                }
+                .ui-content {
+                    width: 60%;
+                    padding: 10rpx 0 10rpx 16rpx;
+                    text {
+                        display: block;
+                        width: 90%;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        overflow: hidden;
+                    }
+                    text:nth-of-type(1) {
+                        height: 44rpx;
+                        font-size: 32rpx;
+                        ;
+                        color: @color-black;
+                        line-height: 44rpx;
+                    }
+                    text:nth-of-type(2) {
+                        height: 40rpx;
+                        font-size: 26rpx;
+                        ;
+                        color: @color-gray;
+                        line-height: 40rpx;
+                    }
+                }
+            }
+        }
+        .ui-back-home {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 40rpx;
+            .flex-center();
+            &.is-iphonex {
+                padding-bottom: 114rpx;
+            }
+            button {
+                width: 670rpx;
+                height: 88rpx;
+                font-size: 34rpx;
+                color: @color-blue;
+                background: @background-gray-F4;
+                border-radius: @border-radius-16;
+                font-weight: bold;
+            }
+        }
+    }
+    .ui-button-mask {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 120rpx;
+        z-index: 88;
+    }
+</style>
+
+<template>
+    <jn-loading wx:if="{{!isLoaded}}">
+    </jn-loading>
+    <view class="module-course-complete-box" wx:if="{{isLoaded}}">
+        <jn-header :title.sync="finishResultInfo.name" buttonIcon="back-close" buttonColor="#007AFF" :delta.sync="routerDelta"></jn-header>
+        <view class="ui-container dir-top">
+            <view class="ui-content">
+                <view class="ui-title main-center" wx:if="{{!isFromTodayListing}}">
+                    <image mode="widthFix" src="http://wx-small.runwise.cn/image/learn-complete.png"></image>
+                    <view class="cell-text">微课完成！</view>
+                </view>
+                <view class="ui-done-banner main-center" wx:else>
+                    <image mode="widthFix" src="http://wx-small.runwise.cn/image/done-listing.svg"></image>
+                    <view class="ui-subtitle">明天再来学习吧</view>
+                </view>
+                <view class="ui-results-module {{isScrollPage ? 'ui-margin' : ''}}">
+                    <view class="cell-title main-center">{{finishResultInfo.senceStarIsCanTick ? '点评微课，再领5个即能币' : '你已评价'}}</view>
+                    <view class="ui-star">
+                        <view class="ui-star-box">
+                            <repeat for="{{starList}}" key="index" index="index" item="item">
+                                
+                                <image src="{{finishResultInfo.senceStar>=item ? '../../assets/img/icon-active-star.svg' : '../../assets/img/icon-default-star.svg'}}" data-star="{{item}}" @tap.stop="getEvaluation"></image>
+                            </repeat>
+                        </view>
+                        <view class="ui-star-tip" wx:if="{{score}}">{{starTip[score-1]}}</view>
+                        <view class="ui-textarea-box" wx:if="{{score}}">
+                            <textarea class="cell-view-area" disabled="{{!finishResultInfo.senceStarIsCanTick}}" value="{{comment}}" placeholder-class="cell-view-placeholder" placeholder="分享满15字评论即可获得5个即能币~" bindinput="handleCommentInput" bindblur="handleCommentBlur" bindfocus="handleCommentFocus" cursor-spacing="{{130}}"></textarea>
+                            <view class="cell-text-tips" wx-if="{{finishResultInfo.senceStarIsCanTick && comment.length < 15}}">还差<text class="font-red">{{15 - comment.length}}</text>个字可获赠5个即能币！</view>
+                        </view>
+                    </view>
+                </view>
+                <view class="cell-margin" wx:if="{{isShowMargin}}"></view>
+                <view class="ui-giving" :class="{'is-iphonex': isIphonex}">
+                    <button class="main-center cross-center" @tap.stop="handleSubmit" wx:if="{{finishResultInfo.senceStarIsCanTick && score}}">提交</button>
+                    <button @tap.stop="broadPractice" wx:if="{{!finishResultInfo.senceStarIsCanTick}}">做练习</button>
+                </view>
+            </view>
+            <view class="ui-next-sence" :class="{'is-iphonex': isIphonex}" wx:if="{{finishResultInfo.isShowNext}}">
+                <view class="cell-targe">{{finishResultInfo.nextTipx}}</view>
+                <view class="ui-sence flex cross-center" @tap.stop="getSumbit">
+                    <image class="flex-box-0" mode="aspectFit" src="{{finishResultInfo.imageurl}}"></image>
+                    <view class="ui-content flex-box-1 dir-top main-justify">
+                        <text>{{finishResultInfo.nextSenceName}}</text>
+                        <text>{{finishResultInfo.senceTarget}}</text>
+                    </view>
+                    <button class="flex-box-0" hover-class="cell-hover"><text>即学</text></button>
+                </view>
+            </view>
+        </view>
+    </view>
+    <jn-score-modal></jn-score-modal>
+    <view class="ui-button-mask" wx:if="{{isShowBtnMask}}"></view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {
+        getStore,
+        connect
+    } from 'wepy-redux'
+    import header from '../../components/common/header'
+    import Loading from '../../components/common/loading'
+    import ScoreModal from '../../components/ScoreModal/index'
+    import { fetch, share as shareApi, auth as authApi, sence as senceApi } from '../../api'
+    import { initializationDeligate, redirectToLesson, setStorageAsync } from '../../utils'
+    import _ from 'underscore';
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        entrance(state) { //全局场景值
+            return state.entrance
+        },
+        currentCourseName(state) {
+            return state.courses.currentName
+        },
+        currentSencesName(state) {
+            return state.sences.currentName
+        },
+        requestFlag(state) {
+            return state.cards.requestFlag
+        }
+    })
+    export default class learnComplete extends wepy.page {
+        components = {
+            'jn-header': header,
+            'jn-loading': Loading,
+            'jn-score-modal': ScoreModal,
+        }
+        data = {
+            headerHeigth: 68,
+            isIphonex: /iphone x/i.test(wx.getSystemInfoSync().model),
+            isLoaded: false,
+            isEvaluation: false,
+            routerDelta: 1,
+            shareID: '',
+            paramsInfo: {},
+            finishResultInfo: {},
+            starList: [1, 2, 3, 4, 5],
+            skipRoutes: [
+                'pages/course-module/course-learning',
+                'pages/course-module/course-learn-complete',
+                'pages/course-module/course-practice-complete',
+                'pages/course-module/course-exercises',
+                'pages/course-module/course-evaluation',
+            ],
+            starTip:[
+                '“完全没学到什么”',
+                '“内容不够严谨、吸引”',
+                '“还可以，希望能更好”',
+                '“内容相当不错”',
+                '“学到了很多，很愿意推荐”'
+            ],
+            score:null,//评价星级
+            comment:'',//评价内容
+            isScrollPage: false,//是否滚动了页面,默认否
+            isShowMargin: false,//
+            keyboardHeight: 0,
+            isShowBtnMask: false,
+        }
+        onLoad(params) {
+            let self = this
+            // 分享进来的
+            /* if (1 === getCurrentPages().length) {
+                wx.reLaunch({
+                    url: '/pages/tabPages/course'
+                })
+                return
+            } */
+            self.paramsInfo = params
+            let { user: { token, platform }, cards: { requestFlag } } = getStore().getState()
+            self.paramsInfo.requestFlag = requestFlag
+            self.$apply()
+            initializationDeligate({
+                initializeFunc: self.initialize.bind(self)
+            })
+            self.__originalRouter()
+        }
+        computed = {
+            isReview() { //是否为回顾课程
+                return this.paramsInfo.isReview == 'true' ? true : false
+            },
+            isFromTodayListing() { //是否从学习清单进来
+                return this.paramsInfo.isFromTodayListing == 'true' ? true : false
+            }
+        }
+        onShow() {
+            let self = this
+            
+        }
+        watch = {
+            routerDelta(newVal,oldVal) {
+                console.log(newVal,oldVal)
+            }
+        }
+        initialize() {
+            let self = this
+            self.__sendFinishResults()
+        }
+        /**
+         * 获取当前完成微课的信息
+         * @private
+         */
+        __sendFinishResults() {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token,
+                courseID: self.paramsInfo.courseID,
+                senceID: self.paramsInfo.senceID,
+                requestFlag: self.paramsInfo.requestFlag,
+                teamID: self.paramsInfo.teamID,
+                source: self.paramsInfo.source ? self.paramsInfo.source : ''
+            }
+            
+            fetch.sendFinishResults(postData).then((response) => {
+                
+                self.finishResultInfo = response
+                self.score = response.senceStar
+                self.isLoaded = true
+                self.$apply()
+                wx.pageScrollTo({
+                    scrollTop: 0,
+                    duration: 300
+                })
+                wepy.$instance.globalData.getLoadHuilder({
+                    pageTheme: self.finishResultInfo.skillName
+                }) // ga统计
+                wx.reportAnalytics('finishsence', {
+                    role: self.systemInfo.role,
+                    nickname: self.systemInfo.nickName,
+                    coursename: self.currentCourseName,
+                    sencename: self.currentSencesName,
+                    channel: self.entrance.mappers[self.entrance.scenceID]
+                })
+            }).catch(error => {
+                self.isLoaded = true
+                self.$apply()
+            })
+        }
+        
+        /**
+         * 计算返回到微课入口页面
+         * @private
+         */
+        __originalRouter() {
+            let self = this
+            let routers = getCurrentPages()
+            let lenght = routers.length - 2
+            
+            _.find(routers, (data, index) => {
+                let item = routers[lenght - index]
+                if (item && -1 === _.indexOf(self.skipRoutes, item.route)) {
+                    return data
+                } else {
+                    ++self.routerDelta
+                    self.$apply()
+                }
+            })
+            self.$apply()
+        }
+        methods = {
+            broadPractice() {
+                let self = this
+                self.$navigate('/pages/course-module/course-exercises',{
+                        courseID: self.paramsInfo.courseID,
+                        senceID: self.paramsInfo.senceID,
+                        teamID: self.paramsInfo.teamID
+                    })
+            },
+            handleCommentBlur() {
+                this.isShowMargin = false
+                this.$apply()
+            },
+            handleCommentFocus(event){
+                let {detail: {value, height}} = event
+                this.keyboardHeight = height
+                this.isShowMargin = true
+                this.$apply()
+            },
+            goBackHome() { //返回今日页
+                wepy.$instance.globalData.getHuilder('微课回顾/微课完成/返回今日页', 'click', '')
+                wepy.switchTab({
+                    url: '/pages/tabPages/home'
+                })
+            },
+            getQuetion() {
+                wepy.$instance.globalData.getHuilder('微课完成/技能等级介绍', 'click', '')
+            },
+            handleCommentInput({ detail: { value } }) {
+                this.comment = value
+            },
+            /**
+             *
+             * @param event
+             */
+            getEvaluation(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            star
+                        }
+                    }
+                } = event
+                if(!self.finishResultInfo.senceStarIsCanTick)return;
+                wepy.$instance.globalData.getHuilder('微课完成/点评', 'click', self.finishResultInfo.name)
+                self.score = star;
+                self.finishResultInfo.senceStar = star
+                self.isScrollPage = true;
+                self.$apply();
+
+                if (self.finishResultInfo.senceStar > 0) {
+                    wx.reportAnalytics('lessonfinish_evaluate_click', {
+                        username: self.systemInfo.nickName,
+                        channel: self.entrance.mappers[self.entrance.scenceID],
+                        role: self.systemInfo.role
+                    })
+                }
+                /* 页面向上滚动 以免提交按钮和输入框重叠 */
+                wx.pageScrollTo({
+                    scrollTop: 200,
+                    duration: 300
+                })
+            },
+            /* 提交评价 */
+            handleSubmit() {
+                let self = this
+                let mBundle = {
+                    courseID: self.paramsInfo.courseID,
+                    senceID: self.paramsInfo.senceID,
+                    comment: self.comment,
+                    score: self.score,
+                    teamID: self.paramsInfo.teamID,
+                } // end mBundle
+                self.isShowBtnMask = true;
+                self.$apply();
+                wx.reportAnalytics('evaluate', {
+                    role: self.role,
+                    nickname: self.userName,
+                    channel: self.entrance.mappers[self.entrance.scenceID],
+                });
+
+                senceApi.sendEvaluation({
+                    token: self.systemInfo.token,
+                    body: mBundle
+                }).then((data) => {
+                    self.$navigate('/pages/course-module/course-evaluation-complete',{
+                        courseID: self.paramsInfo.courseID,
+                        senceID: self.paramsInfo.senceID,
+                        teamID: self.paramsInfo.teamID
+                    })
+                }).catch(error => {
+                    self.isShowBtnMask = false;
+                    self.$apply();
+                    console.log('submit evaluation error', error)
+                })
+
+            },
+            /**
+             * 继续下一课
+             */
+            getSumbit() {
+                let self = this
+                let finishResultInfo = self.finishResultInfo
+                if (!finishResultInfo.isShowNext) {
+                    return
+                }
+                let params = {
+                    courseID: finishResultInfo.nextCourseID,
+                    senceID: finishResultInfo.nextSenceID,
+                    teamID: self.paramsInfo.teamID,
+                    source: 'sencefinish'
+                }
+                wepy.$instance.globalData.getHuilder('微课完成/继续学习', 'click', self.finishResultInfo.nextSenceName)
+                redirectToLesson(params)
+            }
+        }
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+        onShareAppMessage(event) {
+            let self = this
+            let path = `/pages/course-module/course-details?id=${self.paramsInfo.courseID}&shareID=${self.shareID}`
+            wepy.$instance.globalData.getHuilder('微课完成/分享', 'click', self.finishResultInfo.name)
+            wepy.$instance.globalData.getReportFlow('share')
+            if (self.shareID) {
+                let postData = {
+                    token: self.systemInfo.token,
+                    courseID: self.paramsInfo.id,
+                    shareID: self.shareID
+                }
+                // 保存shareID的信息
+                fetch.saveShareID(postData).then((response) => {}).catch((error) => {})
+            }
+            return {
+                title: self.finishResultInfo.shareCoverTitle ? self.finishResultInfo.shareCoverTitle : `${self.systemInfo.nickName} 邀请你一起学习《${self.finishResultInfo.courseName}》`,
+                path: path,
+                imageUrl: self.finishResultInfo.shareCoverImageUrl || self.finishResultInfo.image || ''
+            }
+        }
+    }
+</script>

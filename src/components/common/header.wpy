@@ -1,0 +1,243 @@
+<style lang="less">
+    .is-opacity{opacity:0;}
+</style>
+
+<template>
+    <view class="module-header {{classNameSync}}" style="{{(isHeadHeight ? 'height:'+(statusBarHeight+contentHeight)+'px;' : '')}}">
+        <view class="ui-header-box" style="{{((background ? 'background:'+background+';' : '')+''+(textColor ? 'color:'+textColor+';' : ''))}}">
+            <view class="ui-status-bar" style="{{'height:'+statusBarHeight+'px;'+(statusBackground ? 'background:'+statusBackground+';' : '')}}"></view>
+
+            <view class="ui-content" style="{{(contentHeight ? 'height:'+contentHeight+'px;' : '')}}">
+                <view class="ui-button" :class="{'is-after': buttonAfter}">
+                    <button wx:if="{{!isHiddenButton && !isSrcShare}}"
+                            class="cell-back main-center cross-center"
+                            @tap.stop="getBack">
+                        <view class="cell-after main-center cross-center">
+                            <text class="icon-{{buttonIcon}}"
+                                  style="{{(buttonColor ? 'color:'+buttonColor+';' : '')}}"></text>
+                        </view>
+                    </button>
+                    <navigator wx:if="{{!isHiddenButton && isSrcShare}}"
+                               class="cell-back main-center cross-center"
+                               open-type="switchTab"
+                               url="/pages/tabPages/course">
+                        <view class="cell-after main-center cross-center">
+                            <image mode="widthFix"  src="../../assets/img/nav-home-black.svg" style="{{(buttonColor ? 'color:'+buttonColor+';width:50rpx;' : 'width:50rpx')}}"></image>
+                            <!--<text class="icon-home"-->
+                                  <!--style="{{(buttonColor ? 'color:'+buttonColor+';' : '')}}"></text>-->
+                        </view>
+                    </navigator>
+                    <slot name="cursor-button"></slot>
+                </view>
+
+                <view class="ui-titile cross-center">
+                    <slot wx:if="{{!titleName}}" name="content"></slot>
+                    <text wx:if="{{titleName}}">{{titleName}}</text>
+                </view>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    /**
+     * <jn-header></jn-header>
+     * @module components/common/header
+     * @desc 自定义header
+     * @param {openType} [String] - 按钮跳转的方式{navigateTo、redirectTo、switchTab、reLaunch、navigateBack}----【navigateBack】
+     * @param {fixed} [Boolean] - 是否固定在顶部----【true】
+     * @param {title} [String] - 标题文字----【即能】
+     * @param {gaTitle} [String] - 发送到ga的自定义纬度用的----【】
+     * @param {hiddenButton} [String] - 不需要显示左侧按钮，写这个字段即可，不需要传值- ----【0显示】
+     * @param {buttonAfter} [String] - 是否显示左侧按钮背景，写这个字段即可，不需要传值- ----【0显示】
+     * @param {buttonIcon} [String] - 左侧的按钮的字体图标，会自动补全icon- ----【back】
+     * @param {delta} [Number] - 返回路由的第几层- ----【1】
+     * @param {isRedirctRoute} [Boolean] - 是否跳指定路径
+     * @param {routeUrl} [String] - 实际跳的路径
+     * @param {id} [String] - 需要接受的id
+     * @param {className} [String] - 修改整个导航栏的样式，请在layout查找注释（header组件）并添加对应的classname，推荐使用----【白底黑字】
+     * @param {title} [String] - 标题文字----【即能】
+     * @param {buttonColor} [String] - 左侧的按钮的字体图标颜色，权限高于className，建议使用className- ----【】
+     * @param {background} [String] - 头部背景颜色，权限高于className，建议使用className ----【】
+     * @param {statusBackground} [String] - 头部状态栏背景颜色，权限高于className，建议使用className ----【】
+     * @param {textColor} [String] - 头部字体颜色，权限高于className，建议使用className ----【】
+     */
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import {ROUTERS} from '../../utils/dictionary'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        // 全局场景值
+        entrance(state) {
+            return state.entrance
+        }
+    })
+    export default class header extends wepy.component {
+        props = {
+            openType: {
+                type: String,
+                default: 'navigateBack'
+            },
+            fixed: {
+                type: Boolean,
+                default: true
+            },
+            isHeadHeight: {
+                type: Boolean,
+                default: true
+            },
+            title: {
+                type: String,
+                default: ''
+            },
+            gaTitle: {
+                type: String,
+                default: ''
+            },
+            className: {
+                type: String
+            },
+            hiddenButton: {
+                type: String,
+                default: 0
+            },
+            buttonAfter: {
+                type: String,
+                default: 0
+            },
+            buttonColor: {
+                type: String
+            },
+            buttonIcon: {
+                type: String,
+                default: 'back'
+            },
+            delta: {
+                type: Number,
+                default: 1
+            },
+            background: {
+                type: String
+            },
+            statusBackground: {
+                type: String
+            },
+            textColor: {
+                type: String
+            },
+            isRedirctRoute: {
+                type: Boolean,
+                default: false
+            },
+            routeUrl: {
+                type: String,
+                default: ''
+            },
+            id:{
+                type: String,
+                default: ''
+            }
+        }
+
+        computed = {
+            titleName() {
+                let self = this
+                return self.title
+            },
+            classNameSync() {
+                let self = this
+                return self.className
+            },
+            isHiddenButton() {
+                let self = this
+                return self.hiddenButton
+            },
+            routerDelta() {
+                let self = this
+                return self.delta
+            }
+        }
+
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            statusBarHeight: 20, // 状态栏的高度
+            contentHeight: 44,
+            isSrcShare: false,
+        }
+
+        onLoad() {
+            let self = this
+            self.isSrcShare = false
+
+            let systemInfo = wx.getSystemInfoSync()
+            let device = systemInfo.system
+
+            self.statusBarHeight = systemInfo.statusBarHeight
+            if (/ios/i.test(device)) {
+                self.contentHeight = 44
+            } else if (/android/i.test(device)) {
+                self.contentHeight = 48
+            }
+
+            let rounter = getCurrentPages()
+            // 如果==1，说明是分享出来的
+            if (1 === rounter.length) {
+                self.isSrcShare = true
+            }
+            self.$apply()
+            self.$emit('header-info', {headerHeigth: (self.statusBarHeight + self.contentHeight)})
+        }
+
+        methods = {
+            /**
+             * navigateTo 保留当前页面，跳转到应用内的某个页面，使用wx.navigateBack可以返回到原页面。
+             * redirectTo 关闭当前页面，跳转到应用内的某个页面。
+             * switchTab 跳转到 tabBar 页面，并关闭其他所有非 tabBar 页面
+             * reLaunch 关闭所有页面，打开到应用内的某个页面。
+             * navigateBack 关闭当前页面，返回上一页面或多级页面。可通过 getCurrentPages() 获取当前的页面栈，决定需要返回几层。
+             */
+            getBack: function () {
+                let self = this
+                let delta = self.routerDelta + 0
+                let rounter = getCurrentPages()
+                wx.hideTabBar();
+                //重定向 跳转地址
+                if(!self.isRedirctRoute) {
+                    if (rounter.length
+                        && rounter[rounter.length-1] === 'pages/training-camp-module/training-detail'
+                        && rounter[rounter.length-2] === 'pages/training-camp-module/registration') {
+                        delta = 2
+                    }
+                    return wx.navigateBack({delta: delta})
+
+                }else {
+                    switch (self.routeUrl) {
+                        case 'coursePage':
+                            return wepy.switchTab({ url: '/pages/tabPages/course'})
+                        case 'courseDetails':
+                            return wx.redirectTo({url: `/pages/course-module/course-details?id=${self.id}&isRedirctRoute=${true}`})
+                        default:
+                            return wx.navigateBack({delta: delta})
+                    }
+                }
+
+                wx.navigateBack({delta: delta})
+
+            },
+            /**
+             * 来源页面通知组件修改标题
+             * @param title
+             */
+            setTitle(title) {
+                let self = this
+                self.titleName = title
+            }
+        }
+
+        events = {}
+    }
+</script>

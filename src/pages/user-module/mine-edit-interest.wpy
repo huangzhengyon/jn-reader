@@ -1,0 +1,136 @@
+<template>
+    <mloading wx:if="{{ !isLoaded }}"/>
+    <jn-header title="更改兴趣"></jn-header>
+    <view class="ui-edit-interest dir-top cross-center" style="height: calc(100% - {{headerHeigth}}px)">
+        <view class="cell-title">你想提升的能力</view>
+        <view class="cell-dec">选择不同的能力，即能将为你推荐针对性的课程</view>
+        <view class="ui-interest">
+            <view wx:for="{{interestList}}" wx:key="{{item.id}}"  class="ui-item cross-center main-center" @tap.stop="getInterestItem" data-item="{{item}}">
+                <text>{{item.label}}</text>
+                <view class="ui-icon" wx:if="{{item.isActive}}">
+                    <text class="icon-complete"></text>
+                </view>
+            </view>
+        </view>
+        <view class="cell-commit" @tap.stop="getCommit">确定</view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import {getStore, connect} from "wepy-redux";
+    import {report as reportApi} from "../../api";
+    import header from '../../components/common/header'
+    import Loading from '../../components/common/loading';
+
+    const store = getStore();
+    @connect({
+        token(state) {
+            return state.user.token;
+        }
+    })
+    export default class MineEditInterest extends wepy.page {
+        data = {
+            headerHeigth: 68,
+            interestList:[],
+            activeList:[],
+            isLoaded:false
+        } 
+        components = {
+            'mloading': Loading,
+            'jn-header': header
+        }
+        methods = {
+            // 点击单个 item
+            getInterestItem(event) {
+                let {currentTarget: {dataset: {item}}} = event
+                if(item.isActive) {
+                    this.interestList.map(i =>{
+                        if(i.id == item.id) {
+                            i.isActive = !i.isActive
+                        }
+                    })
+                }else{
+                    this.activeList =this.interestList.filter(item => {
+                        return item.isActive
+                    })
+                    if(this.activeList.length >= 3) {
+                        return wepy.showToast({
+                            title: '兴趣标签最多选择3个',
+                            icon:'none'
+                        })
+                    }else{
+                        this.interestList.map(i =>{
+                            if(i.id == item.id) {
+                                i.isActive = !i.isActive
+                            }
+                        })
+                    }
+                }
+            },
+            getCommit(){
+                let self = this
+                let list = self.interestList.filter(item => {
+                    return item.isActive
+                })
+                let postData = {
+                    token:self.token, 
+                    json: { interestList: list}, 
+                    flag:'interestList'
+                }
+                reportApi.saveUserCenterInfo(postData)
+                    .then((res) => {
+                        wx.navigateBack()
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                    })
+
+            }
+
+
+        }
+
+        onLoad() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        onShow(){
+            let self = this
+            reportApi.userCenterInfo({
+                token:this.token,
+            })
+            .then(data=>{
+                self.interestList = data.interestList
+                self.isLoaded = true
+                self.$apply()
+            })
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+    .ui-edit-interest{
+        padding-top:40rpx;box-sizing: border-box;
+        .cell-title{font-size: 48rpx;color: #000;}
+        .cell-dec{opacity: 0.8;font-size: 28rpx;color: #8F8E94;margin-top: 34rpx}
+        .ui-interest{
+            display:flex;margin-top: 70rpx;flex-wrap:wrap;padding:0 27rpx;
+            width: 100%;box-sizing:border-box;
+            .ui-item{
+                width: 200rpx;height: 88rpx;background: #EFEFF4;border-radius: 20rpx;font-size: 30rpx;color: #000;letter-spacing: 0.02rpx;margin: 0 16rpx 36rpx;
+                .ui-icon{width: 36rpx;height: 36rpx;background: #007AFF;border-radius: 50%;color: #fff;margin-left: 10rpx;font-size: 24rpx;line-height:38rpx;text-align:right;}
+            }
+        }
+        .cell-commit{width: 700rpx;height: 100rpx;background: #EFEFF4;border-radius:20rpx;color:#007AFF;font-size:36rpx;text-align: center;line-height: 100rpx;margin-top: 48rpx;font-weight: bold;position:fixed;bottom:70rpx;}
+    }
+</style>

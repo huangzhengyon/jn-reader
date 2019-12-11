@@ -1,0 +1,119 @@
+<template>
+    <jn-header title="即能币明细"></jn-header>
+    <mloading wx:if="{{ !isLoaded }}" />
+    <view wx:if="{{ isLoaded&&scoreList.length }}">
+        <view class="score-detail-top">
+            <view class="score-detail-rules" @tap.stop="handleRules" wx:if="{{!isInspect}}">
+                <text>即能币规则</text>
+                <text class="icon-question cell-icon"></text>
+            </view>
+        </view>
+        <view class="score-detail-body-list">
+            <view class="score-detail-body-list-item" wx:for="{{scoreList}}" wx:key="{{index}}" @tap.stop="handleTapScoreCell">
+                <view class="score-item-left">
+                    <view >{{item.actionName}}</view>
+                    <view class="score-item-left-desc">{{item.createTime}}</view>
+                </view>
+                <view class="score-item-right">
+                    <view >{{item.bonus}}</view>
+                    <view wx:if="{{item.outTime}}" class="score-item-right-desc">{{item.outTime}}</view>
+                </view>
+            </view>
+        </view>
+    </view>
+    <view class="training-container-nodata" wx:if="{{ isLoaded&&!scoreList.length }}" >
+        <image class="training-container-nodata-img" mode="scaleToFill" src="http://wx-small.runwise.cn/image/imageID3022496b38c498a4345da745f14c.png"/>
+        <view class="training-container-nodata-text">您还没有任何即能币记录哦~</view>
+    </view>
+</template>
+<style lang="less" scoped>
+    .score-detail-top{
+        display: flex;align-items: center;justify-content: flex-end;height: 104rpx;width: 100%;background-color: #fff;
+        .score-detail-rules{
+            font-size: 14px;color: #8F8E94;font-size: 28rpx;display: flex;align-items: center;
+            .cell-icon{color: #007AFF;margin:0 24rpx 0 8rpx;}
+        }
+    }
+    .score-detail-body-list{
+        margin-left:  40rpx;width: calc(~"100% - 40rpx");
+        .score-detail-body-list-item{
+            display: flex;align-items: center;border-bottom: 2rpx solid #EFEFF4;height: 160rpx;justify-content: space-between;
+            .score-item-left{
+                text-align: left;font-size: 32rpx;color: #000;font-weight:600;
+                .score-item-left-desc{font-size: 24rpx;color: #8F8E94;margin-top: 18rpx;}
+            }
+            .score-item-right{
+                font-size: 44rpx;color: #000;font-weight:600;text-align: right;margin-right: 40rpx;height:96rpx;
+                .score-item-right-desc{font-size: 24rpx;color: #8F8E94;margin-top: 18rpx;}
+            }
+        }
+    }
+    .training-container-nodata {
+        width: 100%;height: 100%;position: relative;overflow: hidden;background-color: #fff;text-align: center;
+        .training-container-nodata-img{margin-top: 270rpx;width: 374rpx;height: 324rpx;}
+        .training-container-nodata-text{margin-top: 74rpx;font-size: 32rpx;color: #8F8E94;}
+    }
+
+</style>
+<script>
+    import wepy from "wepy"
+    import Loading from '../../components/common/loading'
+    import header from '../../components/common/header'
+    import { score as scoreApi } from "../../api"
+    import {getStore,connect} from "wepy-redux"
+    import { getStorageAsync } from '../../utils';
+    const store = getStore();
+    const state = store.getState();
+    @connect({
+        token(state) {
+            return state.user.token;
+        },
+        systemInfo(state) {
+            return state.user
+        },
+        isIos(state) {
+            return state.user.platform === 'ios'
+        }
+    })
+    export default class ScoreDetail extends wepy.page {
+        components = {
+            'mloading': Loading,
+            'jn-header': header
+        }
+        data = {
+            scoreList:[],
+            isLoaded:false,
+            isInspect:false,//是否为审核需要隐藏状态,true为需要隐藏(只有IOS需要隐藏)
+        };
+        onShow() {
+            let self = this
+            getStorageAsync({
+                key: 'isIosClosed'
+            }).then(response => {
+                self.isInspect = response && self.isIos ? true : false;
+                self.$apply();
+            }).catch(error => {
+                console.log(error)
+            })
+
+
+            scoreApi.getUserBonusList({token:this.token})
+            .then(response => {
+                this.scoreList = response
+                this.isLoaded = true
+                this.$apply()
+            })
+        }
+        onLoad() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+        methods = {
+            handleTapScoreCell() {
+                console.log('tap cell')
+            },
+            handleRules(){
+                this.$navigate('/pages/user-module/score-rules')
+            }
+        }
+    }
+</script>

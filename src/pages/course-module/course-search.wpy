@@ -1,0 +1,557 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-team-announce {
+        background: @background-gray-FB;
+        min-height: 100%;
+    }
+    .ui-search {
+        font-size: 32rpx;
+        padding: 40rpx 0;
+        background: @background-white;
+        .ui-item {
+            width: 686rpx;
+            height: 72rpx;
+            background: #F1F1F2;
+            border-radius: 20rpx;
+            line-height: 72rpx;
+            margin:0 32rpx;
+            text {
+                padding: 0 16rpx 0 20rpx;
+                font-size: 30rpx;
+                color: rgba(0, 0, 0, 0.36);
+            }
+            .cell-close {
+                color: #C7C7CC;
+            }
+            input {
+                border: none;
+                .cell-placeholder {
+                    color: #8E8E93;
+                }
+            }
+        }
+        .cell-btn {
+            width: 128rpx;
+            color: #007AFF;
+            text-align: center;
+        }
+    }
+    .ui-default {
+        background: @background-white;
+        padding-bottom: 120rpx;
+        .cell-title {
+            padding: 32rpx;
+            padding-bottom: 0;
+            font-size: 44rpx;
+            color: #000;
+            font-weight: bold;
+        }
+        .ui-label-box {
+            padding: 32rpx 32rpx 0;
+            .flex-start();
+            flex-wrap: wrap;
+            max-height: 172rpx;
+            overflow: hidden;
+            .cell-type {
+                font-size: 32rpx;
+                color: #74747A;
+                font-weight: bold;
+                margin: 32rpx 0 28rpx;
+            }
+            .cell-item {
+                padding: 12rpx 36rpx;
+                background: #F1F1F2;
+                border-radius: 32rpx;
+                font-size: 28rpx;
+                color: #74747A;
+                margin: 4rpx 24rpx 32rpx 0;
+                .flex-center();
+                .cell-hot-icon {
+                    width: 40rpx;
+                    margin-right: 10rpx;
+                }
+            }
+            .cell-item-hot {
+                padding-left: 16rpx;
+            }
+            .ui-item-box {
+                display: flex;
+                flex-wrap: wrap;
+            }
+        }
+        .ui-history-label {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0 32rpx;
+            margin-bottom: 32rpx;
+            .cell-item {
+                padding: 12rpx 36rpx;
+                background: #F1F1F2;
+                border-radius: 32rpx;
+                font-size: 28rpx;
+                color: #74747A;
+                margin: 32rpx 24rpx 0 0;
+            }
+        }
+    }
+    .ui-no-result {
+        .cell-content {
+            font-size: 34rpx;
+            color: #8E8E93;
+            height: 456rpx;
+            background: @background-white;
+            text-align: center;
+            margin: 24rpx 0;
+            .flex-center();
+            flex-wrap: wrap;
+            flex-direction: column;
+            box-sizing: border-box;
+            padding-top: 50rpx;
+            .cell-no-results-img {
+                width: 338rpx;
+                height: 232rpx;
+                margin-bottom: 24rpx;
+            }
+            .cell-no-results-text {
+                width: 100%;
+                font-size: 32rpx;
+                line-height: 48rpx;
+                color: @color-black-59;
+                text-align: center;
+                margin: 24rpx 0;
+            }
+        }
+        .cell-recommend {
+            margin: 24rpx 0;
+            
+            .cell-title-box {
+                background: @background-white;
+                .cell-title {
+                    font-size: 32rpx;
+                    color: @color-gray-8c;
+                    background: @background-white;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    margin: 0 32rpx;
+                    padding: 32rpx 0;
+                    border-bottom: solid 1rpx @border-gray;
+                    image {
+                        width: 40rpx;
+                        height: 28rpx;
+                        margin-right: 12rpx;
+                    }
+                }
+            }
+        }
+    }
+    .ui-had-result {
+        /* 微课模块 */
+        .ui-sence-box {
+            margin: 24rpx 0;
+            background: @background-white;
+            border-bottom: solid 1rpx @border-gray;
+            .ui-sencelist-title {
+                padding: 32rpx 0;
+                margin: 0 32rpx;
+                .flex-between();
+                background: @background-white;
+                border-bottom: solid 1rpx @border-gray;
+                color: @color-gray-8c;
+                font-size: 32rpx;
+                .cell-num {
+                    .flex-center();
+                    font-size: 32rpx;
+                    .font-orange {
+                        color: @color-orange-F9;
+                    }
+                    .icon-right-arrow {
+                        font-size: 24rpx;
+                        color: @color-gray-BF;
+                        margin-left: 12rpx;
+                    }
+                }
+            }
+        }
+        .cell-main-title {
+            height: 112rpx;
+            margin-left: 40rpx;
+            line-height: 112rpx;
+            font-size: 44rpx;
+            font-weight: bold;
+        }
+        /* 专题模块 */
+        .ui-skills-box {
+            margin: 24rpx 0;
+            background: @background-white;
+            border-bottom: solid 1rpx @border-gray;
+            .ui-skills-title {
+                padding: 32rpx 0;
+                margin: 0 32rpx;
+                .flex-between();
+                background: @background-white;
+                border-bottom: solid 1rpx @border-gray;
+                color: @color-gray-8c;
+                font-size: 32rpx;
+                .cell-num {
+                    .flex-center();
+                    font-size: 32rpx;
+                    .font-orange {
+                        color: @color-orange-F9;
+                    }
+                    .icon-right-arrow {
+                        font-size: 24rpx;
+                        color: @color-gray-BF;
+                        margin-left: 12rpx;
+                    }
+                }
+            }
+        }
+        .module-course-progress {
+            .ui-detail .ui-msg {
+                .cell-name {
+                    width: 480rpx;
+                }
+                .cell-dec {
+                    width: 480rpx;
+                }
+            }
+            &:last-of-type {
+                border-bottom: 2rpx solid #EFEFF4;
+            }
+        }
+        .module-cover-progress {
+            .ui-item {
+                margin: 10rpx 0 50rpx;
+                box-shadow: 0 20px 46px 0 rgba(0, 0, 0, 0.10);
+            }
+        }
+        .cell-not-more {
+            font-size: 24rpx;
+            color: @color-gray-BF;
+            text-align: center;
+            margin: 28rpx 0;
+        }
+    }
+    .cell-margin {
+        height: 148rpx;
+        width: 100%;
+    }
+</style>
+
+<template>
+    <mloading wx:if="{{ !isLoaded  }}" />
+    <view class="ui-team-announce">
+        <jn-header buttonColor="#007AFF"></jn-header>
+        <!-- 搜索框 -->
+        <view class="ui-search cross-center">
+            <view class="ui-item cross-center flex-width-1">
+                <text class="icon-search" @tap.stop="getInputFocus"></text>
+                <input placeholder="{{placeholder}}" maxlength="30" placeholder-style="cell-placeholder" value="{{content}}" class="cross-center" confirm-type="search" focus="{{isFocus}}" bindfocus="getFocus" bindinput="getInput" bindconfirm="getItemSearch" data-type="0" />
+                <text class="icon-close cell-close" @tap.stop="getClear" wx:if="{{content}}"></text>
+            </view>
+        </view>
+        <!-- 搜索前 推荐搜索内容 -->
+        <view wx:if="{{0 == step}}" class="ui-default">
+            <view class="cell-title" wx:if="{{history.length}}">历史搜索</view>
+            <view class="ui-history-label" wx:if="{{history.length}}">
+                <repeat for="{{history}}" key="index" index="index" item="item">
+                    <view class="cell-item" @tap.stop="getItemSearch" data-item="{{item}}" data-type="1">{{item}}</view>
+                </repeat>
+            </view>
+            <view class="cell-title">热门搜索</view>
+            <view class="ui-label-box">
+                <repeat for="{{hotKeyWordList}}" key="index" index="index" item="item">
+                    <!-- <view class="cell-type">{{item.title}}</view> -->
+                    <view class="cell-item {{index < 3 ? 'cell-item-hot' : ''}}" @tap.stop="getItemSearch" data-item="{{item}}" data-type="2" wx:if="{{index < 8}}">
+                        <image mode="widthFix" class="cell-hot-icon" src="../../assets/img/hot-logo.svg" wx:if="{{index < 3}}"></image>{{item}}</view>
+                    <!-- <view class="ui-item-box">
+                        <repeat for="{{item.list}}" key="itemIndex" index="itemIndex" item="data">
+                            <view class="cell-item" @tap.stop="getItemSearch" data-item="{{data}}" data-type="2">{{data}}</view>
+                        </repeat>
+                    </view> -->
+                </repeat>
+            </view>
+        </view>
+        <!-- 搜索后 没有搜索到内容 -->
+        <view wx:if="{{1 == step}}" class="ui-no-result">
+            <view class="cell-content">
+                <image class="cell-no-results-img" src="../../assets/img/no-results.svg"></image>
+                <view class="cell-no-results-text">没有找到相关内容</view>
+            </view>
+            <div class="cell-recommend">
+                <view class="cell-title-box">
+                    <view class="cell-title"><image src="../../assets/img/hot-logo.svg"></image>热门微课</view>
+                </view>
+                <ss-sence-list2 :sence.sync="hotCourseList" hideLighlight  isHotSence></ss-sence-list2>
+            </div>
+        </view>
+        <!-- 搜索后 有搜到结果 -->
+        <view wx:if="{{2 == step}}" class="ui-had-result">
+            <view class="ui-sence-box" wx:if="{{learningSenceList.length}}">
+                <view class="ui-sencelist-title" data-type="learned" @tap.stop="viewSenceList">
+                    <view class="cell-title">你曾学过</view>
+                    <view class="cell-num">共<view class="font-orange">{{learningSenceList.length}}</view>个<text class="icon-right-arrow"></text></view>
+                </view>
+                <ss-learned-list :sence.sync="learningSenceList" :max.sync="learnedMax" hasLearned></ss-learned-list>
+            </view>
+            <view class="ui-sence-box" wx:if="{{senceList.length}}">
+                <view class="ui-sencelist-title" data-type="sence" @tap.stop="viewSenceList">
+                    <view class="cell-title">微课</view>
+                    <view class="cell-num">共<view class="font-orange">{{senceList.length}}</view>个<text class="icon-right-arrow"></text></view>
+                </view>
+                <ss-sence-list :sence.sync="senceList" :max.sync="senceMax"></ss-sence-list>
+            </view>
+            <view class="ui-skills-box" wx:if="{{editorList.length}}">
+                <view class="ui-skills-title">
+                    <view class="cell-title">技能</view>
+                    <view class="cell-num">共<view class="font-orange">{{editorList.length}}</view>个</view>
+                </view>
+                <ss-subject-list :subject.sync="editorList"></ss-subject-list>
+            </view>
+            
+            <view class="cell-not-more">没有更多内容了</view>
+        </view>
+        <view class="cell-margin"></view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header'
+    import { fetch } from "../../api";
+    import { getStore, connect } from "wepy-redux";
+    import Loading from '../../components/common/loading'
+    import { initializationDeligate, getStorageAsync, setStorageAsync} from '../../utils'
+    import _ from 'underscore'
+    import senceSearchList from '../../components/course-module/search-sence-list' ;
+    import subjectSearchList from '../../components/course-module/search-subject-list' ;
+
+    const store = getStore();
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class TeamLearningAnnounce extends wepy.page {
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+            'ss-sence-list':senceSearchList,//微课搜索结果列表
+            'ss-sence-list2':senceSearchList,//热门微课推荐列表
+            'ss-learned-list':senceSearchList,//曾学过的微课列表
+            'ss-subject-list':subjectSearchList,//专题搜索结果列表
+        }
+        data = {
+            isLoaded: false,
+            step: 0,
+            history: [],
+            searchText: [],
+            isFocus: false,
+            content: '',
+            editorList: [],
+            hotCourseList: [],
+            senceList: [],//微课列表
+            learningSenceList:[],//学过的微课列表
+            hotKeyWordList:[],//热门搜索mvp20.3默认提示
+            placeholder:'',//默认提示语
+            senceMax:'',//微课显示最大数量
+            learnedMax:'',//已学过最大数量
+            isHotSenceList:false,//是否为热门微课列表
+        };
+        onLoad() {
+            let self = this;
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            initializationDeligate({
+                initializeFunc: self.initialize.bind(self)
+            })
+        }
+        initialize() {
+            let self = this
+            // 通知组件
+            self.__fetchInit()
+        }
+        methods = {
+            /* 查看更多列表数据 */
+            viewSenceList(event) {
+                let self = this
+                let {currentTarget:{dataset:{type}}} = event
+                let list = type == 'sence' ? self.senceList : self.learningSenceList ;
+                let searchObj = {
+                    type:type,
+                    list:list,
+                    content:self.content
+                }
+                setStorageAsync({
+                    key:'searchObj',
+                    value:searchObj
+                }).catch(err => console.log(err))
+                
+                self.$navigate('/pages/course-module/course-search-result-more')
+            },
+            /**
+             * input聚焦
+             */
+            getInputFocus() {
+                let self = this;
+                self.isFocus = true;
+                self.$apply()
+            },
+            /**
+             * input获得焦点
+             */
+            getFocus() {
+                wepy.$instance.globalData.getHuilder(`搜索页/输入框`, 'click', '')
+            },
+            /**
+             * input输入 
+             * @param event
+             */
+            getInput(event) {
+                let self = this;
+                self.content = event.detail.value;
+                self.$apply();
+            },
+            /**
+             * 搜索按钮 || item
+             */
+            getItemSearch(event) {
+                let self = this;
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            type
+                        }
+                    }
+                } = event;
+                let content = ''
+                switch (type) {
+                    case '0':
+                        wepy.$instance.globalData.getHuilder(`搜索页/搜索按钮`, 'click', '')
+                        break;
+                    case '1':
+                        wepy.$instance.globalData.getHuilder(`搜索页/历史搜索`, 'click', '')
+                        break;
+                    case '2':
+                        wepy.$instance.globalData.getHuilder(`搜索页/热搜`, 'click', '')
+                        break;
+                }
+                if (item) {
+                    content = item;
+                    self.content = item;
+                    self.$apply()
+                } else {
+                    content = self.content;
+                    self.$apply()
+                }
+                self.__getSearch(content, type)
+            },
+            /**
+             * 清除内容
+             */
+            getClear() {
+                let self = this;
+                self.content = '';
+                wepy.$instance.globalData.getHuilder(`搜索页/清除按钮`, 'click', '')
+                initializationDeligate({
+                    initializeFunc: self.initialize.bind(self)
+                })
+                self.step = 0;
+                self.$apply()
+            },
+            /**
+             * 课程详情页
+             * @param event
+             */
+            getCourseDetails(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            type
+                        }
+                    }
+                } = event
+                switch (type) {
+                    case 'course':
+                        wepy.$instance.globalData.getHuilder(`搜索页/课程/课程详情页`, 'click', `${item.courseName}`)
+                        break;
+                    case 'hot':
+                        wepy.$instance.globalData.getHuilder(`搜索页/热门课程/课程详情页`, 'click', `${item.courseName}`)
+                        break;
+                }
+                wx.navigateTo({
+                    url: `/pages/course-module/course-details?id=${item.courseID}&source=${item.source}`
+                })
+            }
+        };
+        /**
+         * 初始化
+         * @param event
+         */
+        __fetchInit() {
+            let self = this;
+            let postData = {
+                token: self.systemInfo.token
+            }
+            fetch.searchConfig(postData).then(res => {
+                self.isLoaded = true;
+                self.searchText = res.searchText;
+                self.hotKeyWordList = res.hotKeyWordList;
+                self.placeholder  = self.hotKeyWordList[1];
+                self.history = _.uniq(res.history);
+                self.$apply()
+            }).catch(() => {
+            })
+        }
+        /**
+         * 搜索 
+         * @param item  内容
+         */
+        __getSearch(item, type) {
+            let self = this;
+            if (!item && !self.placeholder) {
+                return wx.showToast({
+                    title: '请输入搜索内容',
+                    icon: 'none',
+                    duration: 2000
+                })
+            }
+            let postData = {
+                token: self.systemInfo.token,
+                content: item || self.placeholder,
+                type: type
+            }
+            setStorageAsync({
+                key: 'inputValue',
+                value: postData.content
+            })
+            fetch.fullSearch(postData).then(res => {
+                self.content = self.content ? self.content : self.placeholder;
+                self.senceMax = 2;
+                self.learnedMax = 1 ;
+                self.$apply()
+                wx.pageScrollTo({
+                    scrollTop: 0,
+                    duration: 300
+                });
+                if (res.senceList.length || res.skillList.length || res.learningSenceList.length) {
+                    self.step = 2;
+                    self.senceList = res.senceList;
+                    self.editorList = res.skillList;
+                    self.learningSenceList = res.learningSenceList;
+                    self.$apply()
+                } else {
+                    self.step = 1;
+                    self.hotCourseList = res.hotCourseList;
+                    self.$apply()
+                }
+            }).catch(() => {
+            })
+        }
+    }
+</script>
+

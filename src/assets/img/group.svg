@@ -1,0 +1,33 @@
+
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <linearGradient x1="30.6657947%" y1="0%" x2="72.7040193%" y2="97.1494158%" id="linearGradient-1">
+            <stop stop-color="#29B895" offset="0%"></stop>
+            <stop stop-color="#1F91AB" offset="100%"></stop>
+        </linearGradient>
+        <path d="M6.65669856,8.85894602 C4.29825771,8.85894602 2.38636364,6.8758034 2.38636364,4.42947301 C2.38636364,1.98314262 4.29825771,0 6.65669856,0 C9.01513942,0 10.9270335,1.98314262 10.9270335,4.42947301 C10.9270335,6.8758034 9.01513942,8.85894602 6.65669856,8.85894602 Z M7.11722488,16.2871278 C3.02716561,16.0176647 0,19.9460616 0,16.2871278 C0,12.0892677 3.02716561,8.90467283 7.11722488,8.90467283 C10.4955617,8.90467283 13.5227273,12.0892677 13.5227273,16.2871278 C13.5227273,19.9460616 10.4955617,16.0176647 7.11722488,16.2871278 Z" id="path-2"></path>
+    </defs>
+    <g id="申请内测" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="会员中心开通前" transform="translate(-36.000000, -628.000000)">
+            <rect fill="#F3F4F7" x="0" y="0" width="375" height="773"></rect>
+            <g id="my_list-copy-10" transform="translate(20.000000, 612.000000)">
+                <g id="UpSkill/图标/个人中心icons/内测用户" transform="translate(16.000000, 16.000000)">
+                    <rect id="Rectangle" fill="#00C75B" x="0" y="0" width="28" height="28" rx="6"></rect>
+                    <g id="icons_betauser" stroke-width="1">
+                        <rect id="Rectangle-15" fill="#00C75B" x="0" y="0" width="28" height="28" rx="14"></rect>
+                        <g id="Group-37" transform="translate(5.833333, 3.500000)">
+                            <g id="Combined-Shape">
+                                <use fill="url(#linearGradient-1)" xlink:href="#path-2"></use>
+                                <use fill="#FFFFFF" xlink:href="#path-2"></use>
+                            </g>
+                            <g id="Group-38" transform="translate(7.954545, 8.927536)" stroke-width="1.16666667">
+                                <ellipse id="Oval-12" stroke="#00C75B" fill="#FFFFFF" cx="4.77272727" cy="4.86956522" rx="5.35606061" ry="5.45289855"></ellipse>
+                                <polyline id="Path-16" stroke="#27D175" transform="translate(4.382463, 3.820940) rotate(-60.000000) translate(-4.382463, -3.820940) " points="1.84095671 2.4727726 1.84095671 5.16910731 6.92396862 5.16910731"></polyline>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,278 @@
+<template>
+    <view class="ui-release-poll">
+        <scroll-view scroll-y="{{true}}" style="background-color:#FFF;">
+            <jn-header title="发布投票"></jn-header>
+            <view class="ui-content">
+				<view class="ui-radio">
+					<view class="ui-item" @tap.stop="getSelectItem" data-type="single">
+						<view class="cell-cri {{pollType === 'single' ? 'cell-selected' : ''}}"></view>
+						<view class="cell-content">单选</view>
+					</view>
+					<view class="ui-item" @tap.stop="getSelectItem" data-type="multiple">
+						<view class="cell-cri {{pollType === 'multiple' ? 'cell-selected' : ''}}"></view>
+						<view class="cell-content">多选</view>
+					</view>
+				</view>
+                <input bindinput="bindKeyInput" value="{{title}}" class="cell-title"
+                       maxlength="{{30}}" placeholder="请输入投票标题"/>
+                <view class="ui-select" wx:for="{{pollOptionList}}" wx:key="{{index}}">
+					<text class="icon-delete-select cell-delete" @tap.stop="handleDeleteSelect" data-index="{{index}}"></text>
+                    <input bindinput="bindSelectInput" value="{{item.optionContent}}" data-index="{{index}}"
+                           class="cell-item cell-nomal-input" maxlength="{{14}}" placeholder-class="cell-placeholder"
+                           placeholder="选项（限14个字）"/>
+                </view>
+                <view class="ui-select">
+                    <view class="ui-add" @tap.stop="handleAddSelect">
+                      <text class="icon-add"></text>
+                    </view>
+                    <view class="cell-item cell-add-input" style="" @tap.stop="handleAddSelect">添加选项</view>
+                </view>
+                <view class="ui-function">
+                    <view class="ui-item ui-date" wx:if="{{isTime}}">
+                        <text>发布日期</text>
+                        <picker mode="date" value="{{isTimeDate}}" end="2030-09-01" bindchange="bindDateChange">
+                            <view class="cell-picker">
+                                <text wx:if="{{!isTimeDate}}" class="cell-tip">
+                                    请选择发布日期
+                                </text>
+                                <text wx:else class="cell-text">{{isTimeDate}}</text>
+                            </view>
+                        </picker>
+                    </view>
+                    <view class="ui-item ui-date" wx:if="{{isTime}}">
+                        <text>发布时间</text>
+                        <picker mode="time" value="{{isTimeTime}}" end="2030-09-01" bindchange="bindTimeChange">
+                            <view class="cell-picker">
+                                <text wx:if="{{!isTimeTime}}" class="cell-tip">
+                                    请选择发布时间
+                                </text>
+                                <text wx:else class="cell-text">{{isTimeTime}}</text>
+                            </view>
+                        </picker>
+                    </view>
+                </view>
+            </view>
+            <view class="cell-margin"></view>
+        </scroll-view>
+        <view class="ui-bottom" style="{{ipX?'padding-bottom:40rpx':''}}">
+            <button wx:if="{{readyToSend}}" class="cell-item" plain="{{ true }}"
+                    @tap.stop="handleSubmit">发 布
+            </button>
+            <button wx:else class="cell-item disable" plain="{{ true }}">发 布</button>
+        </view>
+    </view>
+</template>
+
+<script>
+	import wepy from "wepy";
+	import header from '../../../components/common/header'
+	import {team as teamApi} from "../../../api";
+	import {getStore, connect} from "wepy-redux";
+
+	const store = getStore();
+	const state = store.getState();
+	@connect({
+		token(state) {
+			return state.user.token;
+		},
+		ipX(state) {
+			return state.user.equipmentModel.startsWith('iPhone X')
+		}	
+	})
+
+  	export default class TeamLearningPoll extends wepy.page {
+		data = {
+			readyToSend: false,
+			needSave: false,
+			teamID: '',
+			pollID: '',
+			title: '',
+			isTop: false,
+			isTime: false,
+			isTimeDate: '',
+			isTimeTime: '',
+			pollType: 'single',
+			status: 'draft',
+			pollOptionList: [{
+				optionID: '',
+				optionContent: '',
+			}, {
+				optionID: '',
+				optionContent: '',
+			}],
+		};
+		components = {
+			'jn-header': header
+		};
+		onLoad(events) {
+			let self = this;
+			self.teamID = events.teamID
+			wepy.$instance.globalData.getLoadHuilder() // ga统计
+			let postData = {
+				token:self.token,
+				teamID:self.teamID
+			}
+			teamApi.getTeamPoll(postData).then(data => {
+				if(!data.pollID) return
+
+
+				self.pollID = data.pollID
+				self.title = data.title
+				self.isTop = data.isTop
+				self.isTime = data.isTime
+				self.isTimeDate = data.isTimeDate
+				self.isTimeTime = data.isTimeTime
+				self.pollOptionList = data.pollOptionList
+				self.pollType = data.pollType
+				self.$apply()
+				self.checkButtonStatus(true)
+			})
+		}
+    methods = {
+		/* 点击单选item */
+		getSelectItem(event){
+			let self = this
+			self.pollType = event.currentTarget.dataset.type;
+		},
+		handleSubmit() {
+			this.doTeamPoll('release')
+		},
+		bindDateChange: function(e) {
+			this.isTimeDate = e.detail.value
+			this.checkButtonStatus()
+		},
+		bindTimeChange: function(e) {
+			this.isTimeTime = e.detail.value
+			this.checkButtonStatus()
+		},
+		handleAddSelect() {
+			this.pollOptionList.push({
+				optionID: '',
+				optionContent: '',
+			})
+			this.checkButtonStatus()
+		},
+		handleDeleteSelect({currentTarget: {dataset: {index}}}) {
+			this.pollOptionList.splice(index, 1)
+			this.checkButtonStatus()
+		},
+		bindKeyInput: function(e) {
+			this.title = e.detail.value;
+			this.checkButtonStatus()
+		},
+		bindSelectInput: function(e) {
+			let index = e.currentTarget.dataset.index
+			this.pollOptionList[index].optionContent = e.detail.value
+			this.checkButtonStatus()
+		}
+    };
+    checkButtonStatus(needSaveChange) {
+		if(!needSaveChange)
+			this.needSave = true
+		for (let one of this.pollOptionList) {
+			if (!one.optionContent||one.optionContent.replace(/\s/g,"").length===0) {
+			this.readyToSend = false
+			return this.$apply()
+			}
+		}
+		if (this.isTime) {
+			if (!this.isTimeDate || !this.isTimeTime) {
+				this.readyToSend = false
+				return this.$apply()
+			}
+		}
+		this.readyToSend = this.title ? true : false
+		return this.$apply()
+    }
+    doTeamPoll(status) {
+      	let postJson = {
+			teamID: this.teamID,
+			pollID: this.pollID,
+			title: this.title,
+			isTop: this.isTop,
+			isTime: this.isTime,
+			isTimeDate: this.isTimeDate,
+			isTimeTime: this.isTimeTime,
+			status: status,
+			pollOptionList: this.pollOptionList,
+			pollType:this.pollType
+      	}
+		wx.showLoading({
+			title: '正在处理',
+			mask: true
+		})
+     	teamApi.doTeamPoll({
+			token: this.token,
+			teamID: this.teamID,
+			data: postJson
+        })
+        .then(data => {
+			this.needSave = false
+			if (status === 'release') {
+                wx.navigateBack()
+			}
+			wx.hideLoading()
+        })
+        .catch(error => {
+			console.log('fail to poll', error)
+			wx.hideLoading()
+        })
+    }
+  }
+</script>
+
+<style lang="less" scoped>
+  	@import "../../../assets/style/theme";
+  	.ui-release-poll{
+		width: 100%;height: 100%;background-color: @background-gray-F4;
+		.ui-content{
+			width: 100%;background-color: @background-white;
+			.ui-radio{
+				height: 122rpx;width: 100%;background-color: @background-gray-F4;padding-left: 44rpx;display: flex;align-items: center;
+				.ui-item{
+					font-size: 34rpx;color:@color-black;display: flex;align-items: center;margin-right:94rpx;
+					.cell-cri{width: 48rpx;height: 48rpx;border-radius: 50%;border:2rpx solid @border-blue;box-sizing: border-box;position: relative;}
+					.cell-selected{
+						&::before{content:'';position: absolute;width: 28rpx;height: 28rpx;border-radius: 50%;background: @background-blue;top: 50%;left: 50%;transform: translate(-50%,-50%)}
+					}
+					.cell-content{margin-left: 16rpx;}
+				}
+			}
+			.cell-title{
+				height:160rpx;box-sizing:border-box;padding:76rpx 40rpx 36rpx;border:0;font-family:PingFangSC-Medium;font-size:44rpx;color:@color-black;background-color:@background-white;border-bottom: 2rpx solid @border-gray;
+			}
+			.ui-select{
+				margin: 28rpx 40rpx 0;border-bottom: 2rpx solid @border-gray;display: flex;align-items: center;
+				.cell-delete{font-size:38rpx;margin-right:16rpx;color:#ff0f16;}
+				.cell-item{line-height: 44rpx;background-color: @background-white;font-family: PingFangSC-Regular;font-size: 32rpx;padding: 24rpx 0;width: 90%;}
+				.ui-add{
+					width: 40rpx;height: 40rpx;border-radius: 50%;background-color: @background-blue;color:@color-white;line-height:40rpx;text-align:center;margin-right:16rpx;display:flex;align-items:center;justify-content:center;
+					text{font-size: 20rpx;}
+				}
+				.cell-nomal-input{color: @color-black;}
+				.cell-placeholder{color: @border-blue;line-height: 46rpx;}
+				.cell-add-input{color: @border-blue;}
+			}
+			.ui-function{
+				width: 100%;border-top: 48rpx solid @border-gray;
+				.ui-item{
+					height: 120rpx;display: flex;align-items: center;justify-content: space-between;font-family: PingFangSC-Regular;font-size: 32rpx;color: @color-black;border-top: @border-gray solid 2rpx;margin-left: 40rpx;margin-right:36rpx;box-sizing:border-box;
+					.cell-switch{margin-right: 36rpx;}
+					.cell-picker{
+						height: 100%;text-align: right;margin-right: 40rpx;display: flex;align-items: center;
+						.cell-tip{color: @color-gray;font-family: PingFangSC-Regular;font-size: 32rpx;height:120rpx;}
+						.cell-text{font-family: PingFangSC-Regular;font-size: 32rpx;color: @color-gray;}
+					}
+					picker{height: 100%;display: flex;align-items: center;}
+				}
+				.ui-item.ui-date{margin-left: 84rpx}
+			}
+		}
+		.cell-margin{width:100%;height:260rpx;background-color:@background-gray-F4;}
+		.ui-bottom{
+			width: 100%;height: 140rpx;position: fixed;left: 0;bottom: 0;display: flex;justify-content: center;align-items: center;z-index: 1100;
+			.cell-item{width: 702rpx;height: 100rpx;line-height: 100rpx;background-color: @background-blue;color: @color-white;border: 0;border-radius: @border-radius-20;}
+			.cell-item.disable{opacity: 0.2;}
+		}
+	}
+</style>

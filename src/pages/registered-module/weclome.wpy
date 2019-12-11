@@ -1,0 +1,107 @@
+<style lang="less" scoped>
+    .ui-image-list{
+        height:1000rpx;
+        .ui-swiper{
+            image{width: 750rpx;height: 942rpx;}
+        }
+    }
+    .cell-btn{width: 670rpx;height: 96rpx;background: #007AFF;border-radius: 20rpx;color: #fff;line-height: 96rpx;text-align: center;position:fixed;bottom:68rpx;left:50%;transform:translate(-50%,0);}
+    .dir-top {
+        image {
+            width: 100%;
+            height: 100%;
+        }
+    }
+</style>
+
+<template>
+    <view class="dir-top main-center" style="height: calc(100% - {{headerHeigth}}px)">
+        <!-- <swiper class="ui-image-list" indicator-dots="{{true}}" indicator-color="#ccc" indicator-active-color="#007aff">
+            <block wx:for="{{imageList}}"
+                wx:index="{{ index }}" wx:key="{{ index }}" wx:for-item="item">
+                <swiper-item class="ui-swiper">
+                    <image src="{{item.url}}"></image>
+                </swiper-item>
+            </block>
+        </swiper> -->
+        <image src="http://wx-small.runwise.cn/image/welcome.svg" mode="scaleToFill"></image>
+    </view>
+    <!-- <view class="cell-btn" @tap.stop="getCourse">{{btnText}}</view> -->
+    <view></view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+    import {fetch} from '../../api'
+    import {getStorageAsync, setStorageAsync} from '../../utils'
+    import {getUserPhone,refreshUserInformations} from '../../redux/models/user'
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class registeredWeclome extends wepy.page {
+        components = {
+            'jn-header': header,
+        }
+
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            imageList: '',
+            headerHeigth: 0,
+            btnText:''
+        }
+
+        onLoad() {
+            let self = this
+            let postData = {
+                token: 'defaultToken',
+                imageType: 'useronboarding'
+            }
+            wepy.$instance.globalData.getLoadHuilder()
+            setTimeout(() => {
+                let json = {isDone : true}
+                
+                
+                wepy.switchTab({ url: '/pages/tabPages/home'})
+                self.$apply()
+            }, 1500);
+            /* fetch.weclomeSwiper(postData).then((response) => {
+                self.imageList = response.imageList
+                getStorageAsync({key: 'profile'}).then((response) => {
+                    self.btnText = response.btnText
+                    self.isLoaded = true;
+                    self.$apply();
+                }).catch(error => {
+                    
+                });
+                self.$apply()
+            }).catch(error => {
+
+            }) */
+            
+            
+        }
+
+        methods = {
+            /**
+             * 去领取课程
+             */
+            getCourse() {
+                wepy.$instance.globalData.getHuilder('onboarding/欢迎页/马上领取课程', 'click','')
+                wx.navigateTo({url:'/pages/registered-module/interest-select'})
+            }
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                // self.headerHeigth = data.headerHeigth + 82
+                self.$apply()
+            }
+        }
+    }
+</script>

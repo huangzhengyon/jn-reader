@@ -1,0 +1,166 @@
+<style lang="less" scoped>
+    @import '../../assets/style/theme.less';
+   .ui-author-box{
+        text{color:#007AFF;font-size: 194rpx;}
+        .cell-title{margin: 40rpx 0 30rpx;font-size: 56rpx;font-weight: bold}
+        .cell-dec{font-size: 36rpx;color: rgba(0, 0, 0, 0.6);line-height: 1.7}
+        .cell-authorisation-button{
+            width: 100%;
+            .flex-around();
+            .cell-btn{
+                margin-top: 80rpx;
+                width: 324rpx;
+                background: @background-blue;
+                height: 96rpx;
+                color: @color-white;
+                line-height: 96rpx;
+                text-align: center;
+                border-radius: @border-radius-20;
+                font-size: 34rpx;
+                &.cell-hover{background: #0062CD}
+            }
+            .cell-cancle-btn{
+                background: @background-gray-F1;
+                color: @color-blue;
+            }
+        }
+   }
+</style>
+<template>
+    <view class="ui-author-box dir-top main-center cross-center">
+        <jn-header className.sync="headerBackground" buttonColor="#007AFF" buttonAfter></jn-header>
+        <view class="dir-top main-center cross-center">
+            <text class="icon-logo"></text>
+            <view class="cell-title">UpSkill</view>
+            <view class="cell-dec">不贩卖焦虑，不兜售鸡汤</view>
+            <view class="cell-dec">即能，只提供新职场技能</view>
+            <view class="cell-authorisation-button">
+                <button hover-class="cell-hover" class="cell-btn cell-cancle-btn" @tap.stop="impower">暂不登录</button>
+                <button hover-class="cell-hover" class="cell-btn cell-submit-btn" open-type="{{!systemInfo.phone ? 'getPhoneNumber' : ''}}" @getphonenumber.stop="getPhone" @tap.stop="getPhone">授权登录</button>
+            </view>
+        </view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header'
+    import {fetch} from "../../api";
+    import { setStorageAsync } from '../../utils'
+    import {getStore,connect} from "wepy-redux";
+    import {getUserPhone,refreshUserInformations} from '../../redux/models/user'
+    import _ from 'underscore'
+
+    const store = getStore();
+    
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class Author extends wepy.page {
+
+        components = {
+            'jn-header': header,
+        } 
+
+        data = {
+            paramsInfo:{}
+        };
+        
+
+        onLoad(params) {
+           let self = this;
+           wepy.$instance.globalData.getLoadHuilder() // ga统计
+           self.paramsInfo = params;
+           self.$apply()
+        }
+
+        onShow() {
+           
+        }
+
+        methods = {
+           /* 
+            授权手机号
+            */
+            getPhone(event) {
+                let self = this
+                let {detail: {encryptedData, errMsg, iv}} = event
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            store.dispatch(refreshUserInformations({phone: response}))
+                            if(!self.paramsInfo.isGift) {
+                                wepy.showToast({
+                                    title: '授权成功',
+                                    icon: 'success',
+                                    duration: 2000,
+                                })
+                                setTimeout(() => {
+                                    return wx.navigateBack({delta: 1})
+                                }, 1000);
+                            }else {
+                                self.__getGift(response);
+                            }
+                        }).catch(error =>　{
+                            if (error) {
+                                return
+                            }
+                        })
+                    }, 0);
+                })
+                
+            },
+            /* 
+            暂不登录
+            */
+            impower() {
+                wx.navigateBack({delta: 1})
+            }
+        };
+
+        //领取首课 
+        __getGift(phone) {
+            let self = this;
+            let courseID = self.paramsInfo.courseID;
+            let name = self.paramsInfo.name;
+            let postData= {
+                token: self.systemInfo.token,
+                courseID: courseID,
+                mobile: phone
+            }
+            wepy.$instance.globalData.getHuilder('onboarding/欢迎页/免费领取', 'click', name)
+            fetch.userGetCourse(postData).then((response) => {
+                switch (response.success) {
+                    case 1: // 领取成功
+                        store.dispatch(refreshUserInformations({hasGift: true}))
+                        
+                        wepy.navigateTo({url: `/pages/course-module/course-details?id=${courseID}&source=onboarding/推荐课程&isRedirctRoute=${true}`})
+                        self.$apply()
+                        break
+                    case 2: // 已经领取过了
+                        store.dispatch(refreshUserInformations({hasGift: true}))
+                        wx.reLaunch({url: `/pages/tabPages/course`})
+                        self.$apply()
+                        break
+                    case 0: // 领取失败
+                        wx.showToast({
+                            icon: 'none',
+                            title: response.message || '领取失败'
+                        })
+                        wx.reLaunch({url: `/pages/tabPages/course`})
+                        break
+            
+                }
+            })
+            let json = {isDone : true}
+            wx.setStorageSync('profile', json)
+        }
+    }
+</script>
+

@@ -1,0 +1,252 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .module-single-choice-box{
+        .ui-content{padding:20rpx 32rpx;}
+        .ui-answer-list{
+            .cell-title{width:560rpx;}
+            .is-tip-success{background-color:#E6FFF0;border-color:@border-green;}
+            .is-success{
+                background-color:#E6FFF0;border-color:@border-green;
+                .cell-icon{
+                    opacity:1;
+                    text{color:@color-green;}
+                }
+            }
+            .is-tip-error{background-color:#FFE6E6;}
+            .is-error{
+                background-color:#FFE6E6;border-color:@border-red;
+                .cell-icon{
+                    opacity:1;
+                    text{color:@color-red;}
+                }
+            }
+        }
+        .module-exercises-result{
+            padding:26rpx 32rpx;margin-top:30rpx;background-color:@background-gray-F0;border-radius:@border-radius-20;
+            .cell-exercises-title{
+                &.is-no{color:@color-red;}
+                &.is-yes{color:@color-green;}
+            }
+        }
+        .cell-sumbit{width:264rpx;height:64rpx;margin:44rpx auto 0;background-color:@background-blue;font-size:30rpx;color:@color-white;line-height:64rpx;border-radius:64rpx;}
+    }
+</style>
+
+<template>
+    <view class="module-single-choice-box">
+        <view class="ui-content">
+            <view class="ui-subtitle" wx:if="{{parentList[parentIndex][parentKey][cardIndex].abilitySkill}}"># {{parentList[parentIndex][parentKey][cardIndex].abilitySkill}}</view>
+            <view class="ui-title">{{parentList[parentIndex][parentKey][cardIndex].title}}</view>
+
+            <view class="ui-description" wx:if="{{parentList[parentIndex][parentKey][cardIndex].description}}">{{parentList[parentIndex][parentKey][cardIndex].description}}</view>
+            <view class="ui-thumb" wx:if="{{parentList[parentIndex][parentKey][cardIndex].bigimage}}">
+                <image mode="widthFix" src="{{parentList[parentIndex][parentKey][cardIndex].bigimage}}"></image>
+            </view>
+
+            <view class="ui-answer-list">
+                <repeat for="{{parentList[parentIndex][parentKey][cardIndex].select}}" key="singleIndex" index="singleIndex" item="item">
+                    <view class="ui-item main-justify cross-center"
+                          :class="{'is-selected': item.isSelected, 'is-success': parentList[parentIndex][parentKey][cardIndex].isDone && item.isSelected && item.isanswer, 'is-error': parentList[parentIndex][parentKey][cardIndex].isDone && item.isSelected && !item.isanswer, 'is-tip-success': parentList[parentIndex][parentKey][cardIndex].isDone && item.isanswer}"
+                          hover-class="{{!isAnswerOver &&'ui-item-hover'}}"
+                          data-parentlist="{{parentList}}"
+                          data-parentkey="{{parentKey}}"
+                          data-parentindex="{{parentIndex}}"
+                          data-cardindex="{{cardIndex}}"
+                          data-item="{{item}}"
+                          @tap.stop="getSelected">
+                        <view class="cell-title">
+                            <text>{{labelDictionary[singleIndex+1]}}. </text>
+                            <text>{{item.option}}</text>
+                        </view>
+                        <view class="cell-icon" wx:if="{{parentList[parentIndex][parentKey][cardIndex].answerStatus == 1}}"><text class="icon-complete"></text></view>
+                        <view class="cell-icon" wx:if="{{parentList[parentIndex][parentKey][cardIndex].answerStatus == 2}}"><text class="icon-back-close"></text></view>
+                    </view>
+                </repeat>
+            </view>
+
+            <view class="module-exercises-result" :class="{'is-show': parentList[parentIndex][parentKey][cardIndex].isSumbit}">
+                <view class="main-justify">
+                    <view class="cell-exercises-title" :class="{'is-yes': parentList[parentIndex][parentKey][cardIndex].answerStatus==1, 'is-no': parentList[parentIndex][parentKey][cardIndex].answerStatus==2}">
+                        {{parentList[parentIndex][parentKey][cardIndex].answerStatus == 1 ? '回答正确' : '回答错误'}}
+                    </view>
+                </view>
+                <view class="ui-description">{{parentList[parentIndex][parentKey][cardIndex].answerDescription}}</view>
+            </view>
+
+            <button class="cell-sumbit"
+                    wx:if="{{!parentList[parentIndex][parentKey][cardIndex].isDone}}"
+                    form-type="submit"
+                    disabled="{{!parentList[parentIndex][parentKey][cardIndex].selectedItem.option}}"
+                    data-parentkey="{{parentKey}}"
+                    data-parentindex="{{parentIndex}}"
+                    data-cardindex="{{cardIndex}}"
+                    @tap.stop="getShowDescription">提交</button>
+            <button class="cell-sumbit"
+                    wx:if="{{parentList[parentIndex][parentKey][cardIndex].isDone && !parentList[parentIndex][parentKey][cardIndex].isSumbit}}"
+                    form-type="submit"
+                    data-parentkey="{{parentKey}}"
+                    data-parentindex="{{parentIndex}}"
+                    data-cardindex="{{cardIndex}}"
+                    open-type="{{!systemInfo.phone ? 'getPhoneNumber' : ''}}"
+                    @getphonenumber.stop="getSumbit"
+                    @tap.stop="getSumbit">查看解释</button>
+        </view>
+    </view>
+</template>
+
+<script>
+    /**
+     * <jn-single-choice></jn-single-choice>
+     * @module components/special-course/single-choice
+     * @desc 专题、今日技能quiz
+     * @param {parentList} [Array] - 最外层的数组----【】
+     * @param {parentKey} [String] - 需要遍历的测练的key名称，value肯定是Array----【】
+     * @param {parentIndex} [Number] - 遍历的这个在隶属于最外层数组的索引键值----【】
+     * @param {cardsList} [Array] - 测练的key的value数组- ----【】
+     * @param {cardIndex} [Number] - 当前循环的测练数组索引键值- ----【】
+     */
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import {getUserPhone, refreshUserInformations} from "../../redux/models/user"
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class specialSingleChoice extends wepy.component {
+        props = {
+            parentIndex: {
+                type: Number
+            },
+            parentKey: {
+                type: String
+            },
+            parentList: {
+                type: Array,
+                default: []
+            },
+            cardIndex: {
+                type: Number
+            },
+            cardsList: {
+                type: Array,
+                default: []
+            }
+        }
+
+        data = {
+            selectedId: 0, // 当前选中的那个选项
+            labelDictionary: {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F'}
+        }
+
+        methods = {
+            /**
+             * 选中某个选项
+             * @param event
+             * @returns {boolean}
+             */
+            getSelected(event) {
+                let self = this
+                let {currentTarget: {dataset: {item, parentlist, parentindex, parentkey, cardindex}}} = event
+                let cardData = !parentkey ? self.cardsList[self.cardIndex] : parentlist[parentindex][parentkey][cardindex]
+
+                if (cardData.isDone) {
+                    return false
+                }
+                _.each(cardData.select, (option) => {
+                    option.isSelected = option.id == item.id ? true : false
+                })
+                self.selectedId = item.id
+                self.$apply()
+
+                let data = {
+                    parentindex: parentindex,
+                    parentkey: parentkey,
+                    parentlist: parentlist,
+                    cardindex: cardindex,
+                    select: cardData.select,
+                    isFinish: true,
+                    isAnswerOver: false,
+                    id: cardData.id,
+                    selectedId: item.id,
+                    selectedItem: item,
+                    fullImageBottomtText: '我已选好',
+                    json: item.sId,
+                    answerStatus: item.isanswer ? 1 : 2, // 1回答正确, 2回答错误
+                    answerTitle: item.feedback && item.feedback.title,
+                    answerDescription: item.feedback && item.feedback.description
+                }
+
+                self.$emit('on-interaction', data)
+            },
+            /**
+             * @param event
+             */
+            getSumbit(event) {
+                let self = this
+                let {currentTarget: {dataset: {parentindex, parentkey, cardindex}}, detail: {encryptedData, errMsg, iv}} = event
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                                let data = {
+                                    parentindex: parentindex,
+                                    parentkey: parentkey,
+                                    cardindex: cardindex,
+                                    isSumbit: true
+                                }
+                                self.$emit('on-interaction', data)
+                            }).catch((error) => {
+
+                            })
+                    }, 0);
+                })
+                
+            },
+            /**
+             * @param event
+             */
+            getShowDescription(event) {
+                let self = this
+                let {currentTarget: {dataset: {parentindex, parentkey, cardindex}}} = event
+
+                let data = {
+                    parentindex: parentindex,
+                    parentkey: parentkey,
+                    cardindex: cardindex,
+                    isDone: true
+                }
+
+                self.$emit('on-interaction', data)
+            }
+        }
+
+        events = {
+            /**
+             * 监听父级页面触发提交答案
+             * @param data
+             */
+            'broadcast-single-choive': (data) => {
+                let self = this
+                let cardData = data.parentlist[data.parentindex][data.parentkey][data.cardindex]
+                let item = _.find(cardData.select, {id: data.selectedId})
+
+                self.$apply()
+            },
+            /**
+             * 监听父级，重置初始化数据
+             * @param data
+             */
+            'broadcast-reset-status': (data) => {
+                let self = this
+                self.selectedId = 0 // 当前选中的那个选项
+                self.$apply()
+            }
+        }
+    }
+</script>

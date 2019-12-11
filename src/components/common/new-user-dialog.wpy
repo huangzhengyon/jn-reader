@@ -1,0 +1,168 @@
+<template>
+    <view class="ui-flyback-module" catchtouchmove="true" wx:if="{{show}}">
+        <view class="ui-flyback-mask"></view>
+        <view class="ui-flyback-content" wx:if="{{status}}">
+            <view class="ui-content-image">
+                <image mode="widthFix" class="cell-image" src="https://wx-small.runwise.cn/image/new-register-bg.png" wx:if="{{!underCheck}}"></image>
+                <image mode="widthFix" class="cell-image" src="https://wx-small.runwise.cn/image/new-register-under-bg.png" wx:else></image>
+                <image mode="widthFix" data-type="1" @tap.stop="closeDialog" class="cell-close" src="../../assets/img/alert-close.svg"></image>
+            </view>
+            <view class="ui-content-button">
+                <button open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getExprienceMember" @tap.stop="getExprienceMember" ></button>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import { getStore, connect } from 'wepy-redux'
+    import { setStorageAsync } from '../../utils'
+    import { getUserPhone, refreshUserInformations } from '../../redux/models/user'
+    import { fetch, report as reportApi } from '../../api'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+
+    export default class newUserDialog extends wepy.component {
+        props = {
+            show: {
+                type: Boolean
+            },
+            underCheck: {
+                type: Boolean,
+                default: false
+            }
+        }
+        
+        data = {
+            isMoving:true,//是否正在过渡
+            status:true,//是否展示弹窗
+        }
+
+        onLoad(){
+            
+        }
+
+        methods = {
+            /**
+             * 关闭弹窗
+             */
+            closeDialog() {
+                let self = this 
+                wepy.$instance.globalData.getHuilder('今日页/新人福利/关闭', 'click', '')
+                self.$emit('on-hide-newdialog')
+            },
+            /**
+             * 注册体验会员
+             * @param token
+             */
+            getExprienceMember(event) {
+                let self = this
+                let { detail: { encryptedData, errMsg, iv } } = event
+
+                wepy.$instance.globalData.getHuilder('今日页/新人福利/授权', 'click', '')
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            store.dispatch(refreshUserInformations({
+                                phone: response
+                            }))
+                            //数据库埋点
+                            let postData = {
+                                token: self.systemInfo.token,
+                                body: {
+                                    json: {
+                                        pageType: "今日页",
+                                        eventType: "新人福利",
+                                        componentName: "弹窗",
+                                        cpnPresentName: "立即注册",
+                                    }
+                                }
+                            }
+                            reportApi.doUserBehaviourLog(postData);
+                            self.$emit('on-newdialog-register');
+                            self.show = false;
+                            self.$apply();
+                        }).catch((error) => {
+                            console.log(error)
+                            if(error && error.indexOf('getPhoneNumber') > -1){
+                                wepy.$instance.globalData.getHuilder('今日页/新人福利弹窗/拒绝', 'click', '')
+                            }
+                        })
+                    }, 0);
+                })
+            }
+        }
+    }
+</script>
+
+<style lang="less">
+@import '../../assets/style/theme';
+.ui-flyback-module {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    .flex-center();
+    z-index: 1000;
+    .ui-flyback-mask {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: @background-mask-normal-4;
+    }
+    .ui-flyback-content {
+        width: 100%;
+        margin: 0 auto;
+        position: relative;
+        z-index: @z-index-lower;
+        
+        .ui-content-image {
+            .cell-image {
+                width: 100%;
+            }
+            .cell-close {
+                width: 64rpx;
+                height: 64rpx;
+                position: absolute;
+                top:-10rpx;
+                right:30rpx;
+            }
+        }
+        .ui-content-button {
+            .flex-center();
+            padding: 32rpx 0;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 134rpx;
+            button {
+                width: 490rpx;
+                height: 88rpx;
+                background: transparent;
+                color: @color-white;
+                border-radius: @border-radius-44;
+                font-size: 30rpx;
+                margin: 0;
+                padding: 0;
+                .flex-center();
+                font-weight: bold;
+            }
+        }
+    }
+}
+</style>

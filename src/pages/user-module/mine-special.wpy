@@ -1,0 +1,107 @@
+<template>
+    <mloading wx:if="{{ !isLoaded  }}"/>
+    <jn-header title="推荐" statusBackground="#fff"></jn-header>
+    <repeat for="{{specialList}}" key="index" index="index" item="item">
+        <view class="ui-item">
+            <view class="cell-date">{{item.dateTips}}</view>
+            <view class="module-special-skill" @tap.stop="getEditorItem"
+                data-item="{{item}}" >
+                <view class="ui-skill-content" style="background-image:url('{{item.coverImageURL}}')">
+                    <view class="main-justify cross-center ui-top">
+                        <view class="cell-tip">{{item.sceneType}}</view>
+                        <view class="ui-count">
+                            <text class="icon-eyes"></text>
+                            {{item.userCount}}
+                        </view>
+                    </view>
+                    
+                    <view class="cell-name">{{item.name}}</view>
+                </view>
+                <view class="ui-progress-box dir-top main-center">
+                    <view class="ui-skill main-justify">
+                        <view># {{item.senceTarget}}</view>
+                        <view class="cell-num">{{item.skillScore}}</view>
+                    </view>
+                    <view class="module-progress-item">
+                        <view class="cell-line box-mean">
+                            <view></view><view></view><view></view><view></view><view></view>
+                        </view>
+                        <view class="cell-percent" style="width: {{item.progress}}%"></view>
+                    </view>
+                </view>
+            </view>
+        </view>
+    </repeat>
+    <view class="cell-margin"></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header'
+    import {fetch} from "../../api";
+    import {getStore,connect} from "wepy-redux";
+    import Loading from '../../components/common/loading'
+
+    const store = getStore();
+    
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class mineSpecial extends wepy.page {
+
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+        } 
+
+        data = {
+            isLoaded:false,
+            specialList:[]
+        };
+        
+
+        onLoad() {
+           let self = this;
+           self.isLoaded = true
+        }
+
+        onShow() {
+            let self = this;
+            let postData = {
+                token:self.systemInfo.token
+            }
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            fetch.getPushDailyEditorList(postData).then(res => {
+                self.specialList = res;
+                self.$apply()
+            }).catch(()=> {
+                
+            })
+        }
+
+        methods = {
+            getEditorItem({currentTarget: {dataset: {item}}}) {
+                let self = this;
+                let courseID = item.id;
+                'todaySkill' == item.type ? wepy.$instance.globalData.getHuilder('个性化推荐/每日技能','click', `${item.name}`) : wepy.$instance.globalData.getHuilder('个性化推荐/专题','click', `${item.name}`)
+                return self.$navigate('/pages/SpecialCourse/index', {courseID})
+            },
+        };
+    }
+</script>
+
+<style lang="less" scoped>
+   /* 头部 */
+    .ui-course-header{
+        height:72rpx;padding:0 32rpx;box-sizing:border-box;
+        .cell-title{font-size:68rpx;font-weight:700;}
+    }
+    .ui-item{
+        padding:0 40rpx;margin-bottom: 60rpx;
+        
+        .cell-date{font-size: 32rpx;margin-bottom: 24rpx;}
+    }
+    .cell-margin{height: 120rpx;width: 100%;}
+</style>

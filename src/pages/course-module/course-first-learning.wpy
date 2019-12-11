@@ -1,0 +1,101 @@
+<template>
+    <view class="ui-before-learning">
+        <view class="ui-banner">
+            <image src="http://wx-small.runwise.cn/image/before-course-learning.png"></image>
+        </view>
+        <view class="ui-tips">
+            <view class="cell-title">每完成一门微课获5个即能币</view>
+        </view>
+        <!-- <view class="ui-loading-module">
+            <view></view>
+            <view></view>
+            <view></view>
+        </view> -->
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy';
+    export default class firstCourseLearning extends wepy.page {
+        data = {
+            paramsInfo:'',//参数
+        }
+        onLoad(params) {
+            let self = this 
+            let { courseID, senceID, teamID, source, isReview, resumeLastRead, isExprience, isFromTodayListing, preview} = params
+            self.paramsInfo = { courseID, senceID, teamID, source, isReview, resumeLastRead, isExprience, isFromTodayListing, preview }
+
+            console.log(self.paramsInfo)
+
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            self.$apply()
+
+            setTimeout(() => {
+                wx.redirectTo({url: `/pages/course-module/course-learning?courseID=${self.paramsInfo.courseID}&senceID=${self.paramsInfo.senceID}&teamID=${self.paramsInfo.teamID}&source=${self.paramsInfo.source}&resumeLastRead=${self.paramsInfo.resumeLastRead}&isExprience=${self.paramsInfo.isExprience}&isFromTodayListing=${self.paramsInfo.isFromTodayListing}&preview=${self.paramsInfo.preview}`});
+            }, 1500);
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+    @import '../../assets/style/theme.less';
+    .ui-before-learning {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        flex-direction: column;
+        background: url('http://image.runwise.cn/image/body-bg.png') bottom no-repeat;
+        background-size: cover;
+        .ui-banner {
+            image {
+                width: 520rpx;
+                height: 478rpx;
+            }
+        }
+        .ui-tips {
+            padding: 60rpx 0;
+            .cell-title {
+                font-size: 40rpx;
+                color: @color-black;
+                text-align: center;
+            }
+        }
+        .ui-loading-module {
+            width: 100%;
+            .flex-center();
+            view {
+                width: 18px;
+                height: 18px;
+                background-color: @color-blue;
+                border-radius: 100%;
+                display: inline-block;
+                -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+                animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+                margin: 12rpx
+            }
+            view:nth-of-type(1) {
+                -webkit-animation-delay: -0.32s;
+                animation-delay: -0.32s;
+            }
+            view:nth-of-type(2) {
+                -webkit-animation-delay: -0.16s;
+                animation-delay: -0.16s;
+            }
+            @keyframes sk-bouncedelay {
+                0%,
+                80%,
+                100% {
+                    -webkit-transform: scale(0);
+                    transform: scale(0);
+                }
+                40% {
+                    -webkit-transform: scale(1.0);
+                    transform: scale(1.0);
+                }
+            }
+        }
+    }
+</style>

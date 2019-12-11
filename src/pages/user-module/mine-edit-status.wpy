@@ -1,0 +1,149 @@
+<template>
+    <mloading wx:if="{{ !isLoaded }}"/>
+    <jn-header title="更改职能"></jn-header>
+    <view class="ui-edit-status dir-top cross-center" style="height: calc(100% - {{headerHeigth}}px)">
+        <view class="cell-title">你感兴趣的领域</view>
+        <view class="cell-dec">
+            你已选好
+            <text wx:for="{{statusList}}"  wx:key="{{item.id}}" wx:if="{{item.isActive}}">“{{item.label}}”</text>
+            这些领域，可以重新选择哦
+        </view>
+        <view class="ui-status">
+            <view wx:for="{{statusList}}" wx:key="{{item.id}}"  class="cell-item" @tap.stop="getItem" data-item="{{item}}">
+                <view >
+                    <text class='icon-{{item.id}} cell-manager'></text>
+                </view>
+                <view>{{item.label}}</view>
+                <view wx:if="{{item.isActive}}" class="ui-complete">
+                    <text class="icon-complete cell-complete"></text>
+                </view>
+            </view>
+        </view>
+        <view class="cell-commit" @tap.stop="getCommit">确定</view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import {getStore, connect} from "wepy-redux";
+    import {report as reportApi} from "../../api";
+    import header from '../../components/common/header'
+    import Loading from '../../components/common/loading';
+
+    const store = getStore();
+    @connect({
+        token(state) {
+            return state.user.token;
+        }
+    })
+    export default class MineEditStatus extends wepy.page {
+        data = {
+            headerHeigth: 68,
+            statusList:[],
+            activeList:[],
+            isLoaded:false
+
+        } 
+        components = {
+            'mloading': Loading,
+            'jn-header': header,
+        }
+        methods = {
+            getCommit(){
+                let self = this
+
+                let list = self.statusList.filter(item => {
+                    return item.isActive
+                })
+
+                if(!list.length) {
+                    return wepy.showToast({
+                        title: '请选择您的学习目标',
+                        icon:'none'
+                    })
+                }
+                reportApi.saveUserCenterInfo({ token:self.token, json: { statusList: list}, flag:'statusList'})
+                    .then((res) => {
+                        wx.navigateBack()
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                    })
+
+            },
+            getItem(event){
+                let {currentTarget: {dataset: {item}}} = event
+                if(item.isActive) {
+                    this.statusList.map(i =>{
+                        if(i.id == item.id) {
+                            i.isActive = !i.isActive
+                        }
+                    })
+                }else{
+                    this.activeList =this.statusList.filter(item => {
+                        return item.isActive
+                    })
+                    if(this.activeList.length >= 2) {
+                        return wepy.showToast({
+                            title: '兴趣标签最多选择2个',
+                            icon:'none'
+                        })
+                    }else{
+                        this.statusList.map(i =>{
+                            if(i.id == item.id) {
+                                i.isActive = !i.isActive
+                            }
+                        })
+                    }
+                }
+            }
+
+
+        }
+
+        onLoad() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        onShow(){
+            let self = this
+            reportApi.userCenterInfo({
+                token:this.token,
+            })
+            .then(data=>{
+                self.statusList = data.statusList
+                self.isLoaded = true;
+                self.$apply()
+            })
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+    .ui-edit-status{
+        .cell-title{font-size: 48rpx;color: #000;margin-top: 120rpx}
+        .cell-dec{font-size: 28rpx;color: #8F8E94;opacity: 0.8;margin: 40rpx 0 60rpx;text-align: center;width: 604rpx;}
+        .ui-status{
+            display: flex;flex-wrap: wrap;padding:0 26rpx;
+            .cell-item{
+                display: flex;width: 320rpx;height: 120rpx;background: #EFEFF4;border-radius:20rpx;align-items: center;justify-content: center;font-size: 32rpx;color: #000;margin:0 15rpx 46rpx;
+                .cell-manager{color: #B7C3C8;margin-right: 24rpx;font-size:44rpx;}
+                .ui-complete{
+                    width: 44rpx;height: 44rpx;border-radius: 50%;background: #007AFF;display:flex;align-items:center;justify-content:center;margin-left:30rpx;
+                    .cell-complete{color: #fff}
+                }
+            }
+        }
+        .cell-commit{width: 702rpx;height: 100rpx;background: #EFEFF4;border-radius: 20rpx;color:#007AFF;font-weight:bold;font-size:36rpx;text-align: center;line-height: 100rpx;margin-top: 106rpx;position:fixed;bottom:100rpx;}
+
+    }
+</style>

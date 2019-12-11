@@ -1,0 +1,1033 @@
+<style lang="less" scoped>
+    @import '../../assets/style/theme';
+    .ui-special-course {
+        view {
+            box-sizing: border-box
+        }
+        .ui-form-module {
+            display: block;
+            overflow: hidden;
+            position: relative;
+            .ui-locked-button {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                .cell-bg-box {
+                    width: 100%;
+                    height: 112rpx;
+                    background-image: linear-gradient(-180deg,rgba(255,255,255,0),rgba(255,255,255,.95))
+                }
+                .cell-btn-box {
+                    background-color: rgba(255, 255, 255, .95);
+                    padding-bottom: 16rpx;
+                    button {
+                        width: 654rpx;
+                        height: 88rpx;
+                        color: @color-white;
+                        background: @background-blue;
+                        border-radius: @border-radius-16;
+                        font-size: 32rpx;
+                        margin: 0 auto;
+                    }
+                    &.is-iphonex {
+                        padding-bottom: 84rpx;
+                    }
+                }
+            }
+            .ui-cover-thumb {
+                position: relative;
+                .ui-banner-image {
+                    width: 100%;
+                    height: 600rpx;
+                    overflow: hidden;
+                    image {
+                        width: 100%;
+                        transform: translate(0,-150rpx);
+                    }
+                }
+                .ui-skill-box {
+                    width: 100%;
+                    height: 100%;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    .ui-box {
+                        padding: 0 80rpx 70rpx;
+                    }
+                    .ui-skill {
+                        font-size: 32rpx;
+                        color: #fff;
+                        height: 46rpx;
+                        .cell-num {
+                            font-size: 36rpx;
+                            font-weight: bold;
+                        }
+                    }
+                    .ui-progress {
+                        width: 590rpx;
+                        height: 16rpx;
+                        margin-top: 8rpx;
+                        border-radius: 16rpx;
+                        position: relative;
+                        overflow: hidden;
+                        >view {
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                        }
+                        .cell-line {
+                            width: 100%;
+                            height: 100%;
+                            z-index: 3;
+                            border-radius: 16rpx;
+                            overflow: hidden;
+                            view {
+                                width: 20%;
+                                height: 100%;
+                                margin-left: 6rpx;
+                                background-color: rgba(255, 255, 255, 0.2);
+                            }
+                            view:first-child {
+                                margin-left: 0
+                            }
+                        }
+                        .cell-percent {
+                            width: 0%;
+                            height: 100%;
+                            background: linear-gradient(to right, #fff 95%, transparent 5%);
+                            z-index: 2;
+                            transition: width .2s;
+                            background-size: 118rpx 100%;
+                        }
+                    }
+                }
+                .ui-headline {
+                    width: 100%;
+                    height: 100%;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    color: #fff;
+                    padding: 164rpx 68rpx 0;
+                    font-size: 34rpx;
+                    .cell-sence {
+                        color: rgba(255, 255, 255, 0.70);
+                        margin-bottom: 18rpx
+                    }
+                    .cell-name {
+                        font-weight: bold;
+                        height: 236rpx;
+                        font-size: 52rpx;
+                    }
+                    .cell-subtitle {
+                        margin-top: 10rpx
+                    }
+                }
+            }
+            .ui-img-type {
+                border-radius: 0;
+                image {
+                    width: 100%;
+                }
+            }
+            .ui-doc {
+                padding: 4rpx 0 24rpx;
+                background: none;
+                text-align: left;
+                box-sizing: border-box;
+                line-height: 1;
+                .cell-title {
+                    font-size: 40rpx;
+                    color: #000;
+                    line-height: 54rpx;
+                    padding-top: 20rpx;
+                    margin-bottom: 24rpx;
+                    font-weight: 700;
+                    margin: 0 32rpx;
+                    box-sizing: border-box;
+                }
+                .cell-content {
+                    font-size: 34rpx;
+                    color: #8F8E94;
+                    line-height: 54rpx;
+                    display: flex;
+                    flex-wrap: wrap;
+                    margin: 8rpx 24rpx 0 32rpx;
+                    box-sizing: border-box;
+                }
+            }
+            .ui-poll {
+                padding: 24rpx 32rpx;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                .cell-name {
+                    font-size: 34rpx;
+                    color: #000;
+                    margin-top: 24rpx
+                }
+                .cell-poll-btn {
+                    width: 200rpx;
+                    height: 60rpx;
+                    line-height: 60rpx;
+                    text-align: center;
+                    background: #EFEFF4;
+                    color: #007AFF;
+                    font-size: 30rpx;
+                    border-radius: 32rpx;
+                    margin-top: 40rpx
+                }
+                .cell-poll-btn.cell-seleted {
+                    color: #8F8E94;
+                    background: none;
+                }
+            }
+            .ui-course .ui-button {
+                background: none;
+                color: #000;
+                line-height: 1.5;
+                text-align: left
+            }
+            .cell-border {
+                height: 2rpx;
+                border-bottom: 2rpx solid #EFEFF4;
+                margin: 20rpx 32rpx 24rpx;
+            }
+            
+            .ui-comment {
+                .cell-title {
+                    font-size: 44rpx;
+                    font-weight: bold;
+                    padding-left: 32rpx;
+                    margin: 36rpx 0;
+                }
+                .ui-comments-list {
+                    height: 370rpx;
+                    .ui-swiper {
+                        background-color: #fff;
+                        padding-right: 12rpx;
+                        box-sizing: border-box;
+                        .ui-item {
+                            background: #F3F3F3;
+                            border-radius: 24rpx;
+                            padding: 32rpx 32rpx 28rpx;
+                            height: 100%;
+                            .ui-avatar {
+                                margin-right: 12rpx;
+                                width: 80rpx;
+                                image {
+                                    width: 80rpx;
+                                    height: 80rpx;
+                                    border-radius: 50%;
+                                }
+                            }
+                            .ui-top {
+                                height: 88rpx;
+                                .cell-name {
+                                    font-size: 30rpx;
+                                    color: #000;
+                                    font-weight: bold;
+                                    width: 500rpx;
+                                }
+                                .cell-date {
+                                    font-size: 24rpx;
+                                    color: #8E8E93;
+                                }
+                            }
+                            .cell-content {
+                                font-size: 16px;
+                                color: #000;
+                                margin-top: 32rpx;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                display: -webkit-box;
+                                -webkit-line-clamp: 4;
+                                -webkit-box-orient: vertical;
+                                line-height: 46rpx;
+                            }
+                        }
+                    }
+                }
+            }
+            .module-lesson-box {
+                .ui-button {
+                    padding: 0;
+                    margin: 0 32rpx;
+                    border-radius: 0;
+                    border-bottom: solid 1rpx @border-gray;
+                    .ui-item {
+                        padding: 0;
+                        .cell-thumb {
+                            border-radius: @border-radius-8;
+                        }
+                        .ui-detail {
+                            .ui-btn {
+                                width: 60rpx;
+                                text {
+                                    font-size: 20rpx;
+                                    color: @color-gray-8c;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .ui-like {
+                margin-top: 120rpx;
+                padding: 0 32rpx 120rpx;
+                .cell-tip {
+                    font-size: 30rpx;
+                    color: #8E8E93;
+                    text-align: center;
+                    margin-bottom: 112rpx;
+                    padding: 0 80rpx;
+                }
+                .ui-btn {
+                    width: 686rpx;
+                    height: 100rpx;
+                    background: #F1F1F6;
+                    border-radius: @border-radius-16;
+                    color: #007AFF;
+                    font-size: 15px;
+                    .ui-icon-list {
+                        width: 40rpx;
+                        margin-right: 4rpx;
+                        .cell-icon {
+                            font-size: 40rpx;
+                            position: absolute;
+                            display: block;
+                            transition: all .25s;
+                        }
+                    }
+                    text {
+                        margin-right: 8rpx;
+                        font-size: 38rpx
+                    }
+                }
+                .cell-margin {
+                    width: 100%;
+                    height: 200rpx;
+                }
+                .ui-share-button {
+                    .ui-share {
+                        height: 100rpx;
+                        line-height: 100rpx;
+                        color: #fff;
+                        font-size: 30rpx;
+                        text-align: center;
+                        margin: 28rpx auto;
+                        background-color: #007AFF;
+                        border-radius: 20rpx;
+                        position: relative;
+                        font-weight: 700;
+                        .icon-share {
+                            font-size: 44rpx;
+                            margin-right: 10rpx;
+                            font-weight: normal
+                        }
+                        .cell-btn {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background-color: rgba(255, 255, 255, 0);
+                            border: 0;
+                        }
+                    }
+                }
+                
+            }
+            
+            
+            
+            /* 头部关注部分 */
+            .ui-cover-attention {
+                width: 686rpx;
+                background: @background-white;
+                border-radius: @border-radius-32;
+                border: solid 1rpx @background-white;
+                box-shadow: @box-shadow-hight;
+                margin: 32rpx auto;
+                margin-top: -48rpx;
+                position: relative;
+                z-index: @z-index-normal;
+                padding: 24rpx;
+                .ui-attention-main {
+                    flex:1;
+                    .cell-title {
+                        font-size: 40rpx;
+                        font-weight: bold;
+                        color: @color-black;
+                        margin-top: 16rpx;
+                        padding-right: 14rpx;
+                    }
+                    .cell-content {
+                        .flex-start();
+                        .cell-text {
+                            font-size: 24rpx;
+                            color: @color-gray;
+                            position: relative;
+                            display: flex;
+                            justify-content: flex-start;
+                            align-items: center;
+                            .cell-current-type {
+                                background: @color-orange-F9;
+                                color: @color-white;
+                                font-size: 20rpx;
+                                .flex-center();
+                                border-radius: @border-radius-8;
+                                padding: 6rpx 8rpx;
+                            }
+                            .cell-watched-number {
+                                padding: 0 16rpx;
+                                margin-left: 16rpx;
+                                position: relative;
+                                &::before {
+                                    content: '';
+                                    width: 3rpx;
+                                    height: 22rpx;
+                                    position: absolute;
+                                    left: 0;
+                                    top: 50%;
+                                    transform: translateY(-45%);
+                                    background: #D9D9D9;
+                                }
+                            }
+                        }
+                    }
+                }
+                .ui-attention-button {
+                    .cell-btn {
+                        width: 144rpx;
+                        height: 60rpx;
+                        text-align: center;
+                        line-height: 60rpx;
+                        color: @color-white;
+                        font-weight: bold;
+                        background: @background-blue;
+                        border-radius: 100rpx;
+                        font-size: 30rpx;
+                        &.is-watched {
+                            color: @color-blue;
+                            background: @background-tint-blue;
+                        }
+                    }
+                }
+            }
+        }
+        
+        .bounceInUp {
+            -webkit-animation: bounceInUp 1s ;
+            animation: bounceInUp 1s ;
+        }
+        .fadeOutDown {
+            -webkit-animation: fadeOutDown 1s;
+            animation: fadeOutDown 1s;
+        }
+    }
+</style>
+
+<template>
+    <mloading wx:if="{{ !isLoaded }}" />
+    <view class="ui-special-course">
+        <jn-header :className.sync="headerBackground" buttonAfter :isHeadHeight="isHeadHeight"></jn-header>
+        <form class="ui-form-module" style="height:{{ phone ? 'auto' : 1.5 * screenHeight}}px" bindsubmit="handleSavePushCode" report-submit>
+            <view class="ui-cover-thumb flex" wx:if="{{hasCarousel}}">
+                <view class="ui-banner-image">
+                    <image mode="widthFix" src="{{imageCodeUrl}}"></image>
+                </view>
+            </view>
+            <view class="ui-cover-attention">
+                <view class="ui-attention-main">
+                    <view class="cell-content">
+                        <view class="cell-text">
+                            <view class="cell-current-type">
+                                {{isTodaySkill ? '每日技能' : '专栏'}}
+                            </view>
+                            <view class="cell-watched-number">
+                                {{viewUserCount}}人已看
+                            </view>
+                        </view>
+                    </view>
+                    <view class="cell-title">{{skillInfo.name}}</view>
+                </view>
+            </view>
+            
+            <repeat for="{{moduleList}}" key="index" index="index" item="data">
+                <view class="ui-img-type flex"
+                        wx:if="{{data.type == 'image'}}">
+                    <image mode="widthFix" src="{{data.img}}" />
+                </view>
+                <view class="ui-doc"
+                    wx:if="{{data.type == 'text'}}">
+                    <view class="cell-title" wx:if="{{data.title}}">{{data.title}}</view>
+                    <text class="cell-content" wx:if="{{data.content}}">{{data.content}}</text>
+                </view>
+                <view wx:if="{{data.type == 'sence'}}">
+                    <repeat for="{{data.senceList}}" key="lessonIndex" index="lessonIndex" item="lessonItem">
+                        <view class="module-lesson-box">
+                            <button class="ui-button" 
+                                form-type="submit" data-item="{{lessonItem}}" 
+                                open-type="{{!phone ? 'getPhoneNumber' : ''}}" 
+                                @tap.stop="handleStartLesson"
+                                @getphonenumber.stop="handleStartLesson"
+                                data-site="content">
+                                <view class="ui-item main-justify cross-center">
+                                    <image class="cell-thumb" mode="aspectFill"  src="{{lessonItem.imageUrl}}"/>
+                                    <view class="ui-detail cross-center flex-width-1">
+                                        <view class="dir-top main-center flex-width-1">
+                                            <view class="cell-name text-overflow">{{lessonItem.name}}</view>
+                                            <view class="cell-dec text-overflow" wx:if="{{lessonItem.description}}">{{lessonItem.description}}</view>
+                                        </view>
+                                        <view class="ui-btn dir-top cross-center main-center">
+                                            <text class="icon-right-arrow"></text>
+                                        </view>
+                                    </view>
+                                </view>
+                            </button>
+                        </view>
+                    </repeat>
+                </view>
+                <view  class="ui-course module-cover-progress" wx:if="{{data.type == 'course'}}">
+                    <repeat for="{{data.courseList}}" key="courseIndex" index="courseIndex" item="courseItem">
+                        <button class="ui-button"
+                                form-type="submit"
+                                data-item="{{courseItem}}"
+                                data-site="content"
+                                open-type="{{!phone ? 'getPhoneNumber' : ''}}"
+                                @getphonenumber.stop="getCourseDetail"
+                                @tap.stop="getCourseDetail">
+                            <view class="module-course-progress">
+                                <view>
+                                    <image src="{{courseItem.image}}"/>
+                                </view>
+                                <view class="ui-detail">
+                                    <view class="ui-msg">
+                                        <view class="cell-name text-overflow">{{courseItem.name}}</view>
+                                        <view class="cell-dec text-overflow">{{courseItem.userCount}}人已学</view>
+                                        <view class="ui-btn-box cross-center">
+                                            <view class="cell-btn">{{phone ? courseItem.buttonMsg : '领取课程'}}</view> 
+                                        </view>
+                                    </view>
+                                </view>
+                            </view>
+                        </button>
+                    </repeat>
+                </view>
+                <view class="ui-poll" wx:if="{{data.type === 'poll'}}">
+                    <jn-poll :cardIndex.sync="index" :cardsList.sync="moduleList" isLearning></jn-poll>
+                    <button class="cell-poll-btn"
+                            :class="{'cell-seleted' : data.isDone}"
+                            data-index="{{index}}"
+                            data-item="{{data}}"
+                            form-type="submit"
+                            open-type="{{!phone ? 'getPhoneNumber' : ''}}"
+                            @getphonenumber.stop="getPoll"
+                            @tap.stop="getPoll">{{data.isDone ? data.pollCount+'人已投票' : '投票'}}</button>
+                </view>
+                <view wx:if="{{data.type === 'practice'}}">
+                    <repeat for="{{data.practiceList}}" key="practiceIndex" index="practiceIndex" item="item">
+                        <jn-single-choice :parentIndex.sync="index" parentKey="practiceList" :parentList.sync="moduleList"
+                                          :cardIndex.sync="practiceIndex" :cardsList.sync="data.practiceList" isExercises></jn-single-choice>
+                    </repeat>
+                </view>
+                <view class="cell-border" wx:if="{{data.type === 'border'}}"></view>
+            </repeat>
+            <!-- 分享按钮 -->
+            <view class="ui-like" id="uiBottomBox">
+                <view class="main-around">
+                    <button open-type="share" class="ui-btn cross-center main-center">
+                        <text class="icon-weixin"></text>分享给好友
+                    </button>
+                </view>
+                <view class="cell-margin" wx:if="{{floatBox.type === 'share'}}"></view>
+            </view>
+
+            <!-- 解锁阅读全文按钮 -->
+            <view class="ui-locked-button" wx:if="{{!phone}}">
+                <view class="cell-bg-box"></view>
+                <view class="cell-btn-box {{isIphonex ? 'is-iphonex' : ''}}">
+                    <button open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getRegister" form-type="submit" @tap.stop="getRegister">阅读全文</button>
+                </view>
+            </view>
+        </form>
+        
+    </view>
+    <jn-share-thumb></jn-share-thumb>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import Loading from '../../components/common/loading'
+    import header from '../../components/common/header'
+    import poll from '../../components/cards-type/poll'
+    import singleChoice from '../../components/special-course/single-choice'
+    import shareThumb from '../../components/special-course/share-thumb'
+    import PushMixin from '../../mixins/push'
+    import { initializationDeligate, showErrorPage, shareDictionary, navigateToLesson, setStorageAsync } from "../../utils"
+    import { auth as authApi, fetch, report as reportApi } from "../../api"
+    import { CustomError } from "../../errors"
+    import { getStore, connect } from "wepy-redux"
+    import { getUserPhone, refreshUserInformations } from "../../redux/models/user"
+    import _ from 'underscore';
+    import circular from '../../components/common/circular';
+
+    const store = getStore();
+    @connect({
+        token(state) {
+            return state.user.token;
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+
+    export default class Alllessen extends wepy.page {
+        mixins = [PushMixin]
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            headerHeigth: 68,
+            isHeadHeight: false,
+            headerBackground: 'background-transparent',
+            backgroundHeight: 0,
+            shareID: Date.parse(new Date()) + (_.random(100, 999)).toString(),
+            timestamp: new Date().getTime(),
+            isLoaded: false,
+            screenName: '专题页', // 来源，是每日还是发现页面过来的
+            courseID: '',
+            wxPushType: '',
+            senceID: '',
+            moduleList: [],
+            floatBox: {},
+            shareCoverTitle: '',
+            shareCoverImageUrl: '', // 分享图
+            imageCodeUrl: '', // 封面图
+            courseName: '',
+            isTodaySkill: false,
+            skillInfo: {},
+            isDoneRead: true,//是否阅读完毕
+            isShowIdea: false,
+            viewUserCount: 0,
+            commentList: [],
+            hasCarousel: true,//是否有头图
+            source: '',
+            labelId: '', //关注新增参数
+            screenHeight:null,//屏幕高度
+        }
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+            'jn-poll': poll,
+            'jn-single-choice': singleChoice,
+            'jn-share-thumb': shareThumb,
+            circular,//微课圆形进度条
+        };
+        onLoad(params) {
+            let self = this
+            self.courseID = params.courseID ;
+            self.wxPushType = params.wxPushType ? params.wxPushType : 'newCoursePush';
+            self.source = params.source;
+            self.screenHeight = wx.getSystemInfoSync().screenHeight ;
+            self.$apply();
+        }
+        
+        watch = {
+            isDoneRead(newValue,oldValue) {
+                let self = this
+                newValue && wepy.$instance.globalData.getHuilder(`${self.screenName}/阅读完毕`, 'click', '')
+                
+            }
+        }
+
+        /**
+         * 监听滚动条的位置
+         * @param
+         */
+        onPageScroll(res) {
+            let self = this
+            let bottomBox = wx.createSelectorQuery().select('#uiBottomBox');
+            bottomBox.boundingClientRect((response) => {
+                if (!response) return;
+                self.isDoneRead = response.top < self.screenHeight + 100 ? true : false
+                self.$apply()
+            }).exec()
+        }
+
+        onShow(params) {
+            let self = this
+            
+            initializationDeligate({
+                initializeFunc: self.initialize.bind(self)
+            })
+        }
+        onUnload() {
+            let self = this
+            self.__reportStayTimestamp()
+        }
+        onHide() {
+            let self = this
+            self.__reportStayTimestamp()
+        }
+        __reportStayTimestamp() {
+            let self = this
+            let time = new Date().getTime() - this.timestamp
+            let postData = {
+                token: self.token,
+                pageTime: time,
+                courseID: self.courseID
+            }
+            wepy.$instance.globalData.getHuilder(`${self.screenName}/阅读时长/${time}`, 'click', '')
+            fetch.sendCoursePageTime(postData).then(response => {
+                console.log('sendCoursePageTime report success! ' + time)
+            })
+        }
+        
+        initialize() {
+            let self = this
+            let postData = {
+                token: self.token,
+                id: self.courseID,
+                wxPushType: self.wxPushType,
+                source: self.source
+            }
+            self.tabSenceList = [];
+            
+            fetch.getNewSpecialCourse(postData).then((res) => {
+                
+                self.labelId = res.senceTargetId
+                self.floatBox = res.floatBox;
+                
+                
+
+                self.shareCoverTitle = res.shareCoverTitle;
+                self.shareCoverImageUrl = res.shareCoverImageUrl;
+                self.imageCodeUrl = res.carousel;
+                self.viewUserCount = res.viewUserCount;
+                self.courseName = res.name ? res.name : res.specialCourseName
+                self.hasCarousel = res.hasCarousel;
+                if ('todaySkill' === res.sceneType) {
+                    self.screenName = '每日技能'
+                    self.isTodaySkill = true
+                    self.$apply();
+                }
+                let nameList = res.name && res.name.split('日）');
+                let name = nameList[1] || res.name || '-';
+                
+                self.skillInfo = {
+                    skillScore: res.skillScore,
+                    senceTarget: res.senceTarget,
+                    progress: res.progress,
+                    linkEditorList: res.linkEditorList,
+                    subtitle: res.subtitle,
+                    sceneType: res.sceneType,
+                    sceneTypeText: res.sceneTypeText,
+                    name: name
+                }
+                self.isLoaded = true
+                self.moduleList = self.__dataRegroup(res.moduleList)
+
+                res.name && self.$broadcast('special-share-thumb', {
+                    title: name,
+                    screenName: self.screenName,
+                    shareImage: self.imageCodeUrl
+                })
+                wepy.$instance.globalData.getLoadHuilder({
+                    screenName: self.screenName,
+                    pageTheme: self.courseName,
+                    sceneType: self.sceneType
+                }) // ga统计
+                self.$apply()
+            })
+        }
+        /**
+         * 数组重组
+         * @paramsresponse 接口返回的数据
+         */
+        __dataRegroup(response) {
+            let self = this
+            _.each(response, (data) => {
+                switch (data.type) {
+                    case 'practice':
+                        _.each(data.practiceList, (item) => {
+                            item.isDone = _.clone(item.isSelected)
+                            _.each(item.select, (option) => {
+                                option.sId = _.clone(option.id)
+                                option.id = item.id + option.id
+                                if (option.isSelected) {
+                                    item.answerDescription = option.feedback && option.feedback.description
+                                    item.answerStatus = option.isanswer ? 1 : 2
+                                }
+                            })
+                        })
+                        break
+                    case 'poll':
+                        data.cardStatus = data.pollType
+                        if (data.isDone) {
+                            _.each(data.optionList, (item) => {
+                                item.prop = Math.floor(item.ballot / data.pollCount * 1000) / 10
+                            })
+                        }
+                        break
+                }
+            })
+            return response
+        }
+        
+        methods = {
+            /* 授权手机号注册 */
+            getRegister(event) {
+                let self = this
+                let {
+                    detail: {
+                        encryptedData,
+                        errMsg,
+                        iv
+                    }
+                } = event
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            let self = this
+                            store.dispatch(refreshUserInformations({
+                                phone: response
+                            }))
+                            wepy.showToast({
+                                title:'获得全场24小时体验',
+                                icon:'none'
+                            })
+                            self.phone = response
+                            self.$apply()
+                        })
+                        .catch((error) => {
+                            console.log(error)
+                        })
+                    }, 0);
+                })
+            },
+            // 跳去微课
+            handleStartLesson(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            site
+                        }
+                    },
+                    detail: {
+                        encryptedData,
+                        errMsg,
+                        iv
+                    }
+                } = event
+                let source = ''
+                if (self.isTodaySkill) {
+                    source = 'todaySkillSepcial'
+                } else {
+                    source = 'normalSepcial'
+                }
+                self.senceID = item.id
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(phone => {
+                            let typeSrc = ''
+                            switch (site) {
+                                case 'content':
+                                    typeSrc = '内容微课';
+                                    break
+                                case 'float':
+                                    typeSrc = '悬浮微课';
+                                    break
+                                case 'bottom':
+                                    typeSrc = '底部微课';
+                                    break
+                            }
+                            wepy.$instance.globalData.getHuilder(`${self.screenName}/${typeSrc}`, 'click', `${item.name}`)
+                            navigateToLesson({
+                                courseID: item.courseID,
+                                senceID: self.senceID,
+                                resumeLastRead: item.resume,
+                                source
+                            })
+                        }).catch((error) => {
+                        })
+                    }, 0);
+                })
+                
+            },
+            // 跳去 课程详情页
+            getCourseDetail(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            site
+                        }
+                    },
+                    detail: {
+                        encryptedData,
+                        errMsg,
+                        iv
+                    }
+                } = event
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(phone => {
+                            let typeSrc = ''
+                            switch (site) {
+                                case 'content':
+                                    typeSrc = '内容课程';
+                                    break
+                                case 'float':
+                                    typeSrc = '悬浮课程';
+                                    break
+                                case 'bottom':
+                                    typeSrc = '底部课程';
+                                    break
+                            }
+                            wepy.$instance.globalData.getHuilder(`${self.screenName}/${typeSrc}`, 'click', `${item.name}`)
+                            wepy.navigateTo({
+                                url: `/pages/course-module/course-details?id=${item.id}&source=${item.buttonMsg || '专题'}`
+                            })
+                        }).catch((error) => {
+                            console.log(error)
+                        })
+                    }, 0);
+                })
+                
+            },
+            /**
+             * 投票
+             * @param event
+             */
+            getPoll(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            index
+                        }
+                    },
+                    detail: {
+                        encryptedData,
+                        errMsg,
+                        iv
+                    }
+                } = event
+                if (item.isDone) {
+                    return
+                }
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            wepy.$instance.globalData.getHuilder(`${self.screenName}/投票`, 'click', `${item.title}`)
+                            let postData = {
+                                token: self.token,
+                                pollID: item.pollID,
+                                courseID: self.courseID,
+                                optionList: item.selectedItem.id
+                            }
+                            fetch.sendUserPoll(postData).then((response) => {
+                                item.isDone = true
+                                item.pollCount += 1
+                                self.$broadcast('broadcast-poll', item)
+                            }).catch(error => {
+                            })
+                        }).catch((error) => {
+                        })
+                    }, 0);
+                })
+                
+            }
+        }
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            },
+            'share-thumb': (data) => {
+                let self = this
+                if (data) {
+                    self.shareCoverImageUrl = data
+                }
+            },
+            'on-interaction': (data) => {
+                let self = this
+                let item = null
+                if (data.parentkey) {
+                    item = self.moduleList[data.parentindex][data.parentkey][data.cardindex]
+                    item && self.moduleList[data.parentindex][data.parentkey].splice(data.cardindex, 1, item)
+                    _.extend(item, data)
+                    if (item.isDone && !item.isSumbit) {
+                        let postData = {
+                            token: self.token,
+                            courseID: self.courseID,
+                            teamID: 'defaultTeamID',
+                            senceID: item.senceID,
+                            cardID: item.id,
+                            score: item.score || 0,
+                            message: item.selectedItem.option, // 选中选项的name
+                            weight: item.selectedItem.weight, // 选中选项的权重
+                            questionIndex: 0,
+                            skillID: item.skillID,
+                            json: item.json // 选中选项的id或顺序
+                        }
+                        wepy.$instance.globalData.getHuilder(`${self.screenName}/测练`, 'click', `${item.title}`)
+                        fetch.sendTeamPractice(postData).then(response => {
+                            item.isAnswerOver = true // 已经答案，不能再次作答
+                            self.$apply()
+                        })
+                    }
+                } else {
+                    let number = null
+                    item = _.find(self.moduleList, (option, index) => {
+                        if (option.pollID && option.pollID === data.pollID) {
+                            number = index
+                            return option
+                        }
+                    })
+                    _.extend(item, data)
+                    if (-1 !== number) {
+                        self.moduleList.splice(number, 1, item)
+                    }
+                }
+                self.$apply()
+            }
+        }
+        onShareAppMessage(res) {
+            let self = this
+            wepy.$instance.globalData.getHuilder(`${self.screenName}/分享`, 'click', `${self.courseName}`)
+            wepy.$instance.globalData.getReportFlow('share')
+            fetch.reportSharing({
+                token: self.token,
+                type: shareDictionary.SHARE_SPECIAL_COURSE.type,
+                courseID: self.courseID,
+                senceID: self.senceID
+            })
+            return {
+                title: self.shareCoverTitle,
+                path: `/pages/SpecialCourse/index?courseID=${self.courseID}&pageName=${self.courseName}&shareID=${self.shareID}`,
+                imageUrl: self.shareCoverImageUrl
+            };
+        }
+    }
+</script>
+
+

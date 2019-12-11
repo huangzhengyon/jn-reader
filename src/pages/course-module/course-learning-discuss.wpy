@@ -1,0 +1,262 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    view{box-sizing:border-box;}
+    .ui-scroll-box{width:100%;height:calc(~"100% - 128rpx");;}
+    .ui-discuss-info{
+        width:100%;padding:24rpx 32rpx 0;border-bottom:1rpx solid @border-gray;
+        .ui-portrait{
+            image{width:80rpx;height:80rpx;margin-right:16rpx;border-radius:50%;overflow:hidden;}
+            text{font-size:30rpx;color:@color-gray;}
+        }
+        .cell-time{width:30%;font-size:24rpx;color:@color-gray;text-align:right;line-height:80rpx;}
+        .ui-content{padding:14rpx 0;font-size:34rpx;color:@color-black;line-height:50rpx;}
+        .ui-praise-names{
+            padding:14rpx 0 24rpx;font-size:30rpx;color:@color-gray;line-height:42rpx;
+            &.active text{color:@color-blue;}
+            text{margin-right:16rpx;font-size:40rpx;}
+        }
+    }
+    .ui-discuss-list{
+        width:100%;
+        .ui-item{
+            padding:26rpx 32rpx;
+            .ui-portrait{
+                image{width:56rpx;height:56rpx;margin-right:16rpx;border-radius:50%;overflow:hidden;}
+                text{font-size:30rpx;color:@color-gray;}
+            }
+            .cell-time{width:30%;font-size:24rpx;color:@color-gray;text-align:right;line-height:56rpx;}
+            .ui-content{padding:10rpx 0 16rpx;margin-left:72rpx;font-size:30rpx;color:@color-black;line-height:50rpx;border-bottom:1rpx solid @border-gray;}
+        }
+    }
+
+    .ui-button-list{
+        width:100%;height:128rpx;border-top:1rpx solid @border-gray;position:fixed;left:0;bottom:0;
+        &.is-iphonex{height:176rpx;}
+        button{
+            display:block;width:50%;height:100%;float:left;background:none;font-size:30rpx;color:@color-gray;line-height:128rpx;
+            &.active{color:@color-blue;}
+            &:nth-of-type(1){padding-right:86rpx;text-align:right;}
+            &:nth-of-type(2){padding-left:86rpx;text-align:left;}
+            text{margin-right:12rpx;font-size:42rpx;}
+        }
+    }
+    .ui-textarea{
+        width:50%;height:128rpx;position:fixed;right:0;bottom:0;z-index:@z-index-header;
+        &.is-iphonex{height:176rpx;}
+        textarea{box-sizing:border-box;width:100%;height:96rpx;padding:24rpx 24rpx;background-color:transparent;font-size:30rpx;;color:@color-black;border-radius:@border-radius-20;}
+        button{
+            width:96rpx;height:96rpx;background:none;text-align:center;line-height:96rpx;
+            &::before{content:' ';width:40rpx;height:40rpx;margin:-20rpx 0 0 -20rpx;background-color:@background-white;border-radius:50%;position:absolute;left:50%;top:50%;}
+            text{font-size:56rpx;color:@color-blue;position:relative;z-index:@z-index-normal;}
+        }
+    }
+</style>
+
+<template>
+    <jn-header title="2条讨论"></jn-header>
+    <view class="ui-scroll-box">
+        <view class="ui-discuss-info">
+            <view class="ui-title main-justify">
+                <view class="ui-portrait cross-center">
+                    <image mode="scaleToFill" src="{{discussDetails.avatarUrl}}"></image>
+                    <text>{{discussDetails.nickName}}</text>
+                </view>
+                <view class="cell-time">{{discussDetails.createTime}}</view>
+            </view>
+
+            <view class="ui-content"><text>{{discussDetails.content}}</text></view>
+
+            <view class="ui-praise-names" :class="{'active': discussDetails.isliked}" wx:if="{{discussDetails.likeNames}}">
+                <text class="icon-praise"></text>{{discussDetails.likeNames}}
+            </view>
+        </view>
+
+        <view class="ui-discuss-list">
+            <repeat for="{{discussDetails.replyList}}" key="index" index="index" item="item">
+                <view class="ui-item">
+                    <view class="ui-title main-justify">
+                        <view class="ui-portrait cross-center">
+                            <image mode="scaleToFill" src="{{item.avatarUrl}}"></image>
+                            <text>{{item.nickName}}</text>
+                        </view>
+                        <view class="cell-time">{{item.createTime}}</view>
+                    </view>
+                    <view class="ui-content"><text>{{item.content}}</text></view>
+                </view>
+            </repeat>
+        </view>
+    </view>
+
+    <view class="ui-button-list"
+          :class="{'is-iphonex': isIphonex}">
+        <button :class="{'active': discussDetails.isliked}"
+                @tap.stop="getLike"><text class="icon-praise"></text>{{discussDetails.likeCount || 0}}</button>
+
+        <button :class="{'active': discussDetails.isReplied}"><text class="icon-comment1"></text></button>
+    </view>
+
+    <view class="ui-textarea flex"
+          :class="{'is-iphonex': isIphonex}"
+          style="width:{{keyboardHeight>0 ? '100%' : '50%'}};background:{{keyboardHeight>0 ? '#fff': 'transparent'}};bottom:{{keyboardHeight}}px;">
+        <textarea class="flex-box-1"
+                  maxlength="200"
+                  placeholder="{{keyboardHeight>0 ? '回复'+discussDetails.nickName+'：' : ''}}"
+                  adjust-position="{{false}}"
+                  value="{{messageValue}}"
+                  selection-start="{{messageValue.length}}"
+                  selection-end="{{messageValue.length}}"
+                  bindfocus="getFocus"
+                  bindblur="getBlur"
+                  bindinput="getChange"
+                  bindconfirm="getConfirm"></textarea>
+        <button class="main-center flex-box-0"
+                wx:if="{{messageValue.length}}"
+                @tap.stop="getConfirm"><text class="icon-send"></text></button>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+    import {fetch} from '../../api'
+    import {trim} from '../../utils'
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class courseLearningDiscuss extends wepy.page {
+        components = {
+            'jn-header': header
+        }
+
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            viewID: '',
+            discussDetails: {},
+            keyboardHeight: 0,
+            messageValue: ''
+        }
+
+        onLoad(params) {
+            let self = this
+            self.viewID = params.viewID
+            self.initialize()
+        }
+
+        onShow() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        initialize() {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token,
+                viewID: self.viewID
+            }
+
+            fetch.viewsDetails(postData).then(response => {
+                self.discussDetails = response
+                let nickNames = _.pluck(self.discussDetails.likeList, 'nickName')
+                let text = ''
+                if (nickNames.length > 3) {
+                    nickNames.length = 3
+                    text = `等${self.discussDetails.likeList.length - 3}人`
+                }
+
+                self.discussDetails.likeNames = nickNames.join('，') + text
+                self.$apply()
+            })
+        }
+
+        __replyDiscuss() {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token,
+                viewID: self.viewID,
+                content: self.messageValue
+            }
+            fetch.replySenceViews(postData).then(response => {
+                self.messageValue = ''
+                self.$apply()
+                self.initialize()
+            }).catch(error => {
+
+            })
+        }
+
+        methods = {
+            /**
+             * 点赞
+             * @param event
+             */
+            getLike() {
+                let self = this
+                let postData = {
+                    token: self.systemInfo.token,
+                    viewID: self.viewID
+                }
+                let http = self.discussDetails.isliked ? fetch.dislikeSenceViews : fetch.likeSenceViews
+                http(postData).then(response => {
+                    if (1 === response.success) {
+                        self.initialize()
+                        self.$apply()
+                    }
+                })
+            },
+            /**
+             * testarea聚焦，定位键盘位置
+             * @param event
+             */
+            getFocus(event) {
+                let self = this
+                let {detail: {value, height}} = event
+                self.keyboardHeight = height - 15
+                self.$apply()
+            },
+            /**
+             * 失去焦点，还原高度
+             * @param event
+             */
+            getBlur(event) {
+                let self = this
+                self.keyboardHeight = 0
+                self.$apply()
+            },
+            /**
+             * testarea文本内容改变
+             * @param event
+             */
+            getChange(event) {
+                let self = this
+                let {detail: {value}} = event
+                self.messageValue = value
+                self.$apply()
+            },
+            /**
+             * 提交想法
+             * @param event
+             */
+            getConfirm(event) {
+                let self = this
+                let messageVlaue = trim(self.messageValue)
+                if ('' === messageVlaue) {
+                    wx.showToast({
+                        icon: 'none',
+                        title: ' 写下回复的想法…… '
+                    })
+                    self.messageValue = ''
+                    self.$apply()
+                    return
+                }
+                self.__replyDiscuss()
+            }
+        }
+
+        events = {}
+    }
+</script>

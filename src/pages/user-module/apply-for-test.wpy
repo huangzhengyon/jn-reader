@@ -1,0 +1,493 @@
+<template>
+    <mloading wx:if="{{ !isLoaded }}" />
+    <jn-header title="申请成为内测用户"></jn-header>
+    <view class="ui-apply-for">
+        <view class="ui-apply-status" wx:if="{{buttonStatus == 'normal'}}">
+            <!-- 申请内测说明S -->
+            <view class="ui-content" wx:if="{{!isShowSubmitForm}}">
+                <image class="cell-user replay-article-hearder" src="http://wx-small.runwise.cn/image/apply-status-normal.svg" mode="scaleToFill"></image>
+                <view class="cell-title">欢迎加入即能内测体验计划！</view>
+                <view class="ui-enjoy">
+                    <view class="cell-title">成为内测用户，你将享有：</view>
+                    <view class="cell-text">
+                        <image src="http://wx-small.runwise.cn/image/imageID13e245cd21449ab260d55b3b459c.png"></image>
+                        <text>抢先体验新课程与新功能</text>
+                    </view>
+                    <view class="cell-text">
+                        <image src="http://wx-small.runwise.cn/image/imageID86d4573d7224beb9fa43aaa710ee.png"></image>
+                        <text>提出你的idea，成为产品智囊团</text>
+                    </view>
+                    <view class="cell-text">
+                        <image src="../../assets/img/coinlogo.svg"></image>
+                        <text>不定期即能币奖励</text>
+                    </view>
+                    <button class="cell-button" @tap.stop="todoApply">申请成为内测用户</button>
+                </view>
+            </view>
+            <!-- 申请内测说明E -->
+            <!-- 填写申请信息S -->
+            <view class="ui-submit-form" wx:else>
+                <view class="ui-form-title">请填写以下信息</view>
+                <form class="ui-form">
+                    <view class="ui-form-item">
+                        <view class="cell-item-label required">你是从哪里了解到即能的?</view>
+                        <view class="cell-item-value">
+                            <input data-name="sourse" bindinput="getChange" value="{{sourse}}" maxlength="50" placeholder="" />
+                        </view>
+                    </view>
+                    <view class="ui-form-item">
+                        <view class="cell-item-label required">你的职业/职位是什么?</view>
+                        <view class="cell-item-value">
+                            <input data-name="position" bindinput="getChange" maxlength="50" value="{{position}}" placeholder="" />
+                        </view>
+                    </view>
+                    <view class="ui-form-item">
+                        <view class="cell-item-label required">你的工作年限是多久?</view>
+                        <view class="cell-item-value">
+                            <input data-name="workingLife" bindinput="getChange" maxlength="20" value="{{workingLife}}" placeholder="" />
+                        </view>
+                    </view>
+                </form>
+                <button class="cell-button" :class="{'cell-button-primary': isGone}" open-type="{{!user.nickName ? 'getUserInfo' : ''}}" bindgetuserinfo="getAuthorize" @tap.stop="getAuthorize" @tap.stop="applySubmit">提交申请</button>
+            </view>
+            <!-- 填写申请信息E -->
+        </view>
+        <view class="ui-apply-status ui-apply-approval" wx:if="{{buttonStatus == 'approval'}}">
+            <view class="ui-content">
+                <image class="cell-user replay-article-hearder" src="http://wx-small.runwise.cn/image/apply-status-approval.svg" mode="scaleToFill"></image>
+                <view class="cell-title font-color-blue">审核中</view>
+                <view class="ui-enjoy">
+                    <view class="cell-text">
+                        <text>你的申请已成功提交，请耐心等候审核。审核通过后，我们的客服人员Up酱会联系你的哦。</text>
+                    </view>
+                </view>
+            </view>
+        </view>
+        <view class="ui-apply-status ui-apply-adopted" wx:if="{{buttonStatus == 'adopted'}}">
+            <view class="ui-content">
+                <image class="cell-user replay-article-hearder" src="http://wx-small.runwise.cn/image/apply-status-adopted.svg" mode="scaleToFill"></image>
+                <view class="cell-title font-color-blue">已通过</view>
+                <view class="ui-enjoy">
+                    <view class="cell-title">请自觉遵守内测用户群守则：</view>
+                    <view class="cell-text">
+                        <text>· 每周至少活跃一天</text>
+                    </view>
+                    <view class="cell-text">
+                        <text>· 群主进行内测调研时要积极参与</text>
+                    </view>
+                    <view class="cell-text">
+                        <text>· 禁止发送广告、政治、色情等话题</text>
+                    </view>
+                    <view class="cell-text">
+                        <text>· 群主会定期清理不活跃用户</text>
+                    </view>
+                </view>
+            </view>
+        </view>
+        <view class="ui-apply-status ui-apply-reject" wx:if="{{buttonStatus == 'reject'}}">
+            <!-- 审核不通过S -->
+            <view class="ui-content">
+                <image class="cell-user replay-article-hearder" src="http://wx-small.runwise.cn/image/apply-status-reject.svg" mode="scaleToFill"></image>
+                <view class="cell-title font-color-red">不通过</view>
+                <view class="ui-enjoy">
+                    <view class="cell-text">
+                        <text>很遗憾，你未能通过内测用户申请审核，可以努力学课以后再次提交申请哦。</text>
+                    </view>
+                    <button class="cell-button" open-type="{{!phone ? 'getPhoneNumber' : ''}}" @getphonenumber.stop="getPhone" @tap.stop="reApplySubmit">再次申请</button>
+                </view>
+            </view>
+            <!-- 审核不通过E -->
+        </view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import {
+        getStore,
+        connect
+    } from "wepy-redux";
+    import Loading from '../../components/common/loading';
+    import header from '../../components/common/header';
+    import { getLoginInfo } from '../../redux/models/user';
+    import {
+        getUserPhone
+    } from '../../redux/models/user'
+    import {
+        fetch
+    } from "../../api";
+    const store = getStore();
+    const state = store.getState();
+    @connect({
+        user(state) {
+            return state.user;
+        },
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            return state.user.token;
+        },
+        phone(state) {
+            return state.user.phone;
+        },
+    })
+    export default class MySkill extends wepy.page {
+        
+        data = {
+            buttonStatus: '', // 申请内测状态normal appvoral adopted reject
+            isShowSubmitForm: false,//是否展示填写申请资料
+            isLoaded: false,
+            sourse:'',//渠道
+            position:'',//岗位
+            workingLife:'',//工龄
+        }; // end data
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+        };
+        computed = {
+            isGone() {
+                let result = this.sourse == '' || this.position == '' || this.workingLife == '' ? false : true
+                return result
+            }
+        }
+        watch = {
+            isGone(newVal,oldVal) {
+                console.log(newVal,oldVal)
+            }
+        }
+        onLoad(option) {
+            
+        }
+        
+        onShow() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            this.initialize()
+        }
+        initialize() {
+            let self = this
+            let postData = {
+                token: self.token
+            }
+            return fetch.myDataCenter(postData).then(res => {
+                self.buttonStatus = res.applyStatus;
+                self.isLoaded = true;
+                self.$apply();
+            }).catch((err) => {
+                console.log(err)
+            })
+        }
+
+        /* 提交申请 */
+        __applySubmit() {
+            let self = this
+            let postData = {
+                token:self.token,
+                userId:self.user.userid,
+                userName:self.user.nickName,
+                userMobile:self.user.phone,
+                userSource:self.sourse,
+                position:self.position,
+                workingLife:self.workingLife
+            }
+            fetch.sendApplyData(postData).then(response => {
+                wepy.showToast({
+                    title: '申请成功',
+                    icon: 'none'
+                })
+                setTimeout(() => {
+                    wepy.switchTab({ url: '/pages/tabPages/userCenter'})
+                }, 500);
+            }).catch(error => {
+                console.log(error)
+            })
+        }
+
+        methods = {
+            getChange(event) {
+                let self = this
+                let {detail: {value},currentTarget: { dataset: { name } }} = event
+                self[name] = value
+                self.$apply()
+            },
+            reApplySubmit() {
+                let self = this
+                let postData = {
+                    token:self.token,
+                    userId:self.user.userid
+                }
+                fetch.sendApplyData(postData).then(response => {
+                    wepy.showToast({
+                        title: '申请成功',
+                        icon: 'none'
+                    })
+                    setTimeout(() => {
+                        wepy.switchTab({ url: '/pages/tabPages/userCenter'})
+                    }, 500);
+                }).catch(error => {
+                    console.log(error)
+                })
+            },
+            /**
+             * 微信授权用户信息
+             */
+            getAuthorize(event) {
+                let self = this
+                let {
+                    detail: {
+                        errMsg,
+                        userInfo,
+                        rawData
+                    }
+                } = event
+                store.dispatch(getLoginInfo({
+                    userInfo,
+                    errMsg
+                })).then(response => {
+                    wepy.$instance.globalData.getHuilder('内测申请/提交申请', 'click', '')
+                    self.__applySubmit()
+                }).catch(error => {
+                })
+            },
+            /* 
+                填写申请资料
+            */
+            todoApply() {
+                if(this.phone) {
+                    this.isShowSubmitForm = true
+                    this.$apply()
+                } else {
+                    wepy.navigateTo({
+                        url: `/pages/registered-module/author`
+                    })
+                }
+            },
+            /* 
+                授权手机号
+            */
+            getPhone(event) {
+                let self = this
+                let {
+                    detail: {
+                        encryptedData,
+                        errMsg,
+                        iv
+                    }
+                } = event
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            self.showDialog = true;
+                            self.$apply()
+                            store.dispatch(refreshUserInformations({
+                                phone: response
+                            }))
+                        }).catch(error => 　{
+                            if (error) {
+                                return
+                            }
+                        })
+                    }, 0);
+                })
+                
+            }
+        };
+    }
+</script>
+
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-apply-for {
+        padding-top: 60rpx;
+        background-color: @background-white;
+        .ui-apply-status{
+            .ui-content {
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                margin: 0 auto;
+                background-color: @background-white;
+                .cell-user {
+                    height: 320rpx;
+                    width: 670rpx;
+                }
+                &>.cell-title {
+                    color: @color-black;
+                    font-family: PingFangSC-Medium;
+                    font-size: 40rpx;
+                    line-height: 60rpx;
+                    margin-top: 66rpx;
+                    font-weight: bold;
+                    letter-spacing: 2rpx;
+                }
+                .font-color-blue {
+                    color:@color-blue;
+                }
+                .font-color-red {
+                    color: @color-red;
+                }
+                .ui-enjoy {
+                    .cell-title {
+                        color: @color-black;
+                        font-size: 36rpx;
+                        line-height: 60rpx;
+                        margin: 50rpx 0 16rpx 90rpx;
+                        font-weight: bold
+                    }
+                    .cell-text {
+                        color: @color-black;
+                        font-size: 34rpx;
+                        line-height: 50rpx;
+                        margin: 16rpx 0 0 90rpx;
+                        display: flex;
+                        align-items: center;
+                        image {
+                            width: 34rpx;
+                            height: 44rpx;
+                            margin-right: 16rpx;
+                        }
+                    }
+                }
+            }
+            .ui-replay {
+                width: 606rpx;
+                position: relative;
+                background-color: @background-white;
+                border-radius: 24rpx;
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                height: auto;
+                margin-top: 52rpx;
+                .cell-desc {
+                    font-size: 32rpx;
+                    color: @color-gray;
+                    text-align: center;
+                    line-height: 48rpx;
+                    margin-top: 12rpx;
+                }
+                .cell-avatar {
+                    width: 92rpx;
+                    height: 92rpx;
+                    border-radius: 50%;
+                    margin-top: 104rpx;
+                }
+                .cell-wechat {
+                    font-size: 28rpx;
+                    color: @color-gray;
+                    margin-top: 12rpx;
+                }
+            }
+            .cell-button {
+                color: @color-white;
+                font-size: 34rpx;
+                line-height: 100rpx;
+                background-color: @background-blue;
+                border-radius: @border-radius-20;
+                width: 702rpx;
+                height: 100rpx;
+                text-align: center;
+                font-weight: bold;
+                margin-top: 96rpx;
+            }
+            .ui-submit-form {
+                width: 702rpx;
+                margin: auto;
+                .ui-form-title {
+                    color: @color-black;
+                    font-family: PingFangSC-Medium;
+                    font-size: 40rpx;
+                    line-height: 60rpx;
+                    margin: 30rpx 0;
+                    padding-left: 35rpx;
+                }
+                .ui-form {
+                    width:620rpx;
+                    margin: auto;
+                    display: block;
+                    .ui-form-item {
+                        .cell-item-label {
+                            font-size: 34rpx;
+                            color: @color-black;
+                            margin: 60rpx 0 30rpx;
+                        }
+                        .required {
+                            &::before {
+                                content:'*';
+                                color: @color-red;
+                                margin-right:10rpx;
+                            }
+                        }
+                        .cell-item-value {
+                            padding-left: .3em;
+                            input {
+                                font-size: 34rpx;
+                                color: @color-black;
+                                text-indent: .3em;
+                                border-bottom: solid 1rpx @border-color;
+                            }
+                        }
+                    }
+                }
+                .cell-button {
+                    margin-top: 236rpx;
+                    background-color: @background-gray-cc;
+                }
+                .cell-button-primary {
+                    background-color: @background-blue;
+                }
+            }
+        }
+        .ui-apply-reject {
+            .ui-content {
+                .ui-enjoy{
+                    .flex-center();
+                    flex-wrap: wrap; 
+                    .cell-text{
+                        width: 600rpx;
+                        margin: 0;
+                        margin-top: 50rpx;
+                        margin-bottom: 200rpx;
+                        .flex-center();
+                        text{
+                            text-align: center;
+                        }
+                    }
+                }
+            }
+        }
+        .ui-apply-adopted {
+            .ui-content {
+                .ui-enjoy{
+                    width: 100%;
+                    padding: 0 24rpx;
+                    box-sizing: border-box;
+                    .cell-text{
+                        font-size: 32rpx;
+                    }
+                }
+            }
+        }
+        .ui-apply-approval {
+            .ui-content {
+                .ui-enjoy{
+                    .cell-text{
+                        width: 524rpx;
+                        .flex-center();
+                        font-size: 32rpx;
+                        margin: 0;
+                        margin-top: 36rpx;
+                        text-align: center;
+                        box-sizing: border-box;
+                        line-height: 2;
+                    }
+                }
+            }
+        }
+    }
+</style>

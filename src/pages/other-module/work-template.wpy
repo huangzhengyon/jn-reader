@@ -1,0 +1,74 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-work-template-box{
+        box-sizing:border-box;width:100%;height:100%;padding:4rpx 36rpx;
+        .ui-swiper-list{width:100%;height:1050rpx;margin-top:88rpx;}
+        .ui-item{
+            .ui-title{padding-bottom:28rpx;font-size:44rpx;font-weight:700;color:@color-black;text-align:center;line-heihgt:56rpx;}
+            .ui-subtitle{font-size:35rpx;color:@color-black;text-align:center;line-heihgt:48rpx;}
+            .ui-thumb{
+                width:534rpx;height:720rpx;margin:80rpx auto;
+                image{width:100%;height:100%;}
+            }
+        }
+    }
+</style>
+
+<template>
+    <view class="ui-work-template-box">
+        <jn-header title="工作模板"></jn-header>
+        <swiper class="ui-swiper-list"
+                circular
+                indicator-dots="{{true}}"
+                indicator-color="#D8D8D8"
+                current="{{swiperCurrent}}">
+            <repeat for="{{templateList}}" key="index" index="index" item="item">
+                <swiper-item>
+                    <view class="ui-item">
+                        <view class="ui-title">{{item.senceName}}</view>
+                        <view class="ui-subtitle">{{item.templateTitle}}</view>
+                        <view class="ui-thumb">
+                            <image mode="scaleToFill" src="{{item.url}}"></image>
+                        </view>
+                    </view>
+                </swiper-item>
+            </repeat>
+        </swiper>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class workTemplate extends wepy.page {
+        components = {
+            'jn-header': header
+        }
+
+        data = {
+            templateList: []
+        }
+
+        onLoad() {
+            let self = this
+            self.templateList = wepy.$instance.globalData.newCourseDetailTempele && wepy.$instance.globalData.newCourseDetailTempele.templateList
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        onShow() {
+
+        }
+
+        methods = {}
+
+        events = {}
+    }
+</script>

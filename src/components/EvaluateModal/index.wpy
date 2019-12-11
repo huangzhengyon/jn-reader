@@ -1,0 +1,105 @@
+<template>
+    <view 
+        class="ui-activity-modal cross-center main-center" hidden="{{ !isShowEx  || isShowIn}}" @tap.stop="stopPropagation">
+        <view class="ui-activity-content">
+            <view class="ui-img-box">
+                <image src="http://wx-small.runwise.cn/image/imageIDa22e7167a88460b2bed18b8e6e5b.png" />
+            </view>
+            <view class="cell-title">
+                我们表现如何
+            </view>
+            <view class="cell-content">
+                您的建议和鼓励会帮助我们做的更好
+            </view>
+            <view class="cell-button-commit" @tap.stop="getEvaluateCommit" >
+                去评价
+            </view>
+            <view class="cell-button-cancel" @tap.stop="getEvaluateCancel">
+                取消
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {sleep} from '../../utils'
+    import {getStore, connect} from 'wepy-redux'
+
+    @connect({
+        poster(state) {
+            return state.activity.poster
+        },
+        isActivityOn(state) {
+            return state.activity.isActivityOn
+        },
+        isActivityShow(state) {
+            return state.activity.isActivityOn && 0 === state.activity.participationTimes
+        },
+        role(state) {
+            return state.user.role
+        },
+        entrance(state) {//全局场景值
+            return state.entrance
+        },
+
+    })
+    export default class EvaluateModal extends wepy.component {
+        props = {
+            isShowEvaluate: {
+                type: Boolean
+            }
+        }
+
+        computed = {
+            isShowEx() {
+                return this.isShowEvaluate
+            }
+        }
+
+        data = {
+            isShowIn: false
+        }
+
+        onLoad() {
+
+        }
+
+        methods = {
+            stopPropagation() {
+                return false
+            },
+            // 点击取消 按钮
+            getEvaluateCancel(){
+                this.isShowIn = true
+                this.$emit('hide-home-evalution')
+                this.$apply()
+                wx.setStorageSync('pageLoadNum', 3)
+            },
+            //点击 跳转评价页
+            getEvaluateCommit() {
+                let self = this
+                wx.navigateTo({url:'/pages/user-module/mine-feedback'})
+                this.isShowIn = true
+                this.$apply()
+                wx.setStorageSync('pageLoadNum', 3)
+            }
+        }
+    }
+</script>
+
+<style lang="less">
+    .ui-activity-modal{width:750rpx;height:100%;align-items:center;position:fixed;left:0;top:0;z-index:30;background-color:rgba(0,0,0,.7); }
+    .ui-activity-content{
+        width:574rpx;height:720rpx;background: #FFFFFF;box-shadow: 0 16rpx 48rpx 0 rgba(0,0,0,0.25);border-radius: 20rpx;overflow:hidden;display:flex;flex-direction:column;align-items:center;
+        .ui-img-box{
+            height: 286rpx;width:574rpx;background: blue;
+            image{border-top-left-radius: 20rpx;border-top-right-radius: 20rpx;height: 286rpx;width:574rpx;}    
+        }
+        .cell-title{font-family: PingFangSC-Medium;font-size: 44rpx;color: #14292C;margin: 42rpx 0 36rpx;}
+        .cell-content{margin-bottom: 34rpx;font-size: 30rpx;color: #A1A9AB;}
+        .cell-button-commit{background: #2DB7B5;border-radius: 44rpx;width: 320rpx;height: 80rpx;color: #fff;line-height: 80rpx;text-align: center;font-size: 36rpx;letter-spacing: 0.04rpx;margin-bottom: 32rpx}
+        .cell-button-cancel{font-size: 32rpx;color: #2DB7B5;text-align: center;}
+    }
+    
+</style>

@@ -1,0 +1,152 @@
+@font-face {
+  font-family: 'iconfont';
+  src: url('//at.alicdn.com/t/font_1102888_0b0vj8w6y40v.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'iconfont';  /* project id 1376147 */
+  src: url('//at.alicdn.com/t/font_1376147_znn294iisdp.ttf') format('truetype');
+}
+[class^='icon-'], .iconfont {
+  font-family: "iconfont" !important;
+  font-size: 32rpx;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-right:before { content: "\e72d"; }
+.icon-neiceyonghu:before { content: "\e605"; }
+.icon-shoucang:before { content: "\e60a"; }
+.icon-triangle:before{content:"\e651";}
+.icon-send:before{content:"\e654";}
+.icon-back:before{content:"\e740";}
+.icon-close:before{content:"\e742";}
+.icon-arrow:before{content:"\e75f";}
+.icon-star:before{content:"\e769";}
+.icon-name:before{content:"\e602";}
+.icon-phone:before{content:"\e76b";}
+.icon-right-arrows:before{content:"\e605";}
+.icon-time:before{content:"\e606";}
+.icon-box:before{content:"\e607";}
+.icon-mermber:before{content:"\e608";}
+.icon-refresh:before{content:"\e76c";}
+.icon-portrait:before{content:"\e76d";}
+.icon-study-bar:before{content:"\e76e";}
+.icon-details:before{content:"\e76f";}
+.icon-course:before{content:"\e60a";}
+.icon-list:before{content:"\e770";}
+.icon-complete:before{content:"\e766";}
+.icon-correctly:before{content:"\e767";}
+.icon-setting:before{content:"\e60f";}
+.icon-praise:before{content:"\e611";}
+.icon-comment:before{content:"\e612";}
+.icon-back-close:before{content:"\e776";}
+.icon-no-discuss:before{content:"\e777";}
+.icon-add:before{content:"\e613";}
+.icon-toast:before{content:"\e778";}
+.icon-question:before{content:"\e614";}
+.icon-share:before{content:"\e615";}
+.icon-up-arrow:before{content:"\e616";}
+.icon-not-star:before{content:"\e617";}
+.icon-selete-star:before{content:"\e618";}
+.icon-right-arrow:before{content:"\e619";}
+.icon-down-arrow:before{content:"\e61a";}
+.icon-job-skills:before{content:"\e779";}
+.icon-work-template:before{content:"\e77a";}
+.icon-community:before{content:"\e77b";}
+.icon-next:before{content:"\e77c";}
+.icon-app-icon:before{content:"\e77d";}
+.icon-finish-lish:before{content:"\e61c";}
+.icon-edit:before{content:"\e61d";}
+.icon-link:before{content:"\e61e";}
+.icon-comment1:before{content:"\e61f";}
+.icon-department:before{content:"\e621";}
+.icon-message:before{content:"\e622";}
+.icon-down:before{content:"\e783";}
+.icon-clock:before{content:"\e784";}
+.icon-fallback:before{content:"\e785";}
+.icon-disabled:before{content:"\e786";}
+.icon-selected:before{content:"\e787";}
+.icon-selectable:before{content:"\e788";}
+.icon-collection:before{content:"\e781";}
+.icon-un-collection:before{content:"\e782";}
+.icon-empty-list:before{content:"\e623";}
+.icon-lock:before{content:"\e789";}
+.icon-coursr-empty:before{content:"\e625";}
+.icon-empty-review-list:before{content:"\e626";}
+.icon-delete-select:before{content:"\e627";}
+.icon-search:before{content:"\e62a";}
+.icon-poll:before{content:"\e78a";}
+.icon-course1:before{content:"\e78b";}
+.icon-thumb:before{content:"\e78c";}
+.icon-practice:before{content:"\e78d";}
+.icon-add-btn:before{content:"\e78e";}
+.icon-member:before{content:"\e629";}
+.icon-lesson:before{content:"\e62b";}
+.icon-stick:before{content:"\e62c";}
+.icon-inform:before{content:"\e62d";}
+.icon-discuss:before{content:"\e62e";}
+.icon-task:before{content:"\e62f";}
+.icon-eyes:before{content:"\e630";}
+.icon-footer-team:before{content:"\e78f";}
+.icon-footer-find:before{content:"\e790";}
+.icon-footer-toady:before{content:"\e791";}
+.icon-footer-course:before{content:"\e792";}
+.icon-student:before{content:"\e793";}
+.icon-other:before{content:"\e794";}
+.icon-operat:before{content:"\e795";}
+.icon-product:before{content:"\e796";}
+.icon-collection2:before {content: "\e60b";}
+.icon-comment2:before {content: "\e60c";}
+.icon-collected:before {content: "\e60d";}
+.icon-commented:before {content: "\e60e";}
+.icon-home:before {content: "\e610";}
+.icon-testapplication:before {content: "\e61b";}
+.icon-myview:before {content: "\e624";}
+.icon-mycourse:before {content: "\e628";}
+.icon-mycoin:before {content: "\e631";}
+.icon-profile:before {content: "\e632";}
+.icon-achive:before {content: "\e633";}
+.icon-mycomment:before {content: "\e634";}
+.icon-myteamwork:before {content: "\e635";}
+.icon-mycollection:before {content: "\e636";}
+.icon-feedlist:before {content: "\e637";}
+.icon-refresh1:before {content: "\e638";}
+.icon-weixin:before {content: "\e65d";}
+.icon-num-box:before {content: "\e639";}
+.icon-like:before {content: "\e63a";}
+.icon-liked:before {content: "\e63b";}
+.icon-caselearning:before {content: "\e640";}
+.icon-personalized:before {content: "\e641";}
+.icon-infinitelearning:before {content: "\e63e";}
+.icon-skillboard:before {content: "\e63f";}
+.icon-coin:before {content: "\e648";}
+.icon-plus:before {content: "\e649";}
+.icon-jian:before {content: "\e64a";}
+.icon-downward:before {content: "\e63c";}
+.icon-upward:before {content: "\e63d";}
+.icon-sound:before {content: "\e642";}
+.icon-play:before {content: "\e644";}
+.icon-stop:before {content: "\e643";}
+.icon-choose:before {content: "\e601";}
+.icon-vote:before {content: "\e604";}
+.icon-sort:before {content: "\e603";}
+.icon-limit-course:before {content: "\e645";}
+.icon-limit-clock:before {content: "\e620";}
+.icon-design:before {content: "\e646";}
+.icon-manage:before {content: "\e647";}
+.icon-marketing:before {content: "\e64b";}
+.icon-leadership:before {content: "\e64c";}
+.icon-management:before {content: "\e64d";}
+.icon-hacker:before {content: "\e64e";}
+.icon-innovation:before {content: "\e64f";}
+.icon-effective:before {content: "\e650";}
+.icon-strategy:before {content: "\e652";}
+.icon-development:before {content: "\e653";}
+.icon-marking:before {content: "\e655";}
+.icon-selling:before {content: "\e656";}
+.icon-productdesigner:before {content: "\e657";}
+.icon-serive:before {content: "\e658";}
+.icon-logo:before {content: "\e659";}
+.icon-recommend:before {content: "\e65a";}
+.icon-analyze:before {content: "\e65b";}

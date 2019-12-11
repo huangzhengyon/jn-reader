@@ -1,0 +1,385 @@
+<style lang="less" scoped>
+	@import '../../assets/style/theme';
+	.ui-team-introduction{
+		view{box-sizing: border-box}
+		.cell-banner{width: 750rpx;}
+		.cell-name{font-size: 48rpx;height: 106rpx;font-weight:bold;padding-left:32rpx;}
+		.ui-dec{
+			height: 96rpx;border-bottom: 2rpx solid #EFEFF4;color:#8F8E94;padding-left: 32rpx;
+			.cell-icon{font-size:42rpx;margin-right: 28rpx;}
+			.cell-tip{font-size: 32rpx;}
+		}
+		.cell-title{width: 268rpx;margin: 50rpx 0 42rpx;font-size: 44rpx;color: #000;font-weight: bold;padding-left:32rpx;}
+		.cell-li{
+			width: 598rpx;margin-left: 64rpx;margin-bottom: 16rpx;position: relative;font-size: 32rpx;
+			&::before{content: ' ';width: 12rpx;height: 12rpx;position: absolute;left: -22rpx;top: 14rpx;border-radius: 50%;background-color:  #000;}
+		}
+		.cell-poster{width: 100%;}
+		.ui-empty{width: 100%;height: 140rpx;}
+		.ui-button{
+			width: 100%;height: 140rpx;position: fixed;left: 0;bottom: 0;background-color:#fff;border-top: #EFEFF4 2rpx solid;z-index: 2;
+			.cell-shade{z-index: 40;}
+			.ui-item{
+				width: 702rpx;height: 100rpx;background-color:#007AFF;border: 0;border-radius:20rpx;color: #fff;display:flex;justify-content: center;align-items:center;flex-wrap:wrap;flex-direction:column;
+				.cell-text{font-size: 36rpx;line-height: 1;width: 100%;text-align: center;}
+				.cell-tip{font-size: 22rpx;line-height: 1;margin-top: 6rpx;}
+			}
+
+		}
+		/* 关注公众号弹窗 */
+		.ui-contact-module {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			z-index: @z-index-mask-header;
+			.flex-center();
+			flex-wrap: wrap;
+			padding: 32rpx;
+			box-sizing: border-box;
+			.ui-contact-module-mask {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: @background-mask-normal-4;
+				z-index: @z-index-mask-header;
+			}
+			.ui-contact-content {
+				width: 622rpx;
+				height: 828rpx;
+				background: @background-white;
+				border-radius: @border-radius-32;
+				z-index: @z-index-lower-header;
+				.flex-center();
+				flex-wrap: wrap;
+				position: relative;
+				.ui-title-box {
+					width: 100%;
+					font-size: 32rpx;
+					line-height: 48rpx;
+					font-weight: bold;
+					color: @color-black;
+					.flex-center();
+				}
+				.ui-close {
+					position: absolute;
+					top:-72rpx;
+					right:-36rpx;
+					image {
+						width: 64rpx;
+						height: 64rpx;
+					}
+				}
+				.ui-image-box {
+					width: 100%;
+					margin: 0 32rpx;
+					image {
+						width: 558rpx;
+						height: 448rpx;
+						margin-bottom: 30rpx;
+					}
+					.cell-text {
+						width: 100%;
+						text-align: center;
+						font-size: 28rpx;
+						color: @color-gray-64;
+						line-height: 44rpx;
+					}
+				}
+				.ui-button-box {
+					width: 100%;
+					.flex-center();
+					button {
+						width: 494rpx;
+						height: 88rpx;
+						color: @color-white;
+						background: @background-blue;
+						font-size: 30rpx;
+						font-weight: bold;
+						border-radius: @border-radius-88;
+						.flex-center();
+					}
+				}
+			}
+		}
+	}
+
+</style>
+<template>
+	<jn-loading wx:if="{{ !isLoaded }}"></jn-loading>
+	<jn-header title="训练营报名" openType="reLaunch"></jn-header>
+	<view class="ui-team-introduction">
+		<image class="cell-banner" src="{{ imageUrl }}" mode="aspectFill"></image>
+		<view class="cell-name cross-center">{{ name }}</view>
+		<view class="ui-dec cross-center">
+			<text class="icon-clock cell-icon"></text>
+			<text class="cell-tip">{{ time }}</text>
+		</view>
+		<view class="ui-dec  cross-center">
+			<text class="icon-mermber cell-icon"></text>
+			<text class="cell-tip">{{ signUpUserCount }}人报名</text>
+		</view>
+
+		<view wx:if="{{ targetList.length}}" class="cell-title">学习目标</view>
+		<view wx:if="{{ targetList.length}}" wx:for="{{ targetList }}" wx:key="{{ index }}" class="cell-li">{{ item }}</view>
+
+		<view wx:if="{{ courseImageList.length }}" class="cell-title">训练营介绍</view>
+		<image wx:if="{{ courseImageList.length }}" wx:for="{{ courseImageList }}" wx:key="{{ index }}"
+			class="cell-poster" src="{{ item }}" mode="widthFix"></image>
+
+		<view wx:if="{{ teacherImage }}" class="cell-title">导师介绍</view>
+		<image wx:if="{{ teacherImage }}" class="cell-poster" src="{{ teacherImage }}" mode="widthFix"></image>
+		<view class="ui-empty"></view>
+		<view class="ui-button main-center cross-center dir-top">
+			<button  class="ui-item" open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getAuthorize" @tap.stop="getAuthorize">
+				<view class="cell-text">{{ computedBtnText }}</view>
+				<view wx:if="{{ 'allowSignUp'===buttonStatus }}" class="cell-tip">{{buttonTip}}</view>
+			</button>
+		</view>
+		<view class="ui-contact-module" wx:if="{{isShowContactButton}}">
+        	<view class="ui-contact-module-mask"></view>
+			<view class="ui-contact-content">
+				<view class="ui-title-box">
+					关注公众号
+				</view>
+				<view class="ui-close">
+					<image mode="widthFix"  @tap.stop="closeContactBtn" class="cell-close" src="../../assets/img/alert-close.svg"></image>
+				</view>
+				<view class="ui-image-box">
+					<image src="https://wx-small.runwise.cn/image/attention-team-tips.png"></image>
+					<view class="cell-text">发送“报名”给客服</view>
+					<view class="cell-text">即可获取 Up 酱联系方式</view>
+				</view>
+				<view class="ui-button-box">
+					<button class="ui-contact-button main-justify cross-center" open-type="contact" send-message-img="{{coverImageUrl}}" send-message-title="即能" show-message-card data-name="contact" @tap.stop="closeContactBtn">去关注</button>
+				</view>
+			</view>
+		</view>
+	</view>
+	<view></view>
+</template>
+
+<script>
+	import wepy from 'wepy'
+	import {getStore, connect} from 'wepy-redux'
+	import {initializationDeligate ,shareDictionary } from "../../utils"
+	import {fetch, team as teamApi, auth as authApi, report as reportApi} from '../../api'
+	import Loading from "../../components/common/loading";
+	import { getUserPhone, refreshUserInformations } from '../../redux/models/user';
+	import header from '../../components/common/header';
+
+	const store = getStore()
+	@connect({
+		userName(state) {
+			return state.user.nickName;
+		},
+		token(state) {
+			return state.user.token;
+		},
+		phone(state) {
+			return state.user.phone
+		}
+  	})
+  	export default class TeamLearningIntroduction extends wepy.page {
+		components = {
+			'jn-header': header,
+			'jn-loading': Loading,
+		}
+
+		data = {
+			isLoaded: false,
+            wxPushType: '',
+			teamID: 'defaultTeamID',
+			shareFlag: '', // 分享标记
+			shareTarget: '', // 团队角色
+			name: '', // 团队学习标题
+			buttonStatus: '', // allowSignUp   学员允许报名状态; teamManagerByConfirm 营长待确认 teamTeacherByConfirm 老师待确认
+			buttonTip: '', // 按钮提示
+			isGotoTeamDetailPage: false, // 是否直接跳到团队详情页
+			courseImageList: [], // 课程目标海报
+			teacherImage: '', // 老师简介海报
+			imageUrl: '', // 团队学习海报
+			signUpUserCount: 0, // 已报名人数
+			time: '', // 报名时间
+			targetList: [], // end 课程介绍
+			isClose:false,
+			shareId:'',//分享链接唯一标识
+			isShowContactButton: false,//是否展示跳转客服弹窗
+			shareId:'',//分享唯一标识
+		}
+
+		computed = {
+			computedBtnText() {
+				return 'allowSignUp'===this.buttonStatus? '马上报名': 'teamManagerByConfirm'===this.buttonStatus? '确认担任营长': 'teamTeacherByConfirm'===this.buttonStatus? '确认担任导师': '未定义'
+			}
+		}
+
+		methods = {
+			closeContactBtn() {
+				let self = this
+				self.isShowContactButton = false;
+				self.$apply()
+			},
+			/**
+			 * 微信授权登录
+			 */
+			getAuthorize(event) {
+				let self = this
+                let { detail: { encryptedData, errMsg, iv } } = event
+
+                wepy.$instance.globalData.getHuilder('训练营/报名按钮', 'click', '')
+
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    let t = setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            store.dispatch(refreshUserInformations({
+                                phone: response
+							}))
+							wepy.$instance.globalData.getHuilder('训练营/报名按钮/手机号码授权/授权', 'click', '')
+                            //数据库埋点
+                            let postData = {
+                                token: self.token,
+                                body: {
+                                    json: {
+                                        pageType: "训练营",
+                                        eventType: "报名页",
+                                        componentName: "报名按钮",
+                                        cpnPresentName: "",
+                                    }
+                                }
+                            }
+							reportApi.doUserBehaviourLog(postData);
+							let checkData = {
+								token: self.token,
+								teamID: self.teamID,
+								shareId: self.shareId ? self.shareId : ''
+							}
+							if(self.buttonStatus == 'allowSignUp'){
+								fetch.checkJoinPermission(checkData).then(response => {
+									let joinPermission = response.joinPermission;
+									if(joinPermission) {
+										self.$navigate('/pages/training-camp-module/registration-info',{
+											teamID:self.teamID,
+											name: self.name,
+											roleType: self.shareTarget,
+											buttonStatus: self.buttonStatus,
+											shareId: self.shareId
+										})
+									} else {
+										self.isShowContactButton = true
+										self.$apply()
+									}
+								})
+							} else {
+								self.$navigate('/pages/training-camp-module/registration-info',{
+									teamID:self.teamID,
+									name: self.name,
+									roleType: self.shareTarget,
+									buttonStatus: self.buttonStatus,
+									shareId: self.shareId
+								})
+							}
+							
+							
+							
+                        }).catch((error) => {
+                            console.log(error)
+                            if(error && error.indexOf('getPhoneNumber') > -1){
+                                wepy.$instance.globalData.getHuilder('训练营/报名按钮/手机号码授权/拒绝', 'click', '')
+                            }
+                        })
+                        clearTimeout(t)
+                    }, 0);
+                })
+			}
+		}
+
+		onLoad(params) {
+			let self = this
+            if (params) {
+                self.teamID = params.teamID
+                self.wxPushType = params.wxPushType
+            }
+
+			let [ realTeamID, shareFlag='defaultShareFlag', shareTarget=0 ] = self.teamID.split('-')
+			self.teamID = realTeamID
+			self.shareId = params.shareId
+			console.log(this.shareId)
+			self.shareFlag = shareFlag
+			self.shareTarget = shareTarget
+			wepy.$instance.globalData.getLoadHuilder()
+		}
+
+		onShow() {
+			let self = this
+			initializationDeligate({
+                initializeFunc: self.initialize.bind(self)
+            })
+		}
+
+		initialize() {
+			let self = this
+        	let postData = {
+                token: self.token,
+                shareFlag: self.shareFlag,
+                roleType: self.shareTarget,
+                teamID: self.teamID
+			}
+
+            if (self.wxPushType) {
+                postData.wxPushType = self.wxPushType
+			}
+
+            teamApi.getMyTeamIntroduction(postData).then(({ name, buttonStatus, buttonTip, isGotoTeamDetailPage, courseImageList, teacherImage, imageUrl, signUpUserCount, time, targetList,isClose }) => {
+				console.log('是否报名了')
+				console.log(isGotoTeamDetailPage)
+				// 已经报名了 直接跳转详情页
+				if (isGotoTeamDetailPage) {
+					return self.$redirect(`/pages/training-camp-module/training-detail`, {teamID: self.teamID})
+				}
+				// 未报名 获取初始值
+				self.isLoaded = true
+				self.buttonStatus = buttonStatus
+				self.name = name 
+				self.buttonTip = buttonTip
+				self.isGotoTeamDetailPage = isGotoTeamDetailPage
+				self.courseImageList = courseImageList
+				self.teacherImage = teacherImage
+				self.imageUrl = imageUrl
+				self.signUpUserCount = signUpUserCount
+				self.time = time
+				self.isClose = isClose ? isClose : false
+				self.targetList = targetList;
+				self.$apply()
+        	})
+		}
+		
+		onShareAppMessage(event) {
+			let self = this ;
+            wepy.$instance.globalData.getReportFlow('share');
+			let shareId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+				var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+				return v.toString(16);
+			})
+			console.log(shareId)
+			fetch.reportSharing({
+                token: self.token,
+				type: shareDictionary.SHARE_TRAINING_CAMP.type,
+				businessId: shareId
+            })
+			return {
+                title: self.name,
+                path: `/pages/training-camp-module/registration?teamID=${self.teamID}&shareId=${shareId}`,
+                imageUrl: ''
+            }
+        }
+  	}
+</script>
+
+

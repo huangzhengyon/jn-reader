@@ -1,0 +1,168 @@
+<style lang="less" scoped>
+
+</style>
+
+<template>
+    <view class="module-session-box dir-top main-justify">
+        <view class="ui-top-container" id="topContainer{{cardIndex}}">
+            <repeat for="{{cardItem.descriptionList}}" key="index" index="index" item="item">
+                <view class="ui-item ui-question-item flex"
+                      :class="{'fadeInLeftBig': cardsList[cardIndex].isStartAnimation}">
+                    <view class="ui-portrait flex-box-0"><image mode="scaleToFill" src="{{cardItem.questionAvatarUrl || 'http://wx-small.runwise.cn/image/imageID1bec0682efb4668e21f1086a45d3.png'}}"></image></view>
+                    <view class="ui-content">{{item}}</view>
+                </view>
+            </repeat>
+
+            <repeat for="{{cardItem.select}}" key="index" index="index" item="item">
+                <view class="ui-item ui-answer-item dir-right" wx:if="{{cardsList[cardIndex].isAnimation && item.id == cardsList[cardIndex].selectedId}}">
+                    <view class="ui-portrait flex-box-0"><image mode="scaleToFill" src="{{cardItem.answerAvatarUrl || 'http://wx-small.runwise.cn/image/imageID52a85855b484468a398dee5ff95c.png'}}"></image></view>
+                    <view class="ui-content">{{item.option}}</view>
+                </view>
+            </repeat>
+        </view>
+
+        <view wx:if="{{!cardsList[cardIndex].isAnimation}}">
+            <view class="ui-answer-title">{{cardItem.operatetip || '请选择最好的回答方式'}}</view>
+            <view class="ui-bottom-container" style="height:{{cardItem.select.length * 128 + 32}}rpx">
+                <repeat for="{{cardItem.select}}" key="index" index="index" item="item">
+                    <view class="ui-container">
+                        <view class="ui-item ui-answer-item dir-right"
+                              :class="{'fadeInUpBig': cardsList[cardIndex].isStartAnimation, 'is-selected': item.id == selectedId}"
+                              style="top:{{item.id == selectedId ? selectedTargetTop : selectedOffsetTop}}px;right: {{item.id == selectedId && 0}}px"
+                              data-item="{{item}}"
+                              @tap.stop="getSelected">
+                            <view class="ui-portrait flex-box-0"><image mode="scaleToFill" src="{{cardItem.answerAvatarUrl || 'http://wx-small.runwise.cn/image/imageID52a85855b484468a398dee5ff95c.png'}}"></image></view>
+                            <view class="ui-content">{{item.option}}</view>
+                        </view>
+                    </view>
+                </repeat>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    /**
+     * <jn-session></jn-session>
+     * @module components/cards-type/poll
+     * @desc 回话卡
+     * @param {cardsList} [Array] - 交互卡的数组- ----【】
+     * @param {cardIndex} [Number] - 当前循环的交互卡的数组索引键值- ----【】
+     * @param {cardItem} [Object] - 当前分类卡的数据- ----【】
+     */
+    import wepy from 'wepy'
+    import _ from 'underscore'
+
+    export default class sessionCard extends wepy.component {
+        props = {
+            cardIndex: {
+                type: Number
+            },
+            cardItem: {
+                type: Object,
+                toway: true,
+                default: {}
+            },
+            cardsList: {
+                type: Array,
+                default: []
+            }
+        }
+
+        data = {
+            isStartAnimation: true,
+            oldIndex: -1, // 记录之前的卡片索引
+            selectedId: 0, // 当前选中的那个选项
+            selectedOffsetTop: 0,
+            selectedTargetTop: 0,
+            resultId: -1 // 正确的结果id
+        }
+
+        onLoad() {
+            let self = this
+        }
+
+        methods = {
+            /**
+             * 选中某个选项
+             * @param event
+             * @returns {boolean}
+             */
+            getSelected(event) {
+                let self = this
+                let {currentTarget: {offsetTop, dataset:{item}}} = event
+
+                if (self.cardsList[self.cardIndex].selectedId) {
+                    return
+                }
+
+                self.selectedOffsetTop = offsetTop - 16
+                self.$apply()
+                setTimeout(()=>{
+                    wx.createSelectorQuery().select(`#topContainer${self.cardIndex}`).boundingClientRect(function(rect){
+                        self.selectedId = item.id
+                        self.selectedTargetTop = rect.height
+                        self.$apply()
+
+                        setTimeout(()=>{
+                            let data = {
+                                isFinish: true,
+                                isAnswerOver: true,
+                                isAnimation: true,
+                                buttonShow: true,
+                                id: self.cardItem.id,
+                                selectedId: item.id,
+                                selectedItem: item,
+                                fullImageBottomtText: '继续学习',
+                                json: item.sId,
+                                answerStatus: 3, // 3 不提示正确还是错误
+                                answerTitle: item.feedback.title,
+                                answerDescription: item.feedback.description
+                            }
+                            self.$emit('on-interaction', data)
+                        }, 500)
+                    }).exec()
+                }, 30)
+            }
+        }
+
+        events = {
+            'broadcast-session': (data) => {
+                let self = this
+                let item = _.find(self.cardItem.select, {isanswer: true})
+                self.resultId = item.id
+
+                self.oldIndex = _.clone(self.cardIndex)
+            },
+            /**
+             * 监听父级，重置初始化数据
+             * @param data
+             */
+            'broadcast-reset-status': (data) => {
+                let self = this
+                self.oldIndex = -1 // 记录之前的卡片索引
+                self.selectedId = 0 // 当前选中的那个选项
+                self.selectedOffsetTop = 0
+                self.selectedTargetTop = 0
+                self.resultId = -1 // 正确的结果id
+                self.$apply()
+            },
+            /**
+             * 监听父级，是否开启初始化动画
+             * @param data
+             */
+            'broadcast-animation': (data) => {
+                let self = this
+                console.log(32, data.cardIndex, self.cardIndex)
+                // 这张卡片已经完成的或不是这个卡就不启动运动
+                if (!_.isUndefined(self.cardIndex) && data.cardIndex !== self.cardIndex + 1) {
+                    self.isStartAnimation = false
+                    self.$apply()
+                    return
+                }
+                self.isStartAnimation = true
+                self.$apply()
+            }
+        }
+    }
+</script>

@@ -1,0 +1,24 @@
+
+<svg width="74px" height="74px" viewBox="0 0 74 74" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <rect id="path-1" x="0.773154674" y="0" width="103" height="121"></rect>
+    </defs>
+    <g id="页面1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="团队学习详情页-导师端备份" transform="translate(-301.000000, -667.000000)">
+            <g id="编组-12" transform="translate(271.000000, 667.000000)">
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <g id="蒙版"></g>
+                <g mask="url(#mask-2)">
+                    <g transform="translate(77.000000, 24.922049) rotate(-315.000000) translate(-77.000000, -24.922049) translate(-3.000000, 9.922049)">
+                        <rect id="矩形" fill="#FF2D55" fill-rule="evenodd" x="0" y="0" width="160" height="30"></rect>
+                        <text id="未参与" fill="none" font-family="PingFangSC-Semibold, PingFang SC" font-size="15" font-weight="500">
+                            <tspan x="62" y="21" fill="#FFFFFF">未参与</tspan>
+                        </text>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

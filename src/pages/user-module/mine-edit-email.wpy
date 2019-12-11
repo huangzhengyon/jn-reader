@@ -1,0 +1,129 @@
+<template>
+    <scroll-view
+        scroll-y="{{isScroll}}"
+        enable-back-to-top="{{ true }}"
+        scroll-with-animation="{{ true }}"
+        bindscroll="getScroll"
+        class="mine-article__body">
+        <jn-header title="更改邮箱"></jn-header>
+        <view class="ui-edit-email">
+            <view class="ui-form">
+                <view class="ui-email">
+                    <input
+                    type="text" bindinput="getEditEmail" placeholder="输入自己常用邮箱"  placeholder-class="cell-email" value="{{emailInput}}"/>
+                </view>
+            </view>
+            <view class="ui-button">
+                <button @tap.stop="getCommit" class="cell-sure" :class="{'cell-sure-false' : !isEmail}">确定</button>
+            </view>
+        </view>
+    </scroll-view>
+
+</template>
+
+<script>
+    import wepy from "wepy";
+    import {getStore, connect} from "wepy-redux";
+    import {auth as authApi,report as reportApi} from "../../api";
+    import header from '../../components/common/header'
+
+    const store = getStore();
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        }, // mapState 即getters
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            //return 'userID4456e4e22b584ce5907d5c96e0ef247a-1538120155743-e115231777ab9449fdb18daa4c316e9c'
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        },
+        role(state) {
+            return state.user.role
+        },
+    })
+    export default class MineEditEmail extends wepy.page {
+        data = {
+            headerHeigth: 68,
+            scrollTop: 0,
+            isScroll: true, // 是否能滚动
+            emailInput:'',
+            isEmail:false
+        } // end data
+        components = {
+            'jn-header': header,
+        }
+        methods = {
+            /**
+             * 监听输入邮箱
+             * @param event
+             */
+            getEditEmail(event) {
+                let {detail: {value}} = event
+                if(!value) return
+                let self = this
+                let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+                self.isEmail = !reg.test(value) ? false : true
+                self.phoneNumber = value
+                self.$apply()
+            },
+            getCommit() {
+                let self = this
+                if(!this.isEmail){
+                    return wepy.showToast({
+                        title: '请输入正确的邮箱地址',
+                        icon:'none'
+                    })
+                }else{
+                    reportApi.saveUserCenterInfo({ token:self.token, json: { email: self.phoneNumber}, flag:'email'})
+                    .then((res) => {
+                        wx.navigateBack()
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                    })
+                }
+            }
+
+        };
+
+        onLoad(options) {
+            let self = this
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            if( !options.email)  return
+            self.emailInput = options.email
+            self.isEmail = true
+            self.$apply()
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .mine-article__body {height: 100%;background-color: @background-gray-F4;position: relative;overflow-x: hidden;}
+    .ui-edit-email{
+        .ui-email{
+            height: 168rpx;padding:0 40rpx;box-sizing:border-box;border-bottom:2rpx solid @border-gray;font-size:32rpx;background-color:@background-white;display:flex;align-items:center;margin-top:20rpx;
+            .cell-email{color: @color-gray;}
+            input{width: 100%;color:@color-black}
+        }
+        .ui-button{
+            display:flex;justify-content:center;
+            .cell-sure{width: 400rpx;height: 88rpx;background: @background-blue;border-radius:@border-radius-20;color:@color-white;font-family: PingFangSC-Medium;font-size:36rpx;letter-spacing: 0.04rpx;text-align: center;line-height: 88rpx;margin-top: 136rpx}
+            .cell-sure.cell-sure-false{opacity: 0.2;}
+        }
+    }
+
+</style>

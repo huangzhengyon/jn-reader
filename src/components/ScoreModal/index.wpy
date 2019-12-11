@@ -1,0 +1,131 @@
+<template>
+  <view hidden="{{ !isModalShow }}" class="modal-article" @tap.stop="stopPropagation">
+    <text class="modal-article__title">{{ title }}</text>
+    <view class="modal-article__content">
+      <image class="modal-article__content__icon" src="http://wx-small.runwise.cn/image/imageIDcdfc2bed63b4209ec529a9ae94c4.png" mode="scaleToFill"></image>
+      <text class="modal-article__content__caption">即能币</text>
+      <text class="modal-article__content__number">+{{ score }}</text>
+    </view><!-- content -->
+  </view><!-- modal -->
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { sleep } from '../../utils'
+
+  export default class ScoreModal extends wepy.component {
+    props = {
+      isModalShow: {
+        type: Boolean,
+        default: false,
+        toWay: false
+      }
+    } // end
+
+    data = {
+      score: 0,
+      title: 'defaultTitle'
+    } // end data
+
+    methods = {
+      stopPropagation() {
+        return false
+      }, // end stopPropagation
+      toggleModal({ flag, title, score }) {
+        if (false===flag) {
+          this.isModalShow = false // 如果
+          return Promise.resolve()
+        }
+        this.isModalShow = true
+        this.title = title
+        this.score = score
+        return sleep(2.5)
+          .then(() => {
+            this.isModalShow = false
+            this.$apply()
+          })
+      }, // end handleOpenModal
+      handleCloseModal() {
+        this.isModalShow = false
+        this.$emit('closeModal')
+        this.$apply()
+      }, // end handleModalClose
+      openModal() {
+        this.isModalShow = true
+      }
+    } // end methods
+  }
+</script>
+
+<style lang="less">
+  .modal-article {
+    width: 360rpx;
+    height: 300rpx;
+    border-radius: 24rpx;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    z-index: 30;
+    background-color: rgba(0, 0, 0, .8);
+    animation: fadeInOut 2.5s ease-in;
+  }
+
+  .modal-article::before {
+    content: ' ';
+    width: 750rpx;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 999;
+    background-color: rgba(0, 0, 0, 0);
+  }
+
+  .modal-article__title {
+    margin-top: 56rpx;
+    margin-bottom: 54rpx;
+    font-family: PingFangSC-Medium;
+    font-size: 40rpx;
+    color: #FFFFFF;
+    text-align: center;
+  }
+
+  .modal-article__content {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    margin-top: 0;
+    margin-bottom: auto;
+  }
+
+  .modal-article__content__icon {
+    width: 36rpx;
+    height: 36rpx;
+    margin-right: 12rpx;
+    display: block;
+  }
+
+  .modal-article__content__caption {
+    margin-right: 12rpx;
+    font-family: PingFangSC-Regular;
+    font-size: 32rpx;
+    color: #FFFFFF;
+  }
+
+  .modal-article__content__number {
+    font-family: PingFangSC-Medium;
+    font-size: 40rpx;
+    color: #FFFFFF;
+  }
+
+</style>

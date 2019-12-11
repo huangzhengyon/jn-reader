@@ -1,0 +1,355 @@
+<style lang="less" scoped>
+.ui-interest-box{
+    view{box-sizing:border-box;}
+    .ui-title{margin:20rpx 40rpx;font-size: 48rpx;font-weight: bold}
+    .ui-subtitle{margin: 8rpx 40rpx;font-size: 32rpx;color: rgba(0, 0, 0, 0.6)}
+    .ui-role{
+        padding: 170rpx 40rpx 0;height: auto;width:100%;position:absolute;left:0;top:0;opacity:0;transform:translateY(-40rpx);
+        .ui-item{
+           width: 320rpx;box-shadow: 0 12rpx 36rpx 0 rgba(0,0,0,0.10);border-radius: 16rpx;height: 248rpx;margin-top: 30rpx;font-size: 36rpx;
+            &.is-selected{
+                background: #007AFF;color:#fff;
+                text{color:#fff}
+            }
+            &:nth-of-type(odd){margin-right: 30rpx}
+            text{color:#007AFF;font-size: 62rpx;margin-bottom: 36rpx}
+            view{font-weight: bold;}
+        }
+    }
+    .cell-margin{
+        height: 180rpx;width: 100%;
+        &.is-iphonex{height:240rpx;}
+    }
+    .ui-study-list{
+        width:100%;padding:160rpx 30rpx 0;position:absolute;left:0;top:0;opacity:1;
+        .ui-item{
+            width: 670rpx;box-shadow: 0 12rpx 44rpx 0 rgba(0,0,0,0.10);border-radius: 24rpx;margin: 32rpx auto 0;height:192rpx;
+            &.is-selected{
+                background: #007AFF;color:#fff;
+                .ui-content{
+                    color:#fff;
+                     .cell-remark{color:#fff}
+                }
+                .ui-icon text{color:#fff;}
+            }
+            .ui-icon {
+                width: 120rpx;height: 120rpx;margin: 0 34rpx;justify-content:center;
+                text{font-size: 64rpx;color:#007AFF;}
+            }
+            .ui-content{
+                color: #000;width: 442rpx;
+                .cell-name{font-size: 36rpx;font-weight: bold;}
+                .cell-remark{color:rgba(0, 0, 0, 0.6);font-size: 26rpx;}
+            }
+        }
+    }
+
+    .is-zindex{z-index:2;}
+    .ui-button{
+        position:fixed;width:100%;bottom:0;left:0;right:0;background:none;background:#fff;z-index:35;height: 120rpx;
+        &.is-iphonex{height:164rpx;}
+        .cell-button{
+            width:670rpx;height:96rpx;border-radius:20rpx;background:rgba(0,0,0,0.20);font-size:34rpx;color:#fff;transition:all .2s ease-in;font-weight: bold;
+            &.is-finish{background: #007AFF;}
+        }
+    }
+    @keyframes fadeInUp{
+        0%{opacity:0;transform:translateY(40rpx);}
+        100%{opacity:1;transform:translateY(0);}
+    }
+    .fadeInUp{animation-name:fadeInUp;animation-fill-mode:both;animation-duration:.8s;}
+    @keyframes fadeOutDown{
+        0%{opacity:1;transform:translateY(0);}
+        100%{opacity: 0;transform:translateY(-40rpx);}
+    }
+    .fadeOutDown{animation-name:fadeOutDown;animation-fill-mode:both;animation-duration:.8s;}
+}
+</style>
+
+<template>
+    <mloading wx:if="{{ !isLoaded  }}"/>
+    <jn-header :className.sync="headerBackground"></jn-header>
+    <scroll-view scroll-y class="ui-interest-box"  style="height: calc(100% - {{headerHeigth}}px)">
+        <view class="ui-title">{{textInfo[step].title}}</view>
+        <view class="ui-subtitle">{{textInfo[step].subtitle}}</view>
+        <view class="ui-study-list" :class="{'is-zindex': step===1, 'fadeOutDown': step===0 && !isInit, 'fadeInUp': step===1 && !isInit}">
+            <repeat for="{{abilityList}}" key="index" index="index" item="item">
+                <view 
+                    class="ui-item cross-center" 
+                    :class="{'is-selected': item.isSelected}"
+                    hover-class="cell-hover" 
+                    data-item="{{item}}" data-index="{{index}}" 
+                    @tap.stop="getSelectStudy">
+                    <view class="ui-icon cross-center">
+                        <text class="icon-{{iconList[item.name]}}"></text>
+                    </view>
+                    <view class="ui-content main-center dir-top">
+                        <view class="cell-name">{{item.name}}</view>
+                        <view class="cell-remark">{{item.remarks}}</view>
+                    </view>
+                </view>
+            </repeat>
+            <view class="cell-margin" :class="{'is-iphonex': isIphonex}"></view>
+        </view>
+        <view class="ui-button main-center" :class="{'is-iphonex': isIphonex}">
+            <button class="cell-button main-center cross-center"
+                    :class="{'is-finish':isComplate}"
+                    @tap.stop="getNext">
+                    确定
+            </button>
+        </view>
+    </scroll-view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+    import Loading from '../../components/common/loading'
+    import {fetch, report as reportApi} from '../../api'
+    import {initializationDeligate, getStorageAsync} from '../../utils'
+    import {CustomError} from '../../errors'
+    import {login} from '../../redux/models/user'
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        entrance(state) { // 全局场景值
+            return state.entrance
+        }
+    })
+    export default class registeredInerestSelect extends wepy.page {
+        config = {
+            disableScroll: true
+        }
+
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+        }
+
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            step: 1, // 当前步骤
+            headerBackground: 'background-transparent',
+            isInit: true,
+            headerHeigth:68,
+            isScroll: true, // 是否能滚动
+            isLoaded:false,
+            isFinish: true,
+            roleList: [],
+            abilityList: [],
+            isInterest:false,
+            isComplate:false,
+            isFirst: false,
+            wxPushType: '',
+            iconList:{
+                '产品经理':'productdesigner',
+                '战略规划':'strategy',
+                '产品开发':'development',
+                '市场营销':'marking',
+                '服务/运营':'serive',
+                '销售/渠道':'selling',
+                '个人成长':'effective',
+                '精益创新':'innovation',
+                '内容营销':'marketing',
+                '团队领导力':'leadership',
+                '增长黑客':'hacker',
+                '设计思维':'design',
+                '敏捷管理':'management',
+                '产品管理':'manage',
+            },
+            textInfo: [
+                {
+                    title: '请选择您的角色',
+                    subtitle: '最多选择2个',
+                },
+                {
+                    title: '您想提升哪些能力？',
+                    subtitle: '最多选择3个',
+                }
+            ]
+        }
+
+        onShow() {
+            let self = this
+            let number = _.filter(self.roleList, {isSelected: true}).length
+            self.isInterest = number > 1 ? true : false
+            self.$apply()
+        }
+
+        onLoad(params) {
+            let self = this
+            wepy.$instance.globalData.getLoadHuilder()
+            self.initialize()
+        }
+
+        initialize() {
+            let self = this
+            let postData = {
+                token:self.systemInfo.token
+            }
+            fetch.getRoleAndSkillsList(postData).then(response => {
+                self.roleList = response.roleList;
+                self.abilityList = response.abilityList;
+                self.isLoaded = true;
+                self.$apply();
+            })
+            
+        }
+        /**
+         * 服务通知数据上报
+         */
+        __report() {
+            let self = this
+            if (self.isFirst) {
+                return
+            }
+            self.isFirst = true
+            let postData = {
+                token:self.systemInfo.token,
+                body:{
+                    json: {
+                        pageType: "职能选择",
+                        EventType: "服务通知点击",
+                        ComponentName: "giftPackageGivenNotice",
+                        senceID: "",
+                        CpnPresentName: "giftPackageGivenNotice"
+                    }
+                }
+            }
+            reportApi.doUserBehaviourLog(postData)
+        }
+
+        methods = {
+            /**
+             * 底部按钮
+             */
+            getNext() {
+                let self = this
+                
+                wepy.$instance.globalData.getHuilder('onboarding/兴趣页/确定', 'click','')
+                let sLists = _.filter(self.abilityList, {isSelected: true})
+                if (!sLists.length) {
+                    wx.showToast({
+                        icon: 'none',
+                        title: ' 请选择您想提升的能力 '
+                    })
+                    return false
+                }
+                self.isFinish && self.__finish()
+
+            },
+            /**
+             * 头部返回按钮
+             */
+            getBackStep() {
+                let self = this
+                switch (self.step) {
+                    case 0:
+                        wx.navigateBack()
+                        break;
+                    case 1:
+                        self.step = 0
+                        break;
+                }
+            },
+            /**
+             * 选中兴趣领域
+             */
+            getSelectInterest(event) {
+                let self = this
+                let {currentTarget: {dataset: {item, index}}} = event
+                let data = self.roleList[index]
+                let number = _.filter(self.roleList, {isSelected: true}).length
+
+                if (number >= 2 && !data.isSelected) {
+                    wx.showToast({
+                        icon: 'none',
+                        title: ' 最多选择2个 '
+                    })
+                    return false
+                }
+                data.isSelected = !data.isSelected
+                if(data.isSelected) {
+                    wepy.$instance.globalData.getHuilder('onboarding/角色页/选择兴趣', 'click',item.name)
+                }
+                let interesNum = _.filter(self.roleList, {isSelected: true}).length;
+                interesNum >0 ? self.isInterest = true : self.isInterest = false
+                self.$apply()
+            },
+            /**
+             * 选中提升能力
+             */
+            getSelectStudy(event) {
+                let self = this
+                let {currentTarget: {dataset: {item,index}}} = event
+                let data = self.abilityList[index]
+                let number = _.filter(self.abilityList, {isSelected: true}).length
+                if (number >= 3 && !data.isSelected) {
+                    wx.showToast({
+                        icon: 'none',
+                        title: ' 最多选择3个 '
+                    })
+                    return false
+                }
+                data.isSelected = !data.isSelected;
+                if(data.isSelected) {
+                    wepy.$instance.globalData.getHuilder('onboarding/兴趣页/选择兴趣', 'click',item.name)
+                }
+                let studyNum = _.filter(self.abilityList, {isSelected: true}).length;
+                self.isComplate = studyNum > 0 ? true : false;
+                self.$apply()
+            }
+        }
+
+        /**
+         * 完成
+         */
+        __finish() {
+            let self = this
+            self.isFinish = false
+            
+            let roleList = self.roleList;
+            let abilityList = self.abilityList;
+            let tempRole = [];
+            let tempAbility = [];
+            _.each(roleList,(item) => {
+                item = _.pick(item, 'isSelected', 'profileID','profileTypeID');
+                tempRole.push(item)
+            })
+            _.each(abilityList,(item) => {
+                item = _.pick(item, 'isSelected', 'profileID','profileTypeID');
+                tempAbility.push(item)
+            })
+            let postData = {
+                token: self.systemInfo.token,
+                json:{
+                    roleList:tempRole,
+                    abilityList:tempAbility
+                }
+            }
+            self.__report()
+            fetch.saveUserProfile(postData).then((response) => {
+                self.isFinish = true
+                wx.navigateTo({
+                    url: '/pages/registered-module/recommend'
+                })
+            }).catch(error => {
+                self.isFinish = true
+            })
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>

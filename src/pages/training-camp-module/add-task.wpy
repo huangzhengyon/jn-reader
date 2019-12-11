@@ -1,0 +1,377 @@
+<template>
+    <view class="assignment-article">
+        <form>
+            <jn-header title="添加任务"></jn-header>
+            <view class="flex-space-between-row assignment-article__header">
+                <image class="assignment-article__header__icon"
+                       src="http://wx-small.runwise.cn/image/imageID350c3b2bc10489a1fe701f921c48.png"
+                       mode="scaleToFill"></image>
+                <input bindinput="handleKeyInput" placeholder="请输入微课/课程名称" class="assignment-article__header__input"
+                       placeholder-style="font-family: PingFangSC-Regular;font-size: 32rpx;color: #A1A9AB;"/>
+                <button form-type="reset" class="assignment-article__header__clear" catchtap="handleClearInput"></button>
+                <!-- clear -->
+                <button class="assignment-article__header__btn" @tap.stop="handleSearch">搜索</button>
+            </view><!-- header -->
+        </form>
+
+        <view wx:for="{{ courses }}" wx:for-item="course" wx:for-index="courseIndex" hidden="{{ !course.isShow }}"
+              wx:key="{{ courseIndex }}" data-course-i-d="{{ course.id }}"
+              class="flex-start-column assignment-article__pannel">
+            <view class="assignment-article__pannel__title">
+                <rich-text wx:if="{{ course.richText.length }}" nodes="{{course.richText}}"></rich-text>
+                <text class="xxx" wx:else>{{ course.name }}</text>
+            </view>
+            <view wx:for="{{ course.sences }}" wx:for-item="sence" wx:for-index="senceIndex"
+                  hidden="{{ !sence.isShow }}" wx:key="{{ senceIndex }}"
+                  class="flex-space-between-row assignment-article__pannel__section" data-course-i-d="{{ course.id }}"
+                  data-sence-i-d="{{ sence.id }}" @tap.stop="handleSelectSence">
+                <!-- <text class="assignment-article__pannel__section__caption">{{ sence.name }}</text> -->
+                <view class="assignment-article__pannel__section__caption">
+                    <rich-text wx:if="{{ sence.richText.length }}" nodes="{{sence.richText}}"></rich-text>
+                    <text class="xxx" wx:else>{{ sence.name }}</text>
+                </view>
+                <image class="assignment-article__pannel__section__radio"
+                       src="{{ sence.isSelected? 'http://wx-small.runwise.cn/image/imageIDba552cd2ecd40bb0cc4939c4601f.png' : 'http://wx-small.runwise.cn/image/imageIDe8c86226c194a7a9ccee259a8053.png'}}"
+                       mode="scaleToFill"></image>
+            </view><!-- sences section -->
+        </view><!-- pannel -->
+
+        <view class="assignment-article__empty-footer"></view><!-- empty -->
+        <view class="assignment-article__pannel__footer">
+            <button class="assignment-article__pannel__footer__btn"
+                    hover-class="assignment-article__pannel__footer__btn-hover" @tap.stop="handleConfirm">确定
+            </button>
+        </view>
+    </view><!-- article -->
+</template>
+
+<style lang="less">
+  ::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    background-color: transparent !important;
+  }
+
+  ::scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    background-color: transparent !important;
+  }
+
+  .assignment-article {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  .assignment-article__header {
+    background-color: rgb(241, 242, 245);
+    padding: 32rpx 36rpx 32rpx 24rpx;
+  }
+
+  .assignment-article__header__icon {
+    width: 40rpx;
+    height: 40rpx;
+    padding: 24rpx 14rpx;
+    margin-right: -1rpx;
+    text-align: center;
+    vertical-align: middle;
+    background-color: #FFF;
+    border-top-left-radius: 12rpx;
+    border-bottom-left-radius: 12rpx;
+  }
+
+  .assignment-article__header__input {
+    width: 464rpx;
+    height: 88rpx;
+    box-sizing: border-box;
+    overflow: hidden;
+    background-color: #FFF;
+    line-height: 88rpx;
+  }
+
+  .assignment-article__header__clear {
+    width: 52rpx;
+    height: 88rpx;
+    margin: 0;
+    margin-left: -1rpx;
+    padding: 0;
+    border: 0 !important;
+    border-radius: 0;
+    background-color: #FFF !important;
+    border-top-right-radius: 12rpx;
+    border-bottom-right-radius: 12rpx;
+
+    background-image: url('http://wx-small.runwise.cn/image/imageIDe7a5249a43948bb61311aa3ce200.png');
+    background-size: 32rpx 32rpx;
+    background-position: left center;
+    background-repeat: no-repeat;
+  }
+
+  .assignment-article__header__clear::after {
+    border: 0 !important;
+  }
+
+  .assignment-article__header__btn {
+    margin-left: 32rpx;
+    margin-right: 0;
+    padding: 0;
+    align-self: center;
+    border: 0;
+    background-color: transparent !important;
+    border: 0 !important;
+    line-height: 50rpx;
+    font-family: PingFangSC-Regular;
+    font-size: 36rpx;
+    color: #2DB7B5;
+    text-align: right;
+  }
+
+  .assignment-article__header__btn::after {
+    border: 0 !important;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .assignment-article__pannel {
+    border-bottom: 4rpx solid #F1F2F5;
+  }
+
+  .assignment-article__pannel__title {
+    width: 100%;
+    display: block;
+    text-indent: 36rpx;
+    line-height: 100rpx;
+    font-family: PingFangSC-Regular;
+    font-size: 28rpx;
+    color: #5A696B;
+  }
+
+  .assignment-article__pannel__section {
+    width: 642rpx;
+    margin-left: auto;
+    padding-right: 36rpx;
+    border-top: 2rpx solid #F1F2F5;
+  }
+
+  .assignment-article__pannel__section__caption {
+    line-height: 100rpx;
+    font-family: PingFangSC-Medium;
+    font-size: 32rpx;
+    color: #14292C;
+  }
+
+  .assignment-article__pannel__section__radio {
+    width: 52rpx;
+    height: 52rpx;
+    display: block;
+    align-self: center;
+  }
+
+  .assignment-article__pannel__footer {
+    width: 100%;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: #FFF;
+    backface-visibility: hidden;
+  }
+
+  .assignment-article__pannel__footer__btn {
+    width: 614rpx;
+    height: 88rpx;
+    margin: 26rpx auto;
+    line-height: 88rpx;
+    padding: 0;
+    display: block;
+    background: #2DB7B5;
+    box-shadow: 0 4rpx 12rpx 0 rgba(45,183,181,0.50);
+    border-radius: 64rpx;
+    font-family: PingFangSC-Semibold;
+    font-size: 36rpx;
+    color: #FFFFFF;
+    letter-spacing: 1.64rpx;
+    text-align: center;
+  }
+
+  .assignment-article__pannel__footer__btn-hover {
+    background-color: #269B99;
+  }
+
+  .assignment-article__matched-span {
+    color: #2DB7B5 !important;
+  }
+
+  .assignment-article__empty-footer {
+    width: 100%;
+    height: 140rpx;
+  }
+</style>
+
+<script>
+  import wepy from 'wepy'
+  import Loading from "../../components/common/loading";
+  import { getStore, connect } from 'wepy-redux'
+  import { getStorageAsync, sleep, downLoadPhoto, drawText, canvasPreviewAndSave } from "../../utils"
+  import { share as shareApi } from '../../api'
+  import header from '../../components/common/header'
+
+  const store = getStore()
+
+   @connect({
+    avatar(state) {
+      return state.user.avatarUrl
+    },
+    userName(state) {
+      return state.user.nickName
+    }, // mapState 即getters
+    token(state) {
+      return state.user.token
+    },
+    role(state) {
+      return state.user.role
+    },
+    phone(state) {
+      return state.user.phone
+    }
+  })
+  export default class TeamLearningAssignment extends wepy.page {
+    components = {
+        'jn-header': header
+    } // end components
+
+    data = {
+      searchKey: '原则',
+      courses: [{
+        name: '敏捷十二大原则',
+        richText: [],
+        id: '1c',
+        isShow: true,
+        sences: [{
+          isShow: true,
+          name: '提升产品交付速率',
+          richText: [],
+          id: '11s',
+          isSelected: false
+        }, {
+          isShow: true,
+          name: '组建高效工作团队',
+          richText: [],
+          id: '12s',
+          isSelected: false
+        }, {
+          isShow: true,
+          name: '提升团队工作效率',
+          richText: [],
+          id: '13s',
+          isSelected: false
+        }] // end. sences
+      }, {
+        name: '精益创新',
+        richText: [],
+        id: '2c',
+        isShow: true,
+        sences: [{
+          isShow: true,
+          name: '价值创意原创',
+          richText: [],
+          id: '21s',
+          isSelected: false
+        }, {
+          isShow: true,
+          name: '精益用户开发',
+          richText: [],
+          id: '22s',
+          isSelected: false
+        }, {
+          isShow: true,
+          name: '精益创新方法',
+          richText: [],
+          id: '23s',
+          isSelected: false
+        }] // end. sences
+      }] // end courses
+    }
+
+    onLoad(option, { preload: { courses } }) {
+      // console.log('preload', courses)
+      this.courses = courses
+        wepy.$instance.globalData.getLoadHuilder() // ga统计
+    } // end onLoad
+
+    methods = {
+      handleSelectSence({ currentTarget: { dataset: { courseID, senceID } } }) {
+        // console.log('select the sence', courseID, senceID)
+        let mTargetCourse = this.courses.find(item => item.id===courseID)
+        if (!mTargetCourse) return false
+        let mTargetSence = mTargetCourse.sences.find(item => item.id===senceID)
+        if (!mTargetSence) return false
+        mTargetSence['isSelected'] = !mTargetSence['isSelected']
+        mTargetSence['timestamp'] = mTargetSence['isSelected']? Date.now(): 0
+      }, // end handleSelectSence
+      handleKeyInput({ detail: { value, cursor } }) {
+        // console.log('key input', value)
+        this.searchKey = value
+        if (''===this.searchKey) {
+          this.search('')
+        }
+      }, // end handleKeyInput
+      handleClearInput() {
+        // console.log('tend to clear')
+        this.searchKey = ''
+        this.search('')
+      }, // end handleClearInput
+      handleSearch() {
+        console.log('handle search', this.searchKey)
+        this.search(this.searchKey)
+      }, // end handleSearch
+      handleConfirm() {
+        let selectedSences = this.courses.reduce((total, currentCourse) => {
+          return total.concat(currentCourse.sences.filter(item => item.isSelected).map(item=>({
+            name: item.name,
+            id: item.id,
+            timestamp: item.timestamp,
+            courseID: item.courseID,
+            skillGroup: item.skillGroup,
+            imageUrl: item.imageUrl,
+            contentID: '',
+            isSelected: item.isSelected
+          })))
+        }, [])
+        let mPages = getCurrentPages()
+        selectedSences = selectedSences.sort((current, next) => {
+          return current.timestamp - next.timestamp
+        })
+        let mTarget = mPages.find(item => 'pages/training-camp-module/my/release-task' === item.__route__ )
+        mTarget.handleAppendTaks({sences: selectedSences})
+        wx.navigateBack({ delta: 1 })
+      } // end handleConfirm
+    } // end methods
+
+    search(pKey) {
+      this.courses.forEach(course => {
+        let courseIsMatch = course.name.includes(pKey)
+        let courseName = course.name.replace(pKey, `===#${pKey}===`)
+        course.isShow = courseIsMatch
+        course.richText = this.convertToRichText(courseName)
+
+        course.sences.forEach(sence => {
+          let senceIsMatch = sence.name.includes(pKey)
+          let senceName = sence.name.replace(pKey, `===#${pKey}===`)
+          sence.isShow = senceIsMatch
+          sence.richText = this.convertToRichText(senceName)
+          if (courseIsMatch) sence.isShow = true // 以courseIsMatch为准
+          if (senceIsMatch) course.isShow = true //
+        }) // end sence
+      }) // end course
+    } // end search
+
+    convertToRichText(pString) {
+      if (null==pString || ''===pString) return []
+      const mTextList = [].concat(pString.split('==='))
+      return mTextList.map(item => ({ name: 'span', type: 'node', attrs: { class: -1===item.indexOf('#')? 'largess-article__rules-wrapper__block__caption__common-text': 'assignment-article__matched-span' }, children: [{ type: 'text', text: item.replace('#', '') }]  }))
+    } // end convertToRichText
+
+  }
+</script>

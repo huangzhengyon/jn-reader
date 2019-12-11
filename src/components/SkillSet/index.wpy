@@ -1,0 +1,216 @@
+<template>
+    <view class="skillset-article">
+        <view class="top-view" wx:if="{{title}}">
+            <view class="top-view-title" @tap.stop="handleTitleTap">
+                <text>{{title}}</text>
+                <view class="team-complete-body-content-skill-icon"
+                      style="{{title==='团队技能'?'font-weight:600;font-size:40rpx;':''}}"
+                      wx:if="{{title==='我的技能'||title==='技能成长'}}" @tap.stop="handleTips">?
+                </view>
+            </view>
+            <view class="top-view-right" wx:if="{{title!=='团队技能'}}">
+                <view class="top-view-right-trangle"></view>
+                <text>平均水平</text>
+            </view>
+        </view>
+        <view wx:for-index="skillIndex"
+              class="team-complete-body-content-skillset-group {{skillIndex===0?'':'margin-top-14'}}"
+              wx:for-item='skillset' wx:for="{{skillGroupList}}" wx:key="{{skillIndex}}" @tap.stop="handleExtendOne"
+              data-index="{{skillIndex}}">
+            <view class="team-complete-body-content-skillset-item skillset">
+                <view class="skillset-item-top">
+                    <view style="display:flex">
+                        <view class="skillset-item-top-skill">{{skillset.skillName}}</view>
+                        <view class="skillset-item-top-score">{{skillset.skillScore}}</view>
+                    </view>
+                    <view class="skillset-item-top-level">{{skillset.skillGrade}}</view>
+                </view>
+                <view class="skillset-item-progress-bar bar-height-big">
+                    <view class="skillset-item-top-skill-progress-wrapper bar-height-big">
+                        <view class="skillset-item-top-skill-progress-w bar-height-big">
+                            <progress class="skillset-item-top-skill-progress " percent="{{skillset.percent}}"
+                                      stroke-width="12" backgroundColor="#b7d9fe"
+                                      activeColor="#007AFF"></progress>
+                        </view>
+                        <view wx:for="{{[1,2,3,4,5,6]}}" wx:for-index="divIndex" wx:key="{{divIndex}}"
+                              class="skillset-item-top-skill-progress-divide {{divIndex===0||divIndex===5?'transparent':''}} bar-height-big"/>
+                    </view>
+                    <view class="trangle-big" style="left:{{skillset.avg-1.3}}%;"></view>
+                </view>
+            </view>
+            <view class="item-set {{skillset.isSpread?'extend-open':'extend-close'}}"
+                  style="height:{{(skillset.skillGroupList.length)*136}}rpx;">
+                <view wx:for="{{skillset.skillGroupList}}" wx:key="{{index}}"
+                      class="team-complete-body-content-skillset-item skill ">
+                    <view class="skillset-item-top">
+                        <view style="display:flex">
+                            <view class="skillset-item-top-skill" style="opacity:.7">{{item.skillName}}</view>
+                            <view class="skillset-item-top-score">{{item.skillScore}}</view>
+                        </view>
+                        <view class="skillset-item-top-level" style="opacity:.7">{{item.skillGrade}}</view>
+                    </view>
+                    <view class="skillset-item-progress-bar bar-height-small">
+                        <view class="skillset-item-top-skill-progress-wrapper bar-height-small">
+                            <view class="skillset-item-top-skill-progress-w bar-height-small">
+                                <progress class="skillset-item-top-skill-progress" percent="{{item.percent}}"
+                                          stroke-width="8" backgroundColor="#b7d9fe"
+                                          activeColor="#007AFF"></progress>
+                            </view>
+                            <view
+                                class="skillset-item-top-skill-progress-divide {{index===0||index===5?'transparent':''}}"
+                                wx:for="{{[1,2,3,4,5,6]}}" wx:key="{{index}}"/>
+                        </view>
+                        <view class="trangle-small" style="left:{{item.avg-0.83}}%;"></view>
+                    </view>
+                </view>
+            </view>
+        </view>
+        <view wx:for="{{skillSet}}" wx:key="{{index}}" class="team-complete-body-content-skillset-item skillset"
+              style="height:136rpx !important">
+            <view class="skillset-item-top">
+                <view style="display:flex">
+                    <view class="skillset-item-top-skill">{{item.skillName}}</view>
+                    <view class="skillset-item-top-score">{{item.skillScore}}</view>
+                </view>
+                <view class="skillset-item-top-level">{{item.skillGrade}}</view>
+            </view>
+            <view class="skillset-item-progress-bar bar-height-small">
+                <view class="skillset-item-top-skill-progress-wrapper bar-height-small">
+                    <view class="skillset-item-top-skill-progress-w bar-height-small">
+                        <progress class="skillset-item-top-skill-progress" percent="{{item.percent}}" stroke-width="8"
+                                  backgroundColor="#b7d9fe" activeColor="#007AFF"></progress>
+                    </view>
+                    <view class="skillset-item-top-skill-progress-divide {{index===0||index===5?'transparent':''}}"
+                          wx:for="{{[1,2,3,4,5,6]}}" wx:key="{{index}}"/>
+                    <view wx:if="{{title!=='团队技能'}}" class="trangle-small" style="left:{{item.avg-0.83}}%;"></view>
+                </view>
+            </view>
+        </view>
+        <view class="extend-bottom-view" wx:if="{{extendAble&&!isAllExtend&&skillGroupList.length}}"
+              @tap.stop="handleExtendAll">
+            <text>全部展开</text>
+            <text class="icon-up-arrow"></text>
+        </view>
+        <view class="extend-bottom-view-copy" wx:if="{{extendAble&&isAllExtend&&skillGroupList.length}}"
+              @tap.stop="handleExtendAllBack">
+            <text>全部收起</text>
+            <text class="icon-up-arrow"></text>
+        </view>
+
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import loadingMixin from '../../mixins/loading'
+
+    export default class SkillSet extends wepy.component {
+        props = {
+            // skillGroupList: {
+            //   type: Array,
+            //   twoWay: true
+            // },
+            // skillSet: {
+            //   type: Array
+            // },
+            // title:{
+            //   type:String,
+            //   default:'defaultTitle'
+            // },
+            // extendAble: {
+            //   type: Boolean
+            // }
+        } // end props
+        mixins = [loadingMixin] // end mixins
+        data = {
+            isAllExtend: false,
+            skillSet: [],
+            skillGroupList: [],
+            title: '',
+            extendAble: false,
+        } // end data
+        methods = {
+            refreshData({skillSet, skillGroupList, title = '', extendAble = false}) {
+                // console.log('refresh data',title,extendAble,skillSet)
+                this.skillGroupList = skillGroupList
+                this.skillSet = skillSet
+                this.title = title
+                this.extendAble = extendAble
+                this.$apply()
+            },
+            handleTitleTap() {
+                console.log('skill set component title tap', this.skillSet);
+            },
+            handleTips() {
+                wx.navigateTo({url: `/pages/training-camp-module/skill-levels`})
+            },
+            handleExtendOne({
+                currentTarget: {dataset: {index}}
+            }) {
+                if (!this.extendAble) return
+                this.skillGroupList[index].isSpread = !this.skillGroupList[index].isSpread
+                let allExtend = new Boolean(true)
+                for (let skillSet of this.skillGroupList) {
+                    allExtend = allExtend && skillSet.isSpread
+                }
+                this.isAllExtend = allExtend
+                this.$apply()
+
+            },
+            handleExtendAll() {
+                for (let skillSet of this.skillGroupList) {
+                    skillSet.isSpread = true
+                }
+                this.isAllExtend = true
+                //extend all
+                this.$apply()
+            },
+            handleExtendAllBack() {
+                for (let skillSet of this.skillGroupList) {
+                    skillSet.isSpread = false
+                }
+                this.isAllExtend = false
+                //extend all
+                this.$apply()
+            }
+        }
+    }
+</script>
+
+<style lang="less">
+  @import "../../assets/style/theme";
+  .top-view{height: 140rpx;display: flex;justify-content: space-between;align-items: center;}
+  .top-view-title{display: flex;align-items: center;font-family: PingFangSC-Semibold;font-size: 48rpx;color: @color-black;font-weight: bold;}
+  .top-view-right{position: relative;color:  @color-black;font-family: PingFangSC-Semibold;font-size: 28rpx;display: flex;align-items: center;}
+  .top-view-right-trangle{border-bottom: 24rpx solid @color-black;border-left: 12rpx solid transparent;border-right: 12rpx solid transparent;width: 0;height: 0;margin-right: 20rpx;margin-top: 6rpx;}
+  .skillset-article {width: 100%;padding-bottom: 40rpx;}
+  .item-set {transition: all .3s ease;}
+  .extend-open {overflow: hidden;}
+  .extend-close {height: 0 !important;overflow: hidden;}
+  .extend-bottom-view .icon-up-arrow {font-size: 20rpx;margin-left: 20rpx;}
+  .extend-bottom-view-copy .icon-up-arrow{font-size: 20rpx;margin-left: 20rpx;}
+  .extend-bottom-view-copy {height: 140rpx;display: flex;align-items: center;justify-content: center;font-size: 32rpx;color: @color-blue;font-family: PingFangSC-Semibold;}
+  .extend-bottom-view {height: 140rpx;display: flex;align-items: center;justify-content: center;font-size: 32rpx;color: @color-blue;font-family: PingFangSC-Semibold;}
+  .margin-top-14 {margin-top: 28rpx;}
+  .trangle-big {border-bottom: 20rpx solid @color-black;border-left: 10rpx solid transparent;border-right: 10rpx solid transparent;width: 0;height: 0;position: absolute;bottom: -20rpx;z-index: 10;}
+  .trangle-small {z-index: 10; border-bottom: 20rpx solid @color-black;border-left: 10rpx solid transparent;border-right: 10rpx solid transparent;width: 0;height: 0;position: absolute;bottom: -20rpx;z-index: 10;}
+  .bar-height-small {height: 16rpx !important;}
+  .bar-height-big {height: 24rpx !important;}
+  .skillset-item-progress-bar {width: 100%;position: relative;}
+  .team-complete-body-content-skillset-group {background-color: @background-gray-F4;border-radius: 12rpx;padding-bottom: 40rpx;}
+  .transparent {background-color: transparent !important;}
+  .skillset-item-top-skill-progress-divide {width: 4rpx;height: 100%;background-color: @background-white;z-index: 9;}
+  .skillset-item-top-skill-progress-w {height: 20rpx;position: absolute;margin: 0 4rpx;box-sizing: border-box;width: 100%;z-index: 1;border-radius: 10rpx;overflow: hidden;}
+  .skillset-item-top-skill-progress-wrapper {height: 20rpx;width: 100%;position: relative;display: flex;justify-content: space-between;align-items: center;}
+  .skillset-item-top-skill-progress {width: 100%;}
+  .skillset-item-top-icon {width: 36rpx;height: 36rpx;}
+  .skillset-item-top-skill {color: @color-black;font-family: PingFangSC-Medium;font-size: 32rpx;line-height: 36rpx;max-width: 240rpx;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+  .skillset-item-top-score {color: @color-black;font-family: PingFangSC-Semibold;font-size: 32rpx;margin-left: 24rpx;line-height: 36rpx;}
+  .skillset-item-top-level {color: @color-gray;font-size: 28rpx;}
+  .skillset-item-top {display: flex;justify-content: space-between;align-items: center;margin-bottom: 24rpx;width: 100%;}
+  .team-complete-body-content-skillset-item {margin-top: 28rpx;display: flex;flex-direction: column;align-items: center;justify-content: center;}
+  .team-complete-body-content-skillset-item.skillset {height: 176rpx;margin-left: 20rpx;margin-right: 20rpx;}
+  .team-complete-body-content-skillset-item.skill {height: 136rpx;margin-left: 60rpx;margin-right: 20rpx;margin-top: 0;}
+  .team-complete-body-content-skillset {padding: 16rpx 20rpx 96rpx 20rpx;box-sizing: border-box;}
+  .team-complete-body-content-skill-icon {margin-left: 16rpx;width: 36rpx;height: 36rpx;background-color: @background-gray;border-radius: 50%;color: @color-white;font-family: PingFangSC-Semibold;font-size: 32rpx;line-height: 36rpx;text-align: center;}
+</style>

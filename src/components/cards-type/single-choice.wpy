@@ -1,0 +1,335 @@
+<style lang="less" scoped>
+    @import '../../assets/style/theme';
+    /* 单项选择 */
+    .module-single-choice-box {
+        box-sizing: border-box;
+        width: 100%;
+        height: calc(~"100% - 72px");
+        &.is-phonex {
+            width: 100%;
+            height: calc(~"100% - 106px");
+        }
+        view {
+            box-sizing: border-box;
+        }
+        .ui-content {
+            padding: 24rpx 48rpx 0;
+        }
+        .ui-subtitle {
+            font-size: 28rpx;
+            color: @color-blue;
+            line-height: 40rpx;
+        }
+        >.ui-description {
+            padding-top: 8rpx;
+            font-size: 28rpx;
+            color: @color-gray;
+            line-height: 40rpx;
+        }
+        .ui-thumb {
+            width: 100%;
+            padding-top: 24rpx;
+            image {
+                width: 100%;
+            }
+        }
+        .ui-answer-list {
+            padding: 44rpx 0 4rpx;
+            .ui-item {
+                width: 100%;
+                margin-top: 32rpx;
+                background: #F5F5F5;
+                border-radius: @border-radius-16;
+                position: relative;
+                transition: all .2s;
+                height: 130rpx;
+                padding: 0 24rpx;
+            }
+            .ui-item-hover {
+                background: rgba(0, 0, 0, .2);
+            }
+            .is-selected {
+                
+                .cell-title .cell-option {
+                    border: 1px solid #007AFF;
+                    &::before {
+                        content: ' ';
+                        width: 28rpx;
+                        height: 28rpx;
+                        background-color: #007AFF;
+                        border-radius: 50%;
+                        position: absolute;
+                        left: 50%;
+                        top: 50%;
+                        transform: translate(-50%, -50%)
+                    }
+                }
+            }
+            .is-answered {
+                .cell-title .cell-option {
+                    opacity:.5;
+                }
+            }
+            .cell-title {
+                font-size: 32rpx;
+                color: @color-black;
+                line-height: 44rpx;
+                position: relative;
+                .cell-option {
+                    width: 48rpx;
+                    height: 48rpx;
+                    border: 2rpx solid #000;
+                    margin-right: 24rpx;
+                    position: relative;
+                    border-radius: 50%
+                }
+                .cell-main {
+                    display: flex;
+                    flex: 1;
+                    align-content: center;
+                    justify-content: space-between;
+                    .cell-choose-status {
+                        .flex-center();
+                        image {
+                            width: 40rpx;
+                            height: 40rpx;
+                        }
+                    }
+                }
+            }
+            .cell-icon {
+                position: absolute;
+                right: 32rpx;
+                top: 34rpx;
+                opacity: 0;
+                text {
+                    font-size: 48rpx;
+                    color: @color-blue;
+                }
+            }
+            .is-success .cell-icon {
+                opacity: 1;
+                transition: all .2s;
+            }
+        }
+        .module-exercises-result {
+            .cell-exercises-button {
+                background-color: transparent;
+                color: @color-blue;
+                font-size: 32rpx;
+                font-weight: normal;
+            }
+        }
+    }
+</style>
+
+<template>
+    <scroll-view class="module-single-choice-box" :class="{'is-phonex': isIphonex}" scroll-y scroll-top="{{scrollTop}}">
+        <view class="ui-content">
+            <view class="ui-module-mold" wx:if="{{isShowType}}">
+                <text class="icon-choose"></text>选择题
+            </view>
+            <view class="ui-subtitle" wx:if="{{cardsList[cardIndex].subTitle}}"># {{cardsList[cardIndex].subTitle}}</view>
+            <view class="ui-module-tips">
+                <text class="ui-type" wx:if="{{isShowType}}">单选</text>
+                <text class="ui-title">{{cardsList[cardIndex].title}}</text>
+            </view>
+            <view class="ui-description">{{cardsList[cardIndex].singleChoiceDescribe || cardsList[cardIndex].description}}</view>
+            <view class="ui-thumb" wx:if="{{cardsList[cardIndex].bigimage}}">
+                <image mode="widthFix" src="{{cardsList[cardIndex].bigimage}}"></image>
+            </view>
+            <view class="ui-answer-list">
+                <repeat for="{{cardsList[cardIndex].select}}" key="index" index="index" item="item">
+                    <view class="ui-item main-justify cross-center" :class="{'is-selected': item.selected, 'is-success':cardsList[cardIndex].allowToNext && item.isanswer, 'is-error': cardsList[cardIndex].allowToNext && !item.isanswer && item.selected,'is-answered':isAnswerOver}" hover-class="{{!isAnswerOver && !cardsList[cardIndex].allowToNext ? 'ui-item-hover' : ''}}"
+                        data-item="{{ item }}" data-index="{{ index }}" @tap.stop="getSelected">
+                        <view class="cell-title  cross-center">
+                            <view class="cell-option"></view>
+                            <view class="cell-main">{{item.option || item.optionContent}}
+                                <view class="cell-choose-status" wx:if="{{isAnswerOver}}">
+                                    <image src="../../assets/img/icon-right.svg" wx:if="{{cardsList[cardIndex].allowToNext && item.isanswer}}"></image>
+                                    <image src="../../assets/img/icon-wrong.svg" wx:if="{{cardsList[cardIndex].allowToNext && !item.isanswer && item.selected}}"></image>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                </repeat>
+            </view>
+            <view class="ui-module-feedback" wx:if="{{!isExercises && (cardsList[cardIndex].isAnswerOver || cardsList[cardIndex].isDone)}}" :class="{'is-error' : (cardsList[cardIndex].answerStatus == 2)|| ( cardsList[cardIndex].isCorrect == 2 && cardsList[cardIndex].isDone)}">
+                <view class="cell-name">
+                    {{cardsList[cardIndex].answerTitle || cardsList[cardIndex].reviewFeedback.title}}</view>
+                <view class="cell-content">{{cardsList[cardIndex].answerDescription || cardsList[cardIndex].reviewFeedback.description}}</view>
+            </view>
+            <view class="module-exercises-result" :class="{'is-show': isExercises && isAnswerOver}" wx:if="{{disabled}}">
+                <view class="main-justify">
+                    <view class="cell-exercises-title">{{feebackTitle || '课后解释'}}</view>
+                    <button hover-class="cell-exercises-hover" class="cell-exercises-button" @tap.stop="getToDiscuss">
+                            {{commentsCount>0 ? commentsCount+'条讨论' : '参与评论'}}
+                        </button>
+                </view>
+                <view class="ui-description">{{description}}</view>
+            </view>
+        </view>
+    </scroll-view>
+</template>
+
+<script>
+    /**
+     * <jn-single-choice></jn-single-choice>
+     * @module components/cards-type/single-choice
+     * @desc 即学即练quiz
+     * @param {cardsList} [Array] - 测练的数组- ----【】
+     * @param {cardIndex} [Number] - 当前循环的测练数组索引键值- ----【】
+     * @param {isExercises} [Number] - option是否占整行，需要给option文本后面留出一定的空间，显示正确错误的图标- ----【0】
+     * @param {commentsCount} [Number] - 即练提交答案后显示的参与评论的条数- ----【0】
+     * @param {isShowType} [Number] - 是否显示 题的类型，例如单选题 ----【0】
+     */
+    import wepy from 'wepy'
+    import _ from 'underscore'
+    export default class singleChoiceCard extends wepy.component {
+        props = {
+            cardIndex: {
+                type: Number
+            },
+            cardsList: {
+                type: Array,
+                default: []
+            },
+            isExercises: {
+                type: Number,
+                default: 0
+            },
+            commentsCount: {
+                type: Number,
+                default: 0
+            },
+            isShowType: {
+                type: Number,
+                default: 0
+            },
+            disabled: {
+                type: Boolean,
+                default: false
+            }
+        }
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            scrollTop: 0, // 滚动条的位置
+            senceID: null,
+            oldIndex: -1, // 记录之前的卡片索引
+            selectedId: 0, // 当前选中的那个选项
+            resultId: -1, // 正确的结果id
+            isAnswerOver: false, // 是否作答结束
+            description: '', // 选中的答案的解释详情
+            feebackTitle: ''
+        }
+        onLoad() {
+            let self = this
+            self.senceID = self.isExercises && self.$parent.paramsInfo.senceID
+        }
+        watch = {
+            disabled(newValue,oldValue) {
+                console.log(newValue,oldValue)
+            }
+        }
+        methods = {
+            /**
+             * 选中某个选项
+             * @param event
+             * @returns {boolean}
+             */
+            getSelected(event) {
+                let self = this
+                let cardData = self.cardsList[self.cardIndex]
+                if (self.isAnswerOver &&
+                    self.oldIndex === self.cardIndex ||
+                    cardData.allowToNext) {
+                    return false
+                }
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            index
+                        }
+                    }
+                } = event
+                _.each(cardData.select, (option) => {
+                    option.selected = option.id == item.id ? true : false
+                })
+                self.selectedId = item.id
+                self.$apply()
+                let data = {
+                    isFinish: true,
+                    isAnswerOver: false,
+                    id: cardData.id,
+                    selectedId: item.id,
+                    selectedItem: item,
+                    fullImageBottomtText: '我已选好',
+                    json: item.sId,
+                    answerStatus: item.isanswer ? 1 : 2, // 1回答正确, 2回答错误
+                    answerTitle: item.feedback && item.feedback.title,
+                    answerDescription: item.feedback && item.feedback.description
+                }
+                self.$emit('on-interaction', data)
+            },
+            /**
+             * 前往评论列表
+             * @param event
+             * @returns {boolean}
+             */
+            getToDiscuss() {
+                let self = this
+                let cardData = self.cardsList[self.cardIndex]
+                wx.navigateTo({
+                    url: `/pages/course-module/course-discuss?practiceCardID=${cardData.id}&senceID=${self.senceID}`
+                })
+            }
+        }
+        events = {
+            /**
+             * 监听父级页面触发提交答案
+             * @param data
+             */
+            'broadcast-single-choive': (data) => {
+                let self = this
+                let cardData = self.cardsList[self.cardIndex]
+                let item = !self.isExercises ?
+                    _.find(cardData.select, {
+                        isanswer: true
+                    }) :
+                    _.find(cardData.select, {
+                        id: data.selectedId
+                    })
+                
+                self.resultId = item.id
+                self.isAnswerOver = true
+                self.oldIndex = _.clone(self.cardIndex)
+                self.description = item.feedback.description;
+                self.feebackTitle = item.feedback.title;
+                wx.createSelectorQuery().select('.ui-answer-list').boundingClientRect(function(rect) {
+                    self.scrollTop = rect.bottom;
+                    self.$apply()
+                }).exec()
+                self.$apply()
+            },
+            /**
+             * 监听父级，重置初始化数据
+             * @param data
+             */
+            'broadcast-reset-status': (data) => {
+                let self = this;
+                if(data.type != 'textSelectionVer2')return;
+                self.scrollTop = 0
+                self.oldIndex = -1 // 记录之前的卡片索引
+                self.selectedId = 0 // 当前选中的那个选项
+                self.resultId = -1 // 正确的结果id
+                self.isAnswerOver = data.allowToNext ? data.allowToNext : false// 是否作答结束
+                let item = _.find(data.select,{
+                    selected: true
+                })
+                item && (self.description = item.description)
+                self.$apply()
+            }
+        }
+    }
+</script>

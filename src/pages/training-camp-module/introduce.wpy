@@ -1,0 +1,169 @@
+<template>
+    <view class="upload-article">
+        <jn-header title="训练营介绍"></jn-header>
+        <view class="test-wrapper {{ 0===index&&'first-child'}}" wx:for="{{imageList}}" wx:key="{{index}}">
+            <view class="team-publish-sence-wrapper">
+                <image @tap.stop="handleDeleteTask" data-index="{{index}}"
+                       class="team-publish-sence-wrapper-before"
+                       src="http://wx-small.runwise.cn/image/imageID14735f999cf41e9cb902cf1c239c.png"></image>
+                <image class="team-publish-sence-icon" mode="aspectFill" src="{{item.url}}"/>
+                <image @tap.stop="handleTaskUp" data-index="{{index}}" class="team-publish-sence-up"
+                       src="http://wx-small.runwise.cn/image/imageIDf381d652a814f1a83c4e54f47e5b.png"/>
+                <image @tap.stop="handleTaskDown" data-index="{{index}}" class="team-publish-sence-down"
+                       src="http://wx-small.runwise.cn/image/imageIDb5b853e866e476803dbb5cc63cf1.png"/>
+            </view>
+        </view>
+        <view class="test-wrapper">
+            <view @tap.stop="handleAddPicture" class="team-publish-sence-wrapper"
+                  style="justify-content:center;align-items:center;flex-wrap:wrap; align-content: center;">
+                <view class="ui-add">
+                  <view class="ui-icon">
+                    <text class="icon-add"></text>
+                  </view>
+                  <text class="team-publish-add-sence">添加图片</text>
+                </view>
+                <text class="team-publish-add-sence-tips">最多4张图片，每张图片宽750px，高度最大2000px</text>
+            </view>
+        </view>
+        <view class="pushlink-body__footer-btn-wapper">
+            <button class="pushlink-body__footer-btn disable" plain="{{ true }}" @tap.stop="handleConfirm">确定</button>
+        </view>
+    </view><!-- article -->
+</template>
+
+<style lang="less">
+  @import "../../assets/style/theme";
+  .ui-add{
+  display: flex;
+  .ui-icon{background: @background-blue; width: 40rpx;height: 40rpx;margin-right: 20rpx;border-radius: 50%;color:@color-white;display: flex;justify-content: center;align-items: center;line-height: 40rpx;font-size: 24rpx;}}
+  .upload-article {width: 100%;height: 100%;box-sizing: border-box;background-color: @background-gray-F4;}
+  .test-wrapper{width: 100%;background-color: @background-gray-F4;padding-top: 20rpx;}
+  .test-wrapper.first-child {padding-top: 48rpx;}
+  .team-publish-sence-wrapper{width: 670rpx;height: 180rpx;background-color: @background-white;border-radius: 24rpx;margin-left: 42rpx;display:flex;align-items: center;box-sizing: border-box;position: relative;}
+  .team-publish-sence-wrapper-before{width: 40rpx;height: 40rpx;left: 24rpx;border-radius: 50%;background-color: #D81352;position: absolute;color: @color-white;font-size: 24rpx;text-align: center;line-height: 35rpx;font-weight: bold;}
+  .team-publish-add-sence{font-family: PingFangSC-Regular;font-size: 16px;color: @color-blue;}
+  .team-publish-add-sence-tips {margin-top: 24rpx;display: block;font-family: PingFangSC-Regular;font-size: 24rpx;line-height: 34rpx;color: @color-gray;}
+  .team-publish-sence-icon{width: 160rpx;height: 160rpx;margin-left: 88rpx;margin-right: auto;}
+  .team-publish-sence-text{width: 340rpx;margin-left: 16rpx;overflow: hidden;font-size: 32rpx;color: @color-black;line-height: 40rpx;font-weight: bold}
+  .team-publish-sence-desc{margin-top: 20rpx;font-family: PingFangSC-Regular;font-size: 24rpx;color: @color-gray;line-height: 25rpx;}
+  .team-publish-sence-up{position: absolute;width: 48rpx;height: 48rpx;top: 26rpx;right: 36rpx;}
+  .team-publish-sence-down{position: absolute;width: 48rpx;height: 48rpx;bottom: 26rpx;right: 36rpx;}
+  .pushlink-body__footer-btn-wapper {width: 100%;height: 140rpx;position: fixed;left: 0;bottom: 0;display: flex;justify-content: center;align-items: center;border-top: @border-gray 2rpx solid;z-index: 1100;}
+  .pushlink-body__footer-btn {width: 702rpx;height: 100rpx;line-height: 100rpx;background-color: @background-blue !important;color: @color-white !important;border: 0 !important;border-radius:@border-radius-20;}
+</style>
+
+<script>
+  import wepy from "wepy";
+  import {
+    NetworkError
+  } from "../../errors";
+  import {
+    getStore,
+    connect
+  } from "wepy-redux";
+  import {
+    team as teamApi,
+  } from "../../api";
+  import {
+    showErrorPage,
+    sleep
+  } from "../../utils";
+  import header from '../../components/common/header'
+  const store = getStore();
+    @connect({
+        token(state) {
+            return state.user.token;
+        },
+    })
+  export default class TeamLearningUpload extends wepy.page {
+    components = {
+        'jn-header': header
+    }
+
+    data = {
+        sign: '',
+        btnActived: true,
+        imageList: [{
+          url: 'http://wx-small.runwise.cn/image/imageID7708f3ca8624c6ac4cf1efc1e40c.png',
+          name: '制定可行的学习计划',
+          status: 'success',
+          uid: 'xxx'
+        }, {
+          url: 'http://wx-small.runwise.cn/image/imageID3c8b03a9555462a83bfd751c4a38.png',
+          name: '制定可行的学习计划',
+          status: 'success',
+          uid: 'yyy'
+        }]
+    } // end data
+
+    methods = {
+      handleTaskUp({currentTarget:{dataset:{index}}}){
+          if(index===0)return
+          let temp = this.imageList[index]
+          this.imageList[index] = this.imageList[index-1]
+          this.imageList[index-1] = temp
+          this.$apply()
+      },
+      handleTaskDown({currentTarget:{dataset:{index}}}){
+          if(index===this.imageList.length-1)return
+          let temp = this.imageList[index]
+          this.imageList[index] = this.imageList[index+1]
+          this.imageList[index+1] = temp
+          this.$apply()
+      },
+      handleDeleteTask({currentTarget:{dataset:{index}}}){
+          this.imageList.length && this.imageList.splice(index,1)
+          this.$apply()
+      },
+      handleAddPicture() {
+        console.log(' tend to add pictrue')
+        if (4 <= this.imageList.length) return wx.showToast({
+          title: '最多可上传4张介绍图片',
+          icon: 'none'
+        })
+        const mCount = 4 - this.imageList.length
+        new Promise((resolve, reject) => {
+          wx.chooseImage({
+            count: mCount,
+            sizeType: ['original'],
+            sourceType: ['album'],
+            success: res => resolve(res),
+            fail: error => error
+          })
+        }) // end promise
+          .then(({ errMsg, tempFilePaths }) => Promise.all(tempFilePaths.map(uri => new Promise((resolve, reject) => {
+            wx.uploadFile({
+              url: `https://wx-small.runwise.cn/api/upload?token=${this.token}&sign=${this.sign}`,
+              filePath: uri,
+              name: 'file',
+              success: res => {
+                const data = JSON.parse(res.data)
+                const url = data['data']['url']
+                return 'uploadFile:ok'===res.errMsg && resolve(url) || reject(res.errMsg)
+              },
+              fail: error => error
+            })
+          }))))
+          .then((temps) => {
+            const items = temps.map(item => ({ url: item, name: '', status: 'success', uid: 'push' }))
+            this.imageList.splice(this.imageList.length, 0, ...items) // 本地追加图片
+            this.$apply()
+          }) 
+      }, 
+      handleConfirm() {
+        let mPages = getCurrentPages()
+        let mTarget = mPages.find(item => 'pages/training-camp-module/my/edit' === item.__route__ )
+        mTarget.handleSetIntroductionImage({ items: this.imageList })
+        wx.navigateBack({ delta: 1 })
+      }
+    } 
+
+    onLoad({ sign }, { preload: { imageList } }) {
+      this.sign = sign
+      this.imageList = imageList
+        wepy.$instance.globalData.getLoadHuilder() // ga统计
+      this.$apply()
+    } 
+
+  }
+</script>

@@ -1,0 +1,814 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-studying-module {
+        .module-study-bar {
+            width: 654rpx;
+            margin: 0 auto;
+            .ui-content-box {
+                box-sizing: border-box;
+                width: 654rpx;
+                height: 112rpx;
+                // padding: 14rpx 10rpx 14rpx 16rpx;
+                border-radius: @border-radius-88;
+                position: fixed;
+                bottom: 24rpx;
+                z-index: @z-index-header;
+                -webkit-animation: mytranslateIn 0.5s ease-in-out both;
+                animation: mytranslateIn 0.5s ease-in-out both;
+                transition: all .1s ease-in;
+                background-color: rgba(29, 29, 29, 0.95);
+                box-shadow: 0 8rpx 16rpx rgba(0,0,0,.25);
+                &.active {
+                    -webkit-animation: mytranslateOut 0.5s ease-in-out both;
+                    animation: mytranslateOut 0.5s ease-in-out both;
+                }
+                @keyframes mytranslateOut {
+                    0%{transform: translateY(0);opacity: 1;}
+                    100%{transform: translateY(100rpx);opacity: 0;}
+                }
+                @keyframes mytranslateIn {
+                    0%{transform: translateY(100rpx);opacity: 0;}
+                    100%{transform: translateY(0);opacity: 1;}
+                }
+                &.is-phonex {bottom: 84rpx;}
+                .ui-marquee {
+                    width: 136rpx;
+                    height: 100rpx;
+                    position: absolute;
+                    left: -116rpx;
+                    top: 0;
+                    image {
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
+                .cell-list {
+                    width: 112rpx;
+                    height: 112rpx;
+                    background-color: @background-black-43;
+                    border-radius: @border-radius-88 0 0 @border-radius-88;
+                    .flex-center();
+                    text {
+                        font-size: 38rpx;
+                        color: @color-white;
+                        text-indent: 14rpx;
+                    }
+                }
+                .ui-text-box {
+                    flex: 1;
+                    border-radius: 0 @border-radius-88 @border-radius-88 0;
+                    .ui-title {
+                        width: 440rpx;
+                        height: 112rpx;
+                        padding-left: 50rpx;
+                        box-sizing: border-box;
+                        position: relative;
+                        display: flex;
+                        justify-content: center;
+                        align-items: flex-start;
+                        flex-direction: column;
+                        .cell-title {
+                            font-size: 32rpx;
+                            color: @color-white;
+                            width: 344rpx;
+                            text-align: left;
+                        }
+                        .cell-subtitle {
+                            font-size: 20rpx;
+                            color: @color-gray;
+                            line-height: 1.5;
+                        }
+                    }
+                    .ui-button {
+                        width: 148rpx;
+                        height: 100%;
+                        font-size: 24rpx;
+                        color: @color-blue;
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        .flex-center();
+                        text {
+                            color: @color-blue;
+                            margin-left: 22rpx;
+                            font-size: 44rpx;
+                        }
+                        .ui-locked-icon {
+                            width: 100rpx;
+                            margin-top: 10rpx;
+                        }
+                    }
+                }
+                
+                .ui-font-red {
+                    color: @color-red;
+                }
+            }
+        }
+        .module-study-bar-empty {
+            width: 654rpx;
+            margin: 0 auto;
+            .ui-content-box {
+                box-sizing: border-box;
+                width: 654rpx;
+                height: 112rpx;
+                position: fixed;
+                bottom: 24rpx;
+                z-index: @z-index-header;
+                overflow: hidden;
+                -webkit-animation: mytranslateIn 0.5s ease-in-out both;
+                animation: mytranslateIn 0.5s ease-in-out both;
+                transition: all .1s ease-in;
+                &.active {
+                    -webkit-animation: mytranslateOut 0.5s ease-in-out both;
+                    animation: mytranslateOut 0.5s ease-in-out both;
+                }
+                @keyframes mytranslateOut {
+                    0%{transform: translateY(0);opacity: 1;}
+                    100%{transform: translateY(100rpx);opacity: 0;}
+                }
+                @keyframes mytranslateIn {
+                    0%{transform: translateY(100rpx);opacity: 0;}
+                    100%{transform: translateY(0);opacity: 1;}
+                }
+                &.is-phonex {bottom: 84rpx;}
+                .ui-get-course-button {
+                    
+                    .flex-center();
+                    button {
+                        .flex-center();
+                        width: 654rpx;
+                        height: 88rpx;
+                        font-size: 32rpx;
+                        font-weight: bold;
+                        color: @color-white;
+                        background: @background-blue;
+                        border-radius: @border-radius-16;
+                    }
+                }
+            }
+        }
+        
+        .ui-study-list-box {
+            box-sizing: border-box;
+            view {
+                box-sizing: border-box;
+            }
+            &.is-show-list {
+                .ui-mask {
+                    width: 100%;
+                    height: 100%;
+                    background-color: @background-mask-slightly;
+                    position: fixed;
+                    bottom: 0px;
+                    left: 0;
+                    z-index: @z-index-mask;
+                }
+                .ui-scroll-box {
+                    transform: translateY(0);
+                }
+            }
+            .ui-scroll-box {
+                width: 100%;
+                height: 80%;
+                background-color: @color-white;
+                border-top-right-radius: @border-radius-32;
+                border-top-left-radius: @border-radius-32;
+                overflow: hidden;
+                position: fixed;
+                bottom: 0px;
+                left: 0;
+                z-index: @z-index-highest;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                transform: translateY(140%);
+                transition: all .4s ease-in-out;
+                animation-delay: .5s;
+                .cell-margin {
+                    height: 88rpx;
+                    width: 100%;
+                }
+            }
+            .ui-pack-up-button {
+                width: 100%;
+                height: 64rpx;
+                background-color: @color-white;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: @z-index-lower;
+                text {
+                    display: block;
+                    color: @background-gray-d6;
+                    font-size: 24rpx;
+                }
+                .cell-border {
+                    width: 72rpx;
+                    height: 10rpx;
+                    background: @background-mask-normal-1;
+                    border-radius: @border-radius-8;
+                }
+            }
+            .ui-container {
+                width: 100%;
+                height: 100%;
+            }
+            .is-delete {
+                height: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                transition: all .5s ease-in-out;
+            }
+            .ui-sence-list {
+                border-bottom: solid 1rpx @border-gray;
+                padding-bottom: 2rpx;
+                &:nth-last-of-type(1) {
+                    padding-bottom: 0;
+                }
+                .cell-sence-title {
+                    width: 100%;
+                    height: 76rpx;
+                    padding: 0 32rpx;
+                    background-color: @background-white;
+                    font-size: 40rpx;
+                    font-weight: bold;
+                    color: @color-black;
+                    line-height: 1;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    margin-top: 60rpx;
+                    &.active {
+                        color: @color-blue;
+                    }
+                }
+                .ui-item {
+                    width: auto;
+                    height: 144rpx;
+                    margin: 0 32rpx;
+                    background-color: @background-white;
+                    position: relative;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    &+.ui-item{
+                        border-top:solid 1rpx @border-gray;
+                    }
+                    &.is-add-init {
+                        height: 0;
+                        padding: 0;
+                        margin: 0;
+                        opacity: 0;
+                        transform: translateX(-100rpx);
+                    }
+                    &.is-add {
+                        height: 144rpx;
+                        margin: 0 32rpx;
+                        transition: all .5s ease-in-out;
+                    }
+                    &::before {
+                        content: ' ';
+                        height:0;
+                        background-color: @border-gray;
+                        position: absolute;
+                        left: 32rpx;
+                        right: 32rpx;
+                        bottom: 0rpx;
+                    }
+                    &:nth-last-of-type(1)::before {
+                        height: 0;
+                    }
+                    .ui-thumb {
+                        width: 112rpx;
+                        height: 112rpx;
+                        border-radius: @border-radius-20;
+                        overflow: hidden;
+                        image {
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                    .ui-content {
+                        
+                        .cell-title {
+                            width: 384rpx;
+                            font-size: 32rpx;
+                            color: @color-black;
+                            text-align: left;
+                            line-height: 44rpx;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+                        }
+                        .cell-subtitle {
+                            width: 324rpx;
+                            font-size: 26rpx;
+                            color: @color-gray;
+                            line-height: 26rpx;
+                            text-align: left;
+                            text:nth-of-type(1) {
+                                padding-right: 12rpx;
+                                color: @color-black;
+                                line-height: 20rpx;
+                            }
+                        }
+                    }
+                    .ui-locked-box {
+                        .flex-center();
+                        .ui-locked-icon {
+                            width: 48rpx;
+                            height: 48rpx;
+                        }
+                    }
+                }
+            }
+        }
+        .ui-list-button-tips {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: @z-index-special;
+            .ui-tips-mask {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: @background-mask-slightly;
+                z-index: @z-index-special;
+            }
+            .ui-tips-content {
+                width: 100%;
+                .flex-center();
+                background: transparent;
+                .ui-done-box {
+                    width: 656rpx;
+                    z-index: @z-index-special;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+                    .cell-list-icon {
+                        width: 100rpx;
+                        height: 100rpx;
+                        margin-bottom: 28rpx;
+                        margin-left: 20rpx;
+                    }
+                    .cell-list-text {
+                        width: 524rpx;
+                        height: 154rpx;
+                        margin-bottom: 35rpx;
+                    }
+                }
+            }
+            .is-iphonex {
+                padding-bottom: 68rpx;
+            }
+        }
+    }
+    /* 旧的颜色进度条 rgba(201, 218, 245, 0.95) */
+</style>
+
+<template>
+    <view class="ui-studying-module" wx:if="{{isLearning}}">
+        <view class="module-study-bar cross-center" wx:if="{{isShowBar}}">
+            <view class="ui-content-box dir-left main-justify {{isIphonex ? 'is-phonex':''}}" :class="{'active': !isAndroid && !direction}">
+                <!-- <view class="ui-marquee lightSpeedOut">
+                    <image mode="scaleToFill" src="http://wx-small.runwise.cn/image/imageID7cf1707d2de40c8d4c03cbfc26df.png"></image>
+                </view> -->
+                <view class="cell-list" @tap.stop="getShowList">
+                    <text class="icon-list"></text>
+                </view>
+                <view class="ui-text-box" style="background:linear-gradient(to right, rgba(0, 122, 255, 0.25) {{continueSenceInfo.progress ? 0 : 0}}% , rgba(29, 29, 29, 0.95) 0);" data-name="{{continueSenceInfo.senceName}}" data-source="studyBar" @tap.stop="getContinue">
+                    <view class="ui-title">
+                        <text class="cell-title text-overflow">{{continueSenceInfo.senceName}}</text>
+                        <text class="cell-subtitle">正在学的微课</text>
+                    </view>
+                    <view class="ui-button">
+                        <text class="icon-right" wx:if="{{!disabled}}"></text>
+                        <image mode="widthFix" class="ui-locked-icon" src="../../assets/img/locked3.svg" wx:else></image>
+                    </view>
+                </view>
+            </view>
+        </view>
+        <view class="module-study-bar-empty" wx:else>
+            <view class="ui-content-box dir-left main-justify {{isIphonex ? 'is-phonex':''}}" :class="{'active': !isAndroid && !direction}">
+                <view class="ui-get-course-button" >
+                    <button @tap.stop="goCoursePage">继续选课</button>
+                </view>
+            </view>
+        </view> 
+        
+        <view class="ui-study-list-box" :class="{'is-show-list': isShowList}">
+            <view class="ui-mask" @tap.stop="getHideList"></view>
+            <view class="ui-scroll-box">
+                <view class="ui-pack-up-button cross-center main-center" @tap.stop="getHideList">
+                    <text class="cell-border"></text>
+                </view>
+                <scroll-view class="ui-container" scroll-y>
+                    <repeat for="{{learningSenceList}}" key="dataIndex" index="dataIndex" item="data">
+                        <view class="ui-sence-list" :class="{'fadeOutRight': data.isMove, 'is-delete': data.isDelete}">
+                            <view class="cell-sence-title cross-center" hover-class="active" data-item="{{data}}" @tap.stop="getCourseDetails">{{data.courseName}}</view>
+                            <repeat for="{{data.senceList}}" key="index" index="index" item="item">
+                                <view class="ui-item" :class="{'fadeOutRight': item.isMove, 'is-delete': item.isDelete, 'is-add-init': item.isAddInit, 'is-add': item.isAdd, 'fadeOutLeft': item.isMoveLeft}" data-item="{{item}}" data-source="studyBarList" data-type="{{courseType[1]}}"
+                                    @tap.stop="getContinue">
+                                    
+                                    <view class="ui-content">
+                                        <view class="cell-title">{{item.senceName}}</view>
+                                        <view class="cell-subtitle">{{item.senceSkillName}}</view>
+                                    </view>
+                                    <view class="ui-circular-progress" wx:if="{{!disabled}}">
+                                        <view class="cell-progress-number main-center cross-center">{{item.progress || 0}}%</view>
+                                        <view class="ui-wrapper ui-right">
+                                            <view class="cell-circle-right" style="transform:rotate({{item.progress <= 50 ? (-135 + 3.6 * item.progress) : 45}}deg);"></view>
+                                        </view>
+                                        <view class="ui-wrapper ui-left">
+                                            <view class="cell-circle-left" style="transform:rotate({{item.progress > 50 ? (-135 + 3.6 * (item.progress - 50)) : -135}}deg);"></view>
+                                        </view>
+                                    </view>
+                                    <view class="ui-locked-box flex-box-0" wx:else>
+                                        <image class="ui-locked-icon" src="../../assets/img/locked2.svg"></image>
+                                    </view>
+                                </view>
+                            </repeat>
+                        </view>
+                    </repeat>
+                    <view class="cell-margin"></view>
+                </scroll-view>
+            </view>
+        </view>
+        <view class="ui-list-button-tips" wx:if="{{isShowListButtonTips}}" @tap.stop="hideBarBottonTips" catchtouchmove="true">
+            <view class="ui-tips-mask"></view>
+            <view class="ui-tips-content {{isIphonex ? 'is-iphonex':''}}">
+                <view class="ui-done-box">
+                    <image mode="widthFix" class="cell-list-icon" src="../../assets/img/imgIistIcon.png"></image>
+                    <image mode="widthFix" class="cell-list-text" src="../../assets/img/imgGuideText.png"></image>
+                </view>
+            </view>
+        </view>
+        <view style="display:none"></view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {
+        getStore,
+        connect
+    } from 'wepy-redux'
+    import {
+        fetch
+    } from '../../api'
+    import {
+        initializationDeligate,
+        navigateToLesson
+    } from '../../utils'
+    import _ from 'underscore'
+    import countdown from './countdown'
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        entrance(state) { // 全局场景值
+            return state.entrance
+        }
+    })
+    export default class studyingBar extends wepy.component {
+        props = {
+            scrollTop: {
+                type: Number,
+                default: -1
+            },
+            isLearning: {
+                type: Boolean,
+                default:null
+            },
+            disabled: {
+                type: Boolean,
+                default: false
+            }
+        }
+        components = {
+            'countdown': countdown
+        }
+        watch = {
+            
+        }
+        computed = {
+            /**
+             * 监听滚动的方向，{1: 向下, 0: 向上}
+             * @returns {number}
+             */
+            direction() {
+                let self = this
+                let flag = (self.scrollTop <= self.oldScrollTop || self.scrollTop <= 5) ? 1 : 0
+                setTimeout(() => {
+                    self.oldScrollTop = self.scrollTop
+                }, 120)
+                return flag
+            }
+        }
+        data = {
+            isAndroid: /android/i.test(wx.getSystemInfoSync().system),
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isShowBar: true,
+            isShowList: false,
+            isRefresh: false,
+            oldScrollTop: 0,
+            continueSenceInfo: {},
+            learningSenceList: [],
+            newContinueSenceInfo: {},
+            newLearningSenceList: [],
+            source: 'continueList',
+            courseType: ['button', 'list'],
+            isShowListButtonTips: false, //
+        }
+        onLoad() {
+            let self = this
+        }
+        /**
+         * 获取正在学习的数据
+         */
+        __learningSenceList() {
+            let self = this
+            fetch.getMyLearningSenceList({
+                token: self.systemInfo.token
+            }).then(response => {
+                self.isRefresh = !response.learningSenceList.length
+                //是否展示学习bar列表按钮提示
+                self.isShowListButtonTips = response.isShowLearningBar
+                // 是否没有待学习课
+                if (!response.learningSenceList.length) {
+                    response.continueSence.isComplete = true
+                }
+                self.continueSenceInfo = _.clone(response.continueSence)
+                
+                if (!self.learningSenceList.length || !self.isShowList) {
+                    self.learningSenceList = _.clone(response.learningSenceList)
+                } else {
+                    self.newContinueSenceInfo = _.clone(response.continueSence)
+                    self.newLearningSenceList = _.clone(response.learningSenceList)
+                    self.__animation(response)
+                }
+                self.isShowBar = response.learningSenceList.length ? true : false
+                self.$emit('on-is-studying-bar', {
+                    isShowBar: self.isShowBar
+                })
+                self.$apply()
+            })
+        }
+        /**
+         * 对比数据，做运动动效
+         */
+        __animation(newData) {
+            let self = this
+            _.each(self.learningSenceList, (data, index) => {
+                let course = _.find(newData.learningSenceList, {
+                    courseID: data.courseID
+                })
+                // 没有这个课程系列，需要这个移除掉
+                if (!course) {
+                    data.isMove = true
+                    self.$apply()
+                    setTimeout(() => {
+                        data.isDelete = true
+                        self.$apply()
+                    }, 600)
+                    return false
+                }
+                let senceList = []
+                let times = 200
+                _.each(course.senceList, (item, cIndex) => {
+                    let sence = _.find(data.senceList, {
+                        senceID: item.senceID
+                    })
+                    if (sence) {
+                        return false
+                    }
+                    times = 1000
+                    item.srcAdd = true // 标识是添加的
+                    senceList.push(item)
+                })
+                let newSenceList = _.union(senceList, data.senceList)
+                // 再次对比微课
+                _.each(newSenceList, (item, cIndex) => {
+                    let sence = _.find(course.senceList, {
+                        senceID: item.senceID
+                    })
+                    if (item.srcAdd) {
+                        item.isAddInit = true
+                        setTimeout(() => {
+                            item.isAdd = true
+                            self.$apply()
+                            setTimeout(() => {
+                                item.isMoveLeft = true
+                                self.$apply()
+                            }, 600)
+                        }, cIndex * 200)
+                    }
+                    if (!sence) {
+                        setTimeout(() => {
+                            item.isMove = true
+                            self.$apply()
+                            setTimeout(() => {
+                                item.isDelete = true
+                                self.$apply()
+                            }, 600)
+                        }, cIndex * times)
+                    } else {
+                        item.progress = sence.progress
+                        self.$apply()
+                    }
+                })
+                data.senceList = newSenceList
+            })
+        }
+        /**
+         * 通知父组件，是否禁止滚动
+         * @private
+         */
+        __emit() {
+            let self = this
+            self.$emit('on-studying-bar', {
+                isShow: !self.isShowList
+            })
+        }
+        /**
+         * 通知父组件，是否禁止滚动
+         * @private
+         */
+        __refreshData() {
+            let self = this
+            if (self.newLearningSenceList.length || self.isRefresh) {
+                self.continueSenceInfo = _.clone(self.newContinueSenceInfo)
+                self.learningSenceList = _.clone(self.newLearningSenceList)
+            }
+        }
+        /**
+         * 获得当前tab
+         * @private
+         */
+        __currentRount() {
+            let rounter = getCurrentPages()
+            let currentRount = rounter[rounter.length - 1].route;
+            let name = ''
+            switch (currentRount) {
+                case 'pages/tabPages/find':
+                    name = '发现页/学习bar'
+                    break
+                case 'pages/tabPages/course':
+                    name = '课程页/学习bar'
+                    break
+                case 'pages/tabPages/userCenter':
+                    name = '我的页/学习bar'
+                    break
+                case 'pages/tabPages/home':
+                    name = '今日页/学习bar'
+                    break
+            }
+            return name
+        }
+        /**
+         * 获得当前tab
+         * @private
+         */
+        __currentEnglishRount() {
+            let rounter = getCurrentPages()
+            let currentRount = rounter[rounter.length - 1].route;
+            let name = ''
+            switch (currentRount) {
+                case 'pages/tabPages/home':
+                    name = 'todaytab/studybar'
+                    break
+                case 'pages/tabPages/find':
+                    name = 'discovertab/studybar'
+                    break
+                case 'pages/tabPages/course':
+                    name = 'coursetab/studybar'
+                    break
+                case 'pages/tabPages/userCenter':
+                    name = 'usertab/studybar'
+                    break
+            }
+            return name
+        }
+        /**
+         * ga，埋点
+         * @private
+         */
+        __gaReportAnalytics(senceName) {
+            let self = this
+            let name = self.__currentRount()
+            name && wepy.$instance.globalData.getHuilder(`${name}/马上学习`, 'click', `${senceName}`)
+        }
+        methods = {
+            goCoursePage() {
+                wepy.switchTab({ url: '/pages/tabPages/course'})
+            },
+            /**
+             * 隐藏学习bar列表按钮的提示
+             */
+            hideBarBottonTips() {
+                this.isShowListButtonTips = false
+                this.$apply()
+            },
+            /**
+             * 显示正在学习的课程列表信息
+             */
+            getShowList() {
+                let self = this
+                self.isShowList = true
+                let name = self.__currentRount()
+                wepy.$instance.globalData.getHuilder(`${name}/展开学习列表`, 'click', '')
+                self.$apply()
+                self.__emit()
+            },
+            /**
+             * 隐藏
+             */
+            getHideList() {
+                let self = this
+                self.isShowList = false
+                let name = self.__currentRount()
+                wepy.$instance.globalData.getHuilder(`${name}/学习列表/折叠学习列表`, 'click', '')
+                self.$apply()
+                self.__emit()
+            },
+            /**
+             * 继续学习
+             */
+            getContinue(event) {
+                let self = this
+                let continueSenceInfo = self.continueSenceInfo
+                //锁住不能点
+                if(self.disabled)return;
+                // 如果是全部完成了，点击无效
+                if (continueSenceInfo.isComplete) {
+                    return
+                }
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item = continueSenceInfo,
+                            source
+                        }
+                    }
+                } = event
+                let sourceRoute = source;
+                let name = item.senceName;
+                let courseID = item.courseID;
+                let senceID = item.senceID;
+                let routeName = self.__currentEnglishRount();
+                let routeChName = self.__currentRount();
+                if ('studyBar' === sourceRoute) {
+                    self.__gaReportAnalytics(name)
+                    sourceRoute = routeName
+                } else {
+                    wepy.$instance.globalData.getHuilder(`${routeChName}/学习列表/微课学习`, 'click', `${name}`)
+                    sourceRoute = routeName + '/list'
+                }
+                self.__refreshData()
+                navigateToLesson({
+                    courseID,
+                    senceID,
+                    source: sourceRoute
+                })
+            },
+            /**
+             * 课程详情
+             */
+            getCourseDetails(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item
+                        }
+                    }
+                } = event
+                let name = self.__currentRount()
+                wepy.$instance.globalData.getHuilder(`${name}/学习列表/去课程详情页`, 'click', `${item.courseName}`)
+                self.__refreshData()
+                wx.navigateTo({
+                    url: `/pages/course-module/course-details?id=${item.courseID}`
+                })
+            }
+        }
+        events = {
+            // 监听页面加载结束，启动刷新数据
+            'studying-bar': () => {
+                let self = this
+                initializationDeligate({
+                    initializeFunc: self.__learningSenceList.bind(self)
+                })
+            }
+        }
+    }
+</script>

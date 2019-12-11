@@ -1,0 +1,341 @@
+<style lang="less" scoped>
+    @import "../../../assets/style/theme";
+    page{
+        background-color: #f1f2f5 !important;
+    }
+    .team-publish-body{
+        width: 100%;
+        height: 100%;
+        background-color: #f1f2f5;
+        position: relative;
+    }
+
+    .team-publish-scroll{
+        width: 100%;
+        border-top: 2rpx solid #f1f2f5;
+
+    }
+    .team-publish-input{
+        width: 100%;
+        height: 288rpx;
+        background-color: #fff;
+        box-sizing: border-box;
+        padding: 46rpx 40rpx;
+        font-size: 32rpx;
+        color: #14292C;
+
+    }
+    .team-publish-input-tip{
+        width: 100%;
+        height: 62rpx;
+        text-align: right;
+        background-color: #fff;
+        box-sizing: border-box;
+        padding: 0rpx 26rpx;
+        font-family: PingFangSC-Regular;
+        font-size: 28rpx;
+        color: #A1A9AB;
+    }
+    .pushlink-body__footer-btn-wapper {
+        width: 100%;
+        height: 140rpx;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #FFF;
+        border-top: #f1f2f5 2rpx solid;
+        z-index: 1100;
+    }
+    .pushlink-body__footer-btn {
+        width: 614rpx;
+        height: 88rpx;
+        line-height: 88rpx;
+        background-color: #2DB7B5 !important;
+        color: #FFF !important;
+        border: 0 !important;
+        border-radius: 50rpx;
+    }
+    .disable {
+        opacity: 0.2;
+    }
+    .test-wrapper{
+        width: 100%;
+        background-color: #f1f2f5;
+        padding-top: 48rpx;
+    }
+    .team-publish-sence-wrapper{
+        width: 670rpx;
+        height: 180rpx;
+        background-color: #fff;
+        border-radius: 24rpx;
+        margin-left: 42rpx;
+        display:flex;
+        align-items: center;
+        box-sizing: border-box;
+        position: relative;
+    }
+    .team-publish-sence-wrapper-before{
+        width: 40rpx;
+        height: 40rpx;
+        left: -20rpx;
+        border-radius: 50%;
+        background-color: #D81352;
+        position: absolute;
+        color: #fff;
+        font-size: 24rpx;
+        text-align: center;
+        line-height: 35rpx;
+        font-weight: bold;
+    }
+    .team-publish-add-sence-icon{
+        width: 40rpx;
+        height: 40rpx;
+        margin-right: 20rpx;
+    }
+    .team-publish-add-sence{
+        font-family: PingFangSC-Regular;
+        font-size: 16px;
+        color: #2DB7B5;
+    }
+    .team-publish-sence-icon{
+        width: 120rpx;
+        height: 120rpx;
+        margin-left: 60rpx;
+    }
+    .team-publish-sence-text{
+        width: 340rpx;
+        margin-left: 16rpx;
+        overflow: hidden;
+        font-family: PingFangSC-Semibold;
+        font-size: 32rpx;
+        color: #303F48;
+        line-height: 40rpx;
+    }
+    .team-publish-sence-desc{
+        margin-top: 20rpx;
+        font-family: PingFangSC-Regular;
+        font-size: 24rpx;
+        color: #778D9A;
+        line-height: 25rpx;
+    }
+    .team-publish-sence-up{
+        position: absolute;
+        width: 48rpx;
+        height: 48rpx;
+        top: 26rpx;
+        right: 36rpx;
+    }
+    .team-publish-sence-down{
+        position: absolute;
+        width: 48rpx;
+        height: 48rpx;
+        bottom: 26rpx;
+        right: 36rpx;
+    }
+</style>
+<template>
+    <view class="team-publish-body">
+        <!-- <view style="width:100%;overflow-y:auto;height:100%;"> -->
+
+        <scroll-view class="team-publish-scroll" scroll-y="{{true}}">
+            <jn-header title="发布任务"></jn-header>
+            <textarea class="team-publish-input"
+                      value="{{inputValue}}"
+                      focus="{{false}}" placeholder="任务介绍"
+                      bindinput="handleCommentInput" maxlength="{{64}}"></textarea>
+            <view class="team-publish-input-tip">还可以输入{{computeInputChar}}个字</view>
+            <view class="test-wrapper" wx:for="{{senceList}}" wx:key="{{index}}">
+                <view class="team-publish-sence-wrapper">
+                    <image @tap.stop="handleDeleteTask" data-index="{{index}}"
+                           class="team-publish-sence-wrapper-before"
+                           src="http://wx-small.runwise.cn/image/imageID14735f999cf41e9cb902cf1c239c.png"></image>
+                    <image class="team-publish-sence-icon" mode="aspectFill" src="{{item.imageUrl}}"/>
+                    <view class="team-publish-sence-text">
+                        <view>{{item.name}}</view>
+                        <view class="team-publish-sence-desc">{{item.skillGroup}}</view>
+                    </view>
+                    <image @tap.stop="handleTaskUp" data-index="{{index}}" class="team-publish-sence-up"
+                           src="http://wx-small.runwise.cn/image/imageIDf381d652a814f1a83c4e54f47e5b.png"/>
+                    <image @tap.stop="handleTaskDown" data-index="{{index}}" class="team-publish-sence-down"
+                           src="http://wx-small.runwise.cn/image/imageIDb5b853e866e476803dbb5cc63cf1.png"/>
+                </view>
+            </view>
+            <view class="test-wrapper">
+                <view @tap.stop="handleAddTask" class="team-publish-sence-wrapper"
+                      style="justify-content:center;align-items:center;">
+                    <image class="team-publish-add-sence-icon"
+                           src="http://wx-small.runwise.cn/image/imageIDea57a924312483ae134e6c075340.png"></image>
+                    <text class="team-publish-add-sence">添加课程</text>
+                </view>
+            </view>
+            <view style="height:180rpx;width:100%;background-color:#f1f2f5;"/>
+
+        </scroll-view>
+        <view class="pushlink-body__footer-btn-wapper" style="{{ipX?'border-bottom:40rpx solid #ffffff':''}}">
+            <button wx:if="{{btnActived}}" class="pushlink-body__footer-btn " plain="{{ true }}"
+                    @tap.stop="handleSubmit">发 布
+            </button>
+            <button wx:else class="pushlink-body__footer-btn disable" plain="{{ true }}">发 布</button>
+        </view>
+    </view>
+</template>
+<script>
+    import wepy from "wepy";
+    import {getStore, connect} from "wepy-redux";
+    import {team as teamApi,} from "../../../api";
+    import header from '../../../components/common/header'
+
+    const store = getStore();
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        }, // mapState 即getters
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            //   return 'userIDf6baae6dfe454ce7ae4bbcba365226c2-1524537036425-2fdbb184ae6d2c535dd58bdff5eed970'
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        },
+        role(state) {
+            return state.user.role
+        },
+        entrance(state) {
+            return state.entrance
+        },
+        ipX(state) {
+            return state.user.equipmentModel.startsWith('iPhone X')
+        }
+    })
+    export default class TeamLearningPublish extends wepy.page {
+        data = {
+            teamID: '',
+            taskID: '',
+            taskBaseDate: '',
+            inputValue: '',
+            btnActived: false,
+            senceList: [],
+            courseSenceList: []
+        }
+        components = {
+            'jn-header': header
+        }
+        methods = {
+            handleTaskUp({currentTarget: {dataset: {index}}}) {
+                if (index === 0) return
+                let temp = this.senceList[index]
+                this.senceList[index] = this.senceList[index - 1]
+                this.senceList[index - 1] = temp
+                this.$apply()
+            },
+            handleTaskDown({currentTarget: {dataset: {index}}}) {
+                if (index === this.senceList.length - 1) return
+                let temp = this.senceList[index]
+                this.senceList[index] = this.senceList[index + 1]
+                this.senceList[index + 1] = temp
+                this.$apply()
+            },
+            handleDeleteTask({currentTarget: {dataset: {index}}}) {
+                this.senceList.splice(index, 1)
+                this.checkBtnAva()
+                this.$apply()
+            },
+            handleAddTask() {
+                // this.senceList.push({})
+                // this.$apply()
+                const selectedIDs = this.senceList.map(item => item.id)
+                this.$preload({
+                    courses: this.courseSenceList.map(course => ((pCourse) => {
+                        const {id, name, senceList} = pCourse
+                        return {
+                            id, name, isShow: true, richText: [], sences: course.senceList.map(item => {
+                                let mMatchSence = this.senceList.find(sence => sence.id === item.id)
+                                return ({
+                                    ...item,
+                                    isShow: true,
+                                    isSelected: selectedIDs.some(id => id === item.id),
+                                    richText: [],
+                                    timestamp: mMatchSence && mMatchSence['timestamp'] || 0
+                                })
+                            })
+                        }
+                    })(course))
+                })
+                this.$navigate(`/pages/training-camp-module/add-task`)
+            },
+            handleCommentInput({detail: {value}}) {
+                this.inputValue = value
+                this.checkBtnAva()
+            },
+            handleSubmit() {
+                wx.showLoading({
+                    title: '发布中',
+                    mask: true
+                })
+                teamApi.editTeamTaskDone({
+                    token: this.token,
+                    taskDescription: this.inputValue,
+                    date: this.taskBaseDate,
+                    teamID: this.teamID,
+                    taskID: this.taskID,
+                    list: this.senceList.map(item => ({
+                        contentID: item.contentID,
+                        id: item.id,
+                        imageUrl: item.imageUrl,
+                        isSelected: item.isSelected,
+                        name: item.name,
+                        skillGroup: item.skillGroup,
+                        courseID: item.courseID
+                    }))
+                }).then(data => {
+                    wx.hideLoading()
+                    wx.navigateBack({
+                        delta: 1
+                    })
+                }).catch(err => {
+                    wx.hideLoading()
+                })
+            },
+            handleAppendTaks({sences}) {
+                // return console.log('tend to append tasks', sences)
+                if (0 === sences.length) throw 'empty senceList which tend to append'
+                this.senceList = sences
+                this.checkBtnAva()
+            } // end handleAppendTaks
+        }; // end methods
+        checkBtnAva() {
+            this.btnActived = this.senceList.length ? true : false
+        }
+
+        computed = {
+            computeInputChar() {
+                return 64 - this.inputValue.replace(/\s/g, "").length
+            }
+        }; // end computed
+        onLoad({taskID = '', date = '', teamID = ''}) {
+            this.taskID = taskID
+            this.taskBaseDate = date
+            this.teamID = teamID
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            teamApi.editTeamTaskInitPage({token: this.token, date, taskID})
+                .then(data => {
+                    this.inputValue = data.taskDescription
+                    this.senceList = data.taskSenceList
+                    this.courseSenceList = data.courseSenceList
+                    this.checkBtnAva()
+                    this.$apply()
+                })
+        } // end onLoad
+        onShow() {
+
+        } // end show
+    }
+</script>
+
+

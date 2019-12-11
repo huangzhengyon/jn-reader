@@ -1,0 +1,502 @@
+<template>
+    <mloading wx:if="{{ !isLoaded }}"/>
+    <view wx:else class="tc-canvas-wrapper">
+
+        <view id="tc-article-preview" class="tc-article"
+              style="display:flex;flex-direction:column;justify-content:space-between;">
+            <jn-header title="邀请好友"></jn-header>
+            <view class="tc-article__preview" catchtap="handlePreviewSaveImage">
+                <view class="flex-space-between-row tc-article__preview__top">
+                    <view class="tc-article__preview__top__left">
+                        <text class="tc-article__preview__top__left__user-name">{{ userName }}</text>
+                        <text class="tc-article__preview__top__left__tips">邀请你参加训练营</text>
+                    </view><!-- left -->
+                    <image class="tc-article__preview__top__right-cion" src="{{ avatar }}" mode="scaleToFill"></image>
+                </view><!-- top -->
+                <text class="tc-article__title">{{ title }}</text>
+                <text class="tc-article__teacher">{{ teacher }}</text>
+                <text class="tc-article__date">{{ beginDate }}</text>
+                <text class="tc-article__date" style="margin-top:16rpx;">{{ teamEndDate }}</text>
+                <view class="flex-space-between-row tc-article__last-row">
+                    <image class="tc-article__last-row__qrcode" src="{{ qrCodeImage }}" mode="scaleToFill"></image>
+                    <text wx:if="{{ false }}" class="tc-article__last-row__instruction">邀请卡</text>
+                </view><!-- last-row -->
+                <text class="tc-article__tips">点击图片长按可直接转发给好友</text>
+            </view><!-- preview -->
+            <!-- <button class="tc-article__btn" hover-class="tc-article__btn-hover" @tap.stop="handleSaveToAlbum">保存到相册</button> -->
+            <view class="fill-blank-view"/>
+        </view><!-- article -->
+        <view style="width:100%;height:1000rpx;"/>
+
+        <canvas canvas-id="myCanvas"
+                style="border: 1px solid red; width: {{ viewPort.width * viewPort.pixelRatio }}px; height: {{ viewPort.height * viewPort.pixelRatio }}px;"/>
+
+    </view><!-- wrapper -->
+
+</template>
+
+<style lang="less">
+  .fill-blank-view{
+    width:100%;
+    flex:1;
+    overflow:hidden;
+    background-image: url('http://wx-small.runwise.cn/image/imageID0f7e181bafd46f9c7b90feeed179.png');
+    background-size: cover;
+    background-position: top center;
+    background-repeat: no-repeat;
+  }
+  ::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    background-color: transparent !important;
+  }
+
+  .tc-canvas-wrapper {
+    width: 750rpx;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .tc-article {
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+    align-items: center;
+    background-color: #FFF;
+  }
+
+  .tc-article__preview {
+    width: 100%;
+    height: 1206rpx;
+    box-sizing: border-box;
+    padding: 176rpx 72rpx 118rpx;
+    background-image: url('http://wx-small.runwise.cn/image/imageIDa464c043be54469db75d9b8ec62b.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 1206rpx;
+    position: relative;
+  }
+
+  .tc-article__preview__top {
+    margin: 54rpx 48rpx 42rpx;
+  }
+
+  .tc-article__preview__top__left {
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .tc-article__preview__top__left__user-name {
+    display: block;
+    font-family: PingFangSC-Regular;
+    font-size: 36rpx;
+    color: #14292C;
+    line-height: 36rpx;
+  }
+
+  .tc-article__preview__top__left__tips {
+    display: block;
+    font-family: PingFangSC-Regular;
+    font-size: 24rpx;
+    color: #5A696B;
+  }
+
+  .tc-article__preview__top__right-cion {
+    width: 80rpx;
+    height: 80rpx;
+    display: block;
+  }
+
+  .tc-article__title {
+    width: 452rpx;
+    height: 132rpx;
+    margin-left: 48rpx;
+    margin-right: auto;
+    display: block;
+    font-family: PingFangSC-Semibold;
+    font-size: 48rpx;
+    line-height: 110%;
+    color: #14292C;
+  }
+
+  .tc-article__teacher {
+    margin-top: 42rpx;
+    margin-bottom: 16rpx;
+    display: block;
+    text-indent: 48rpx;
+    font-family: PingFangSC-Regular;
+    font-size: 32rpx;
+    line-height: 44rpx;
+    color: #4A4A4A;
+  }
+
+  .tc-article__date {
+    display: block;
+    text-indent: 48rpx;
+    font-family: PingFangSC-Regular;
+    font-size: 32rpx;
+    line-height: 44rpx;
+    color: #4A4A4A;
+  }
+
+  .tc-article__last-row {
+    margin: 104rpx 48rpx auto;
+  }
+
+  .tc-article__last-row__qrcode {
+    width: 166rpx;
+    height: 166rpx;
+    display: block;
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .tc-article__last-row__instruction {
+    display: block;
+    align-self: flex-end;
+    font-family: PingFangSC-Regular;
+    font-size: 32rpx;
+    line-height: 44rpx;
+    color: #4A4A4A;
+  }
+
+  .tc-article__footer {
+    flex: 1;
+  }
+
+  .tc-article__btn::after{
+    border:0 !important;
+  }
+
+  .tc-article__btn {
+    width: 480rpx;
+    height: 88rpx;
+    margin-top: 48.4rpx;
+    margin-bottom: 32rpx;
+    border-radius: 44rpx;
+    background-color: #2DB7B5;
+    font-family: PingFangSC-Semibold;
+    font-size: 36rpx;
+    color: #FFF;
+    letter-spacing: 1.64rpx;
+    text-align: center;
+  }
+
+  .tc-article__btn-hover {
+    background-color: #269B99 !important;
+  }
+
+  .tc-article__tips {
+    margin-top: 0;
+    padding-bottom: 74rpx;
+    display: block;
+    font-family: PingFangSC-Regular;
+    font-size: 28rpx;
+    text-align: center;
+    /* color: #5A696B; */
+    color:#fff;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+  }
+</style>
+
+<script>
+  import wepy from 'wepy'
+  import Loading from "../../components/common/loading";
+  import header from '../../components/common/header'
+  import { getStore, connect } from 'wepy-redux'
+  import { getStorageAsync, sleep, downLoadPhoto, drawText, canvasPreviewAndSave, shareDictionary } from "../../utils"
+  import {fetch} from '../../api'
+
+  const store = getStore()
+
+   @connect({
+    avatar(state) {
+      return state.user.avatarUrl
+    },
+    userName(state) {
+      return state.user.nickName
+    }, // mapState 即getters
+    token(state) {
+      return state.user.token
+    },
+    role(state) {
+      return state.user.role
+    },
+    phone(state) {
+      return state.user.phone
+    }
+  })
+  export default class TeamLearningCanvas extends wepy.page {
+    components = {
+      mloading: Loading,
+        'jn-header': header
+    } // end components
+
+    data = {
+      isLoaded: false,
+      teamID: '',
+      viewPort: {
+        width: 375,
+        height: 603,
+        pixelRatio: 2
+      }, //  适口大小
+      title: 'defaultTitle',
+      teacher: 'defaultTeacher',
+      beginDate: 'defaultBeginDate',
+      backgroundImage: 'https://wx-small.runwise.cn/image/imageIDa464c043be54469db75d9b8ec62b.png',
+      qrCodeImage: 'defaultQrCodeImage',
+      temporaryImage: 'defaultImage',
+      teamEndDate:'defaultEndDate'
+    } // end dat
+
+    methods = {
+      handlePreviewSaveImage() {
+        fetch.reportSharing({
+            token: this.token,
+            type: shareDictionary.SHARE_TEAM.type,
+            teamID:this.teamID
+          })
+          .catch(error => {
+            console.log('reportSharing error', error)
+          })
+
+        console.log('tend to preivew image')
+        wx.showLoading({
+          title: '正在绘制',
+          mask: true
+        })
+        return Promise.all([this.backgroundImage, this.avatar, this.qrCodeImage].map(item => downLoadPhoto(item)))
+          .then(([backgroundImage, avatarImage, qrCodeImage]) => {
+            return this.asyncDraw({
+              backgroundImage,
+              avatarImage,
+              qrCodeImage,
+              viewPortWidth: this.viewPort.width,
+              viewPortHeight: this.viewPort.height,
+              viewPortPixelRatio: this.viewPort.pixelRatio,
+              userName: this.userName,
+              title: this.title,
+              teacher: this.teacher,
+              beginDate: this.beginDate,
+              teamEndDate:this.teamEndDate
+            })
+          })
+          .then(() => new Promise((resolve, reject) => {
+            wx.canvasToTempFilePath({
+              x: 0,
+              y: 0,
+              width: this.viewPort.width * this.viewPort.pixelRatio,
+              height: this.viewPort.height * this.viewPort.pixelRatio,
+              destWidth: this.viewPort.width * this.viewPort.pixelRatio,
+              destHeight: this.viewPort.height * this.viewPort.pixelRatio,
+              canvasId: 'myCanvas',
+              fileType: 'jpg',
+              quality: 1,
+              success: ({ tempFilePath }) => resolve(tempFilePath),
+              fail: error => error
+            })
+          }))
+          .then(tmp => {
+            wx.hideLoading()
+            new Promise((resolve, reject) => {
+              wx.previewImage({
+                current: tmp,
+                urls: [tmp],
+                success: res => resolve({...res, tmp}),
+                fail: error => error
+              })
+            }) // end promise
+          })
+          .catch(error => {
+            wx.hideLoading()
+            wx.showToast({
+              title: '绘制失败',
+              icon: 'none'
+            })
+            console.log('error', error)
+          })
+      }, // end handlePreviewSaveImage
+      handleSaveToAlbum() {
+        console.log('save to album')
+        wx.showLoading({
+          title: '正在绘制保存',
+          mask: true
+        })
+        return Promise.all([this.backgroundImage, this.avatar, this.qrCodeImage].map(item => downLoadPhoto(item)))
+          .then(([backgroundImage, avatarImage, qrCodeImage]) => {
+            return this.asyncDraw({
+              backgroundImage,
+              avatarImage,
+              qrCodeImage,
+              viewPortWidth: this.viewPort.width,
+              viewPortHeight: this.viewPort.height,
+              viewPortPixelRatio: this.viewPort.pixelRatio,
+              userName: this.userName,
+              title: this.title,
+              teacher: this.teacher,
+              beginDate: this.beginDate,
+              teamEndDate:this.teamEndDate
+            })
+          })
+          .then(() => new Promise((resolve, reject) => {
+            wx.canvasToTempFilePath({
+              x: 0,
+              y: 0,
+              width: this.viewPort.width * this.viewPort.pixelRatio,
+              height: this.viewPort.height * this.viewPort.pixelRatio,
+              destWidth: this.viewPort.width * this.viewPort.pixelRatio,
+              destHeight: this.viewPort.height * this.viewPort.pixelRatio,
+              canvasId: 'myCanvas',
+              fileType: 'jpg',
+              quality: 1,
+              success: ({ tempFilePath }) => resolve(tempFilePath),
+              fail: error => error
+            })
+          }))
+          .then(tmp => {
+            wx.hideLoading()
+            return new Promise((resolve, reject) => {
+              wx.saveImageToPhotosAlbum({
+                filePath: tmp,
+                success: res => resolve(res),
+                fail: error => error
+              })
+            }) // end promise
+          })
+          .then(({ errMsg, tmp }) => {
+            if ('saveImageToPhotosAlbum:ok'!==errMsg) return false
+            this.temporaryImage = tmp
+            this.$apply()
+            wx.showToast({
+              title: '保存成功',
+              icon: 'none'
+            })
+          })
+          .catch(error => {
+            console.log('fail to draw picture due to ', error)
+            wx.hideLoading()
+            wx.showToast({
+              title: '绘制失败',
+              icon: 'none'
+            })
+          })
+
+      } // end handleSaveToAlbum
+    } // end methods
+
+    asyncDraw({
+      backgroundImage,
+      avatarImage,
+      qrCodeImage,
+      viewPortWidth,
+      viewPortHeight,
+      viewPortPixelRatio,
+      userName,
+      title,
+      teacher,
+      beginDate,
+      teamEndDate
+    }) {
+      let mCtx = wx.createCanvasContext('myCanvas')
+      console.log(`width: ${viewPortWidth}, height: ${viewPortHeight}, pixelRatio: ${viewPortPixelRatio}`)
+      mCtx.drawImage(backgroundImage, 0, 0, viewPortWidth * viewPortPixelRatio, viewPortHeight * viewPortPixelRatio) // 画背景图
+      mCtx.drawImage(avatarImage, 275 * viewPortPixelRatio, 115 * viewPortPixelRatio, 40 * viewPortPixelRatio, 40 * viewPortPixelRatio) // 画头像
+      mCtx.drawImage(qrCodeImage, 60 * viewPortPixelRatio, 394 * viewPortPixelRatio, 83 * viewPortPixelRatio, 83 * viewPortPixelRatio) // 画二维码
+      drawText({ ctx: mCtx, color: '#14292C', fontSize: 18 * viewPortPixelRatio, align: 'left' }) ({ x: 60 * viewPortPixelRatio, y: 130 * viewPortPixelRatio, content: userName })
+      drawText({ ctx: mCtx, color: '#5A696B', fontSize: 12 * viewPortPixelRatio, align: 'left' }) ({ x: 60 * viewPortPixelRatio, y: 154 * viewPortPixelRatio, content: '邀请你参加训练营' })
+      drawText({ ctx: mCtx, color: '#14292C', fontSize: 24 * viewPortPixelRatio, align: 'left', lineHeight: 33 * viewPortPixelRatio }) ({ x: 60 * viewPortPixelRatio, y: 202 * viewPortPixelRatio, content: title })
+      let mOtherTextCtx = drawText({ ctx: mCtx, color: '#4A4A4A', fontSize: 16 * viewPortPixelRatio, align: 'left' })
+      mOtherTextCtx({ x: 60 * viewPortPixelRatio, y: 280 * viewPortPixelRatio, content: teacher })
+      mOtherTextCtx({ x: 60 * viewPortPixelRatio, y: 310 * viewPortPixelRatio, content: beginDate })
+      mOtherTextCtx({ x: 60 * viewPortPixelRatio, y: 340 * viewPortPixelRatio, content: teamEndDate })
+      // mOtherTextCtx({ x: 263 * viewPortPixelRatio, y: 356 * viewPortPixelRatio, content: '邀请卡' })
+      return new Promise((resolve, reject) => {
+        mCtx.draw(false, resolve)
+      }) // end inner promise
+    } // end draw
+
+    asyncGetPixelRatio() {
+      return new Promise((resolve, reject) => {
+          wx.getSystemInfo({
+              success: ({ errMsg, pixelRatio }) => {
+                  'getSystemInfo:ok' === errMsg ? resolve(pixelRatio): new Error(errMsg)
+                  console.log('getSystemInfo pixelRatio', pixelRatio)
+              }, // success
+              fail: error => error
+          }) // end getSystemInfo
+      }) // end promise
+        .then(pixelRatio => {
+          console.log('++++++++++++>>++++=获取屏幕清晰度', pixelRatio)
+          this.viewPort.pixelRatio = pixelRatio
+          this.$apply()
+        })
+        .catch(error => {
+          this.viewPort.pixelRatio = 1
+          this.$apply()
+        })
+    } // end getPixelRatio
+
+    asyncGetViewPort() {
+      return sleep(1)
+        .then(() => {
+          let mQuery = wx.createSelectorQuery()
+          mQuery.select('#tc-article-preview').fields({
+              size: true,
+          }, ({ width, height }) => {
+            this.viewPort.width = width
+            this.viewPort.height = height
+            this.$apply()
+          }).exec()
+        }) // end then
+    } // end asyncGetViewPort
+
+    initialize(teamID) {
+      return fetch.getDetailOfShareCard({
+        token: this.token,
+        teamID
+      })
+        .then(({ name, shareImageCode, teacher, teamBeginDate, teamEndDate }) => {
+          // this.title = name
+          let transfer = (letter, index) => {
+            let mStandard = [8, 17, 26]
+            let mStopIndex = 35
+            if (mStandard.some(item => index===item)) return `${letter}\n`
+            if (index>=mStopIndex) return ''
+            return letter
+          }
+          this.title = name && name.split('').map((item, index) => transfer(item, index) ).join('')
+          console.log(this.title)
+
+          this.qrCodeImage = shareImageCode
+          this.teacher = `导师: ${teacher}`
+          this.beginDate = `开始时间: ${teamBeginDate}`
+          this.teamEndDate = `结束时间: ${teamEndDate}`
+          this.$apply()
+          console.log('shareImageCode is______-', this.qrCodeImage)
+        })
+        .then(() => {
+          this.$apply()
+        })
+    } // end initialize
+
+    onLoad({ teamID='defaultTeamID' }) {
+      this.teamID = teamID
+        wepy.$instance.globalData.getLoadHuilder() // ga统计
+    } // end onLoad
+
+    onShow() {
+      // this.asyncGetPixelRatio()
+      this.initialize(this.teamID)
+        .then(() => {
+          this.isLoaded = true
+          this.$apply()
+        })
+    } // end onShow
+  } // end class
+</script>

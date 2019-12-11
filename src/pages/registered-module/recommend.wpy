@@ -1,0 +1,290 @@
+<style lang="less" scoped>
+    .ui-recommend-box{
+        box-sizing:border-box;width:100%;height:100%;
+        view{box-sizing:border-box;}
+        .ui-title{width:100%;padding:100rpx 0 40rpx;font-size:48rpx;font-weight:700;color:#000;text-align:center;line-height:48rpx;}
+        .ui-subtitle{
+            width:100%;padding:0 64rpx;font-size:30rpx;color:#000;text-align:center;line-height:42rpx;
+            text{color:#007AFF;font-weight: bold;}
+        }
+        .ui-swiper-list{
+            width:100%;height:794rpx;margin-top:60rpx;
+            .ui-swiper-item{overflow: visible}
+            .ui-item{
+                width:100%;height:640rpx;background-color:#fff;border-radius:20rpx;overflow:hidden;transform:scale(0.88);transition:all .5s ease;box-shadow: 0 8px 24px 0 rgba(0,0,0,0.25);
+                &.active{transform:scale(1);}
+            }
+            .ui-course-btn{
+                background: none;
+                .cell-course{height: 640rpx;width: 100%;}
+            }
+            
+
+            .ui-thumb{
+                width:100%;height:430rpx;overflow:hidden;background-size:cover;
+                image{width:100%;height:100%;}
+                .ui-box{
+                    width: 100%;height: 100%;background: rgba(0,0,0,.4);
+                    .cell-name{font-size:44rpx;font-weight:700;color:#fff;line-height:66rpx;margin-bottom:20rpx;width:380rpx;}
+                    .cell-dec{font-size:24rpx;color:#fff;line-height:60rpx;}
+                }
+            }
+            .ui-content{
+                .cell-title{
+                    height:36rpx;margin:30rpx 0 24rpx;font-size:26rpx;color:#8F8E94;
+                    text{display:inline-block;width:8rpx;height:8rpx;margin:0 8rpx;background-color:#8F8E94;border-radius:50%;}
+                }
+                .cell-button{width:320rpx;height:80rpx;margin:0 auto;background-color:#007AFF;font-size:36rpx;font-weight:700;color:#fff;border-radius:20rpx;}
+            }
+        }
+    }
+</style>
+
+<template>
+    <jn-header className="background-transparent"></jn-header>
+    <view class="ui-recommend-box">
+        <view>
+            <view class="ui-title">您完成啦</view>
+            <view class="ui-subtitle">
+                <view wx:if="{{abilityText}}">基于你选择的<text>【{{abilityText}}】</text>为您推荐</view>
+                <view wx:else>您也可以自主选择</view>
+            </view>
+            <form bindsubmit="handleSavePushCode" report-submit>
+                <swiper class="ui-swiper-list"
+                        indicator-dots="{{indicatorDots}}"
+                        current="{{swiperCurrent}}"
+                        previous-margin="88rpx"
+                        next-margin="88rpx"
+                        indicator-color="#cccccc"
+                        indicator-active-color="#007AFF"
+                        bindchange="getSwiperChange">
+                    <repeat for="{{recommendList}}" key="index" index="index" item="item">
+                        <swiper-item class="ui-swiper-item"> 
+                            <button 
+                                open-type="{{!systemInfo.phone ? 'getPhoneNumber' : ''}}" @getphonenumber.stop="getPhone" @tap.stop="getPhone"
+                                class="ui-item"
+                                data-item="{{item}}"
+                                wx:if="{{item.name}}" :class="{'active': index===swiperCurrent}">
+                                <view class="ui-thumb" style="background-image: url('{{item.image}}');">
+                                    <view class="ui-box dir-top main-center cross-center">
+                                        <view class="cell-name">{{item.name}}</view>
+                                        <view class="cell-dec">{{item.showPoint}}</view>
+                                    </view>
+                                    
+                                </view>
+                                <view class="ui-content">
+                                    <view class="cell-title main-center cross-center">内含{{item.senceCount}}小节 <text></text> 预计学习{{item.minute}}分钟</view>
+                                    <view class="cell-button main-center cross-center">免费领取</view>
+                                </view>
+                            </button>
+                            <button form-type="submit"
+                                    data-item="{{item}}"
+                                    @tap.stop="getCoursePage"
+                                    wx:else class="ui-item" :class="{'active': index===swiperCurrent}">
+                                <view class="ui-thumb" style="background-image: url('{{item.courseUrl}}');"></view>
+                                <view class="ui-content">
+                                    <view class="cell-title main-center cross-center"></view>
+                                    <view class="cell-button main-center cross-center">去选课程</view>
+                                </view>
+                            </button>
+                        </swiper-item>
+                    </repeat>
+                </swiper>
+            </form>
+        </view>
+        
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+    import { setStorageAsync } from '../../utils'
+    import PushMixin from '../../mixins/push'
+    import {fetch} from '../../api'
+    import { getStorageAsync} from '../../utils'
+    import {getUserPhone,refreshUserInformations} from '../../redux/models/user'
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class registeredRecommend extends wepy.page {
+        config = {
+            disableScroll: true
+        }
+
+        mixins = [PushMixin]
+
+        components = {
+            'jn-header': header,
+        }
+
+        data = {
+            swiperCurrent: 0,
+            indicatorDots:true,
+            recommendList: [],
+            isSubmitReview:false,
+            abilityText:'',
+            phone:'',//手机号
+        }
+
+        onLoad() {
+            let self = this
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            self.initialize()
+        }
+
+        initialize() {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token
+            }
+            fetch.recommendCourse(postData).then((response) => {
+                self.recommendList = response.recommendCourseList;
+                self.recommendList.length ? self.abilityText = response.recommendCourseList[0].abilityText : '';
+                self.isSubmitReview = response.isSubmitReview;
+                self.recommendList.push({type:'img',courseUrl:'http://image.runwise.cn/image/imageID4d1c145ffc04b59d79f6609682fe.jpg'})
+                self.$apply()
+                
+            }).catch(error => {
+            })
+        }
+
+        methods = {
+            /**
+             * 轮播图切换
+             * @param event
+             */
+            getSwiperChange(event) {
+                let self = this
+                self.swiperCurrent = event.detail.current;
+                self.swiperCurrent < self.recommendList.length-1 ? self.abilityText = self.recommendList[self.swiperCurrent].abilityText : self.abilityText =''
+
+                
+                self.$apply()
+            },
+            getCoursePage() {
+                wepy.$instance.globalData.getHuilder('onboarding/欢迎页/去选课程', 'click', '')
+                wepy.switchTab({ url: '/pages/tabPages/course'})
+            },
+            /* 
+            授权手机号
+            */
+            getPhone(event) {
+                let self = this
+                let {currentTarget: {dataset:{item}},detail: {encryptedData, errMsg, iv}} = event
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            self.phone = response;
+                            self.$apply();
+                            store.dispatch(refreshUserInformations({phone: response}))
+                        }).then( () => {
+                            console.log(self.response)
+                            //提审 领取 && 课程详情页
+                            if(self.isSubmitReview){
+                                self.__getToLearn(item)
+                            }else {
+                                self.__getToAuthor(item)
+                            }
+                        }).catch(error =>　{
+                            console.log(error)
+                        })
+                    }, 0);
+                })
+                
+            }
+        }
+
+        __getToLearn(item) {
+            let self = this;
+            let courseID = item.id;
+            let senceID = item.senceID
+            let postData= {
+                token: self.systemInfo.token,
+                courseID: courseID,
+                mobile: self.phone
+            }
+            wepy.$instance.globalData.getHuilder('onboarding/欢迎页/免费领取', 'click', item.name)
+            fetch.userGetCourse(postData).then((response) => {
+                switch (response.success) {
+                    case 1: // 领取成功
+                        wx.showToast({
+                            icon: 'none',
+                            title: '领取成功'
+                        })
+                        
+                        store.dispatch(refreshUserInformations({hasGift: true}))
+                        wepy.reLaunch({url: `/pages/course-module/course-details?id=${courseID}&source=onboarding/推荐课程`})
+                        self.$apply()
+                        break
+                    case 2: // 已经领取过了
+                        store.dispatch(refreshUserInformations({hasGift: true}))
+                        wx.reLaunch({url: `/pages/tabPages/course`})
+                        self.$apply()
+                        break
+                    case 0: // 领取失败
+                        wx.showToast({
+                            icon: 'none',
+                            title: response.message || '领取失败'
+                        })
+                        wx.reLaunch({url: `/pages/tabPages/course`})
+                        break
+            
+                }
+            })
+            let json = {isDone : true}
+            wx.setStorageSync('profile', json)
+        }
+
+        __getToAuthor(item) {
+            let self = this;
+            let courseID = item.id;
+            let postData= {
+                token: self.systemInfo.token,
+                courseID: courseID,
+                mobile: self.phone
+            }
+            wepy.$instance.globalData.getHuilder('onboarding/欢迎页/免费领取', 'click', item.name)
+            fetch.userGetCourse(postData).then((response) => {
+                switch (response.success) {
+                    case 1: // 领取成功
+                        wx.showToast({
+                            icon: 'none',
+                            title: '领取成功'
+                        })
+                        
+                        store.dispatch(refreshUserInformations({hasGift: true}))
+                        wepy.reLaunch({url: `/pages/course-module/course-details?id=${courseID}&source=onboarding/推荐课程&isRedirctRoute=${true}`})
+                        self.$apply()
+                        break
+                    case 2: // 已经领取过了
+                        store.dispatch(refreshUserInformations({hasGift: true}))
+                        wx.reLaunch({url: `/pages/tabPages/course`})
+                        self.$apply()
+                        break
+                    case 0: // 领取失败
+                        wx.showToast({
+                            icon: 'none',
+                            title: response.message || '领取失败'
+                        })
+                        wx.reLaunch({url: `/pages/tabPages/course`})
+                        break
+            
+                }
+            })
+            let json = {isDone : true}
+            wx.setStorageSync('profile', json)
+        }
+        events = {}
+    }
+</script>

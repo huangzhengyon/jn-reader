@@ -1,0 +1,403 @@
+<style lang="css" src="./assets/iconfont/iconfont.css"></style>
+<style lang="css" src="assets/style/layout.css"></style>
+<style lang="css" src="./assets/style/animation.css"></style>
+<style lang="less">
+    @import "./assets/style/common";
+    .container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+    }
+</style>
+
+<script>
+    import wepy from 'wepy'
+    import 'wepy-async-function'
+    import {store} from './redux/store'
+    import {setStore, getStore} from 'wepy-redux'
+    import {fetch, auth as authApi} from './api'
+    import envConfig from './api/config'
+    import {ROUTERS, SCENE} from './utils/dictionary'
+    import ga from 'wxapp-ga/ga'
+    import {getLoginToken, refreshUserInformations} from './redux/models/user'
+    import {getStorageAsync, setStorageAsync} from './utils'
+
+    const GoogleAnalytics = ga.GoogleAnalytics
+    const HitBuilders = ga.HitBuilders
+    const CampaignParams = ga.CampaignParams
+    export default class extends wepy.app {
+        config = {
+
+            pages: [
+                'pages/tabPages/home',
+                'pages/tabPages/course',
+                'pages/tabPages/userCenter'
+            ],
+            subPackages: [
+                {
+                    root:'pages/activity-module',
+                    name:'activity',
+                    pages: [
+                        'new-appraisal-cover',
+                        'new-appraisal-subject',
+                        'new-appraisal-results',
+                        'appraisal-start',
+                        'appraisal-questions',
+                        'appraisal-results',
+                        'team-learning',
+                        'team-draw-record',
+                    ]
+                },{
+                    root:'pages/course-module',
+                    name:'course',
+                    pages: [
+                        'assortment',
+                        'course-details',
+                        'course-learning',
+                        'course-first-learning',
+                        'course-learning-discuss',
+                        'course-exercises',
+                        'course-discuss',
+                        'course-learn-complete',
+                        'course-practice-complete',
+                        'course-level-instructions',
+                        'course-evaluation-complete',
+                        'course-evaluation',
+                        'course-series',
+                        'course-subscribe',
+                        'course-search',
+                        'course-search-result-more',
+                        'course-cover',
+                        'course-series-list'
+                    ]
+                },{
+                    root:'pages/Mistake',
+                    name:'mistake',
+                    pages: [
+                        'index'
+                    ]
+                },{
+                    root:'pages/other-module',
+                    name:'other',
+                    pages: [
+                        'work-template',
+                        'job-skills',
+                        'community',
+                        'view-link',
+                        'first-exprience',
+                        'exprience-over',
+                    ]
+                },{
+                    root:'pages/registered-module',
+                    name:'register',
+                    pages: [
+                        'author',
+                        'weclome',
+                        'recommend',
+                        'interest-select',
+                    ]
+                },{
+                    root:'pages/SpecialCourse',
+                    name:'special',
+                    pages:[
+                        'index',
+                        'special-discuss'
+                    ]
+                },{
+                    root:'pages/training-camp-module',
+                    name:'training',
+                    pages:[
+                        'add-task',
+                        'all-training',
+                        'feed-list',
+                        'index',
+                        'introduce',
+                        'invite-friends',
+                        'learning-result',
+                        'ranking-list',
+                        'registration-info',
+                        'registration',
+                        'release-discuss',
+                        'release-message',
+                        'skill-levels',
+                        'task-list',
+                        'training-detail',
+                        'transcript',
+                        'evaluation',
+                        'overview-evaluation',
+                        'feed-detail',
+                        'my/main',
+                        'my/release-discuss',
+                        'my/edit',
+                        'my/students-list',
+                        'my/students-management',
+                        'my/release-task',
+                        'my/share-link',
+                        'my/course-evaluation',
+                        'my/release-poll',
+                        'my/learning-goals',
+                    ]
+                },{
+                    root:'pages/user-module',
+                    name:'user',
+                    pages: [
+                        'mine-edit',
+                        'mine-edit-phone',
+                        'mine-edit-email',
+                        'mine-edit-interest',
+                        'mine-edit-target',
+                        'mine-edit-status',
+                        'mine-feedback',
+                        'skill-board',
+                        'mine-course',
+                        'apply-for-test',
+                        'score-detail',
+                        'score-rules',
+                        'mine-collect',
+                        'mine-special',
+                    ]
+                }
+            ],
+            window: {
+                navigationStyle: 'custom',
+                backgroundTextStyle: "light",
+                navigationBarBackgroundColor: "#294657",
+                navigationBarTitleText: "即能",
+                navigationBarTextStyle: "black",
+            },
+            tabBar: {
+                color: "#8F8E94",
+                backgroundColor: "#FFFFFF",
+                selectedColor: "#007AFF",
+                list: [
+                    {
+                        "pagePath": "pages/tabPages/home",
+                        "text": "今日",
+                        "iconPath": "assets/img/task-off.png",
+                        "selectedIconPath": "assets/img/task-on.png"
+                    },
+                    {
+                        "pagePath": "pages/tabPages/course",
+                        "text": "课程",
+                        "iconPath": "assets/img/tab-study-off.png",
+                        "selectedIconPath": "assets/img/tab-study-on.png"
+                    },
+                    {
+                        "pagePath": "pages/tabPages/userCenter",
+                        "text": "我的",
+                        "iconPath": "assets/img/profile-off.png",
+                        "selectedIconPath": "assets/img/profile-on.png"
+                    }
+                ]
+            },
+            networkTimeout: {
+                request: 30000,
+                downloadFile: 30000
+            },
+            workers: "workers"
+        }
+
+        globalData = {
+            staffList: [],
+            unionID: null,
+            accessNumber: 0,
+            newCourseDetailTempele: {},
+            oldRounter: null,
+            freeCourseRounter: null,
+            sence:null,//打开小程序的场景值
+            allOpenIDHash() {
+                let self = this
+                let stateInfo = store.getState()
+                if (self.staffList.length) {
+                    return
+                }
+                fetch.allOpenIDHash({token: stateInfo.user.token}).then((response) => {
+                    self.staffList = response
+                })
+            },
+            getTracker() {
+                let self = this
+                let tracker = {}
+                // 初始化GoogleAnalytics Tracker
+                tracker = GoogleAnalytics.getInstance(self)
+                    .setAppName('即能')
+                    .setAppVersion('v1.0')
+                    .newTracker(envConfig.gaTracker)
+                tracker.setTrackerServer("https://wx-small.runwise.cn") // 使用自己的合法域名做跟踪数据转发
+                self.allOpenIDHash();
+                return tracker
+            },
+            getShareHuilder(entr, code) {
+                let self = this
+                if (!entr || !code) {
+                    return
+                }
+
+                let data = {
+                    "utm_source" : code,
+                    "utm_medium" : entr
+                }
+                console.log('渠道', data)
+                let campaignUrl = CampaignParams.parseFromPageOptions(data).toUrl()
+                let trackerInfo = self.getTracker()
+                trackerInfo.setCampaignParamsOnNextHit(campaignUrl)
+                trackerInfo.send(new HitBuilders.ScreenViewBuilder().build())
+            },
+            getHuilder(category, action, label) {
+                let self = this
+                let stateInfo = store.getState()
+                let LaunchOptions = wx.getLaunchOptionsSync()
+                if(LaunchOptions && LaunchOptions.sence == '1129'){
+                    console.log('sence:'+ LaunchOptions.sence)
+                    return
+                };
+                self.unionID = stateInfo.user.unionID
+                if ('UA-127840357-1' === envConfig.gaTracker && -1 !== self.staffList.indexOf(self.unionID)){
+                    return
+                }
+                var trackerInfo = self.getTracker()
+                let builder = {}
+                if (action === 'click' || action === 'onUnload') {
+                    builder = new HitBuilders.EventBuilder().setCategory(category).setAction(action).setLabel(label).build()
+                } else {
+                    trackerInfo.setScreenName(category)
+                    builder = new HitBuilders.ScreenViewBuilder().build()
+                }
+                trackerInfo.send(builder)
+            },
+            getLoadHuilder(options) {
+                let self = this
+                self.getReportFlow()
+                let stateInfo = store.getState()
+                self.unionID = stateInfo.user.unionID
+                if ('UA-127840357-1' === envConfig.gaTracker && -1 !== self.staffList.indexOf(self.unionID)){
+                    return
+                }
+                let params = options || {}
+                let rounter = getCurrentPages()
+                let page = rounter[rounter.length - 1]
+                let title = ROUTERS[page.route]
+
+
+                if (params.screenName || title) {
+                    // Google Analytics 统计
+                    var trackerInfo = self.getTracker()
+                    let builder = {}
+                    // console.log('ga----', params.screenName || title.screenName, params.pageTheme)
+                    trackerInfo.setScreenName(params.screenName || title.screenName)
+                    builder = new HitBuilders.ScreenViewBuilder().setCustomDimension(1, params.pageTheme || '-').build()
+                    trackerInfo.send(builder)
+                }
+            },
+            // 页面数据上报服务器
+            getReportFlow(eventType='') {
+                let self = this
+                let rounter = getCurrentPages()
+                let stateInfo = store.getState()
+                let current = rounter[rounter.length - 1]
+                let prev = rounter[rounter.length - 2]
+                if ('defaultToken' === stateInfo.user.token) {
+                    setTimeout(()=>{
+                        self.getReportFlow(eventType)
+                    }, 300)
+                    return
+                }
+
+                let postData = {
+                    token: stateInfo.user.token,
+                    body: {
+                        args: current.options,
+                        previousArgs: prev && prev.options || '',
+                        event: eventType,
+                        msg: '',
+                        source: !self.accessNumber ? stateInfo.entrance.scenceName : '',
+                        previousUrl: prev && prev.route || current.route,
+                        url: current.route
+                    }
+                }
+
+                fetch.pageLogs(postData).then(response => {
+                    ++self.accessNumber
+                })
+            }
+        }
+
+        constructor() {
+            super()
+            setStore(store)
+            this.use('requestfix')
+            this.use('promisify')
+        }
+
+        onLaunch() {
+            let self = this
+            wx.hideTabBar()
+            store.dispatch(getLoginToken()).then(response => {
+                let query = store.getState().entrance.query
+                query && query.wxPushType && self.globalData.getReportFlow(query.wxPushType)
+            }) // 默认登录
+            
+            
+
+            // 强制更新
+            wx.removeStorageSync('account')
+            const updateManager = wx.getUpdateManager()
+            updateManager.onCheckForUpdate((res) => {
+                // 请求完新版本信息的回调
+                // console.log(res.hasUpdate)
+            })
+
+            updateManager.onUpdateReady(() => {
+                wx.showModal({
+                    title: '更新提示',
+                    content: '新版本已经准备好，是否重启应用？',
+                    success(res) {
+                        if (res.confirm) {
+                            updateManager.applyUpdate() // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+                        }
+                    }
+                })
+            })
+
+            updateManager.onUpdateFailed(() => {
+                // 新的版本下载失败
+                wx.showModal({
+                    title: '更新提示',
+                    content: '新版本下载失败',
+                    showCancel: false
+                })
+            })
+        }
+
+        onShow() {
+            // 设置缓存 第几次进入小程序
+            getStorageAsync({key: 'pageLoadNum'}).then((response) => {
+                let num = response + 1;
+                setStorageAsync({
+                    key: 'pageLoadNum',
+                    value: num
+                })
+            }).catch(error => {
+                setStorageAsync({
+                    key: 'pageLoadNum',
+                    value: 1
+                })
+            });
+            //设置组队弹窗次数为0
+            setStorageAsync({
+                key: 'groupDrawStatusNum',
+                value: 0
+            })
+        }
+        onHide() {
+            //设置组队弹窗次数为0
+            setStorageAsync({
+                key: 'groupDrawStatusNum',
+                value: 0
+            })
+        }
+    }
+</script>

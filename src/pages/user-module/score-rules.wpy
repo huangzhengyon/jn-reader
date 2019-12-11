@@ -1,0 +1,90 @@
+<template>
+    <jn-header title="即能币介绍页"></jn-header>
+    <view class="ui-score-rules">
+        <view class="cell-title">{{content_one.title}}</view>
+        <view class="cell-detail">{{content_one.desc}}</view>
+        <view class="cell-title">{{content_two.title}}</view>
+        <view class="cell-detail">{{content_two.desc}}</view>
+        <view class="cell-title">{{content_three.title}}</view>
+        <view class="cell-detail cell-three">{{content_three.desc}}</view>
+        <view class="ui-table">
+            <view class="ui-row" style="border:0">
+                <view class="border-right cell-table-title">获取方式</view>
+                <view class="cell-table-title">奖励数量</view>
+            </view>
+            <view class="ui-row" wx:for="{{getWay}}" wx:key="{{index}}">
+                <view class="cell-item cross-center border-right" :class="{'main-center' : index ==0 || index == 1}">{{item.option}}</view>
+                <view class="cell-item cross-center main-center"><text>{{item.bonus}}</text>{{item.unit}}</view>
+            </view>
+        </view>
+        <view class="cell-tips">{{content_three.tips}}</view>
+        <view class="cell-margin"></view>
+    </view>
+    <view></view>
+</template>
+<style lang="less" scoped>
+    .ui-score-rules {
+        .cell-title {font-size: 42rpx;color: #000;margin: 18rpx 0 20rpx 36rpx;font-weight: bold}
+        .cell-detail {
+            margin:0 0 70rpx 92rpx;font-size: 32rpx;color: #9B9B9B;
+            &.cell-three{margin:0 0 40rpx 92rpx;}
+        }
+        .ui-table{
+            margin: 24rpx 18rpx 40rpx;border: 2rpx solid #979797;
+            .ui-row{
+                display: flex;border-top: 2rpx solid #979797;
+                .cell-table-title{height: 92rpx;text-align: center;line-height: 92rpx;font-weight:bold;font-size: 28rpx;width: 50%;color: #000;}
+                .cell-item{
+                    width: 50%;height: 178rpx;font-size: 28rpx;padding: 0 30rpx;
+                    text{margin-right: 6rpx;color: #007AFF;}
+                }
+            }
+        }
+        .cell-tips{font-size: 32rpx;color: #8F8E94;margin: 16rpx 18rpx;}
+    }
+    .border-right{border-right: 2rpx solid #979797;}
+    .cell-margin{width: 100%;height: 80rpx;}
+    
+</style>
+<script>
+    import wepy from "wepy"
+    import header from '../../components/common/header'
+    import {getStore,connect} from "wepy-redux"
+    const store = getStore();
+    const state = store.getState();
+    @connect({
+        token(state) {
+            return state.user.token;
+        },
+    })
+    export default class ScoreRules extends wepy.page {
+        components = {
+            'jn-header': header
+        } 
+        data = {
+            content_one: {
+                title: '1. 什么是即能币？',
+                desc: '即能币是即能推出的一种虚拟货币，用于奖励用户在即能中点赞、评论、收藏、分享等行为'
+            },
+            content_two: {
+                title: '2. 即能币能用来做什么？',
+                desc: '即能币可以用于兑换Plus会员',
+            },
+            content_three: {
+                title: '3. 如何获得即能币？',
+                desc: '你可以通过以下方式获得即能币: ',
+                tips:'更多获取即能币的方式将陆续上线，敬请期待。'
+            },
+            getWay:[
+                {'option':'每日技能点赞','unit':'即能币/次','bonus':2},
+                {'option':'每日技能或微课收藏','unit':'即能币/次','bonus':2},
+                {'option':'对微课进行评价，且超过15字','unit':'即能币/次','bonus':5},
+                {'option':'每日技能或微课发表想法，且超过15字','unit':'即能币/次','bonus':5},
+            ]
+        }; 
+        
+        onShow() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+    }
+</script>

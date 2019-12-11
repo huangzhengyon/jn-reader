@@ -1,0 +1,31 @@
+
+<svg width="42px" height="44px" viewBox="0 0 42 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <filter x="-11.9%" y="-69.6%" width="123.9%" height="239.3%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="8" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.25 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+        <path d="M5.33333333,0 C7.27640412,0 8.85157421,1.48669019 8.85157421,3.32061549 L8.8519033,4.62918932 C9.91434748,5.04569002 10.6666667,6.08009845 10.6666667,7.29022044 L10.6666667,10.4761905 C10.6666667,12.0541469 9.38748024,13.3333333 7.80952381,13.3333333 L2.85714286,13.3333333 C1.27918643,13.3333333 -1.03723631e-13,12.0541469 -1.03916875e-13,10.4761905 L-1.03916875e-13,7.29022044 C-1.04065072e-13,6.08009845 0.752319183,5.04569002 1.81476337,4.62918932 L1.81509245,3.32061549 C1.81509245,1.48669019 3.39026255,0 5.33333333,0 Z M5.33333333,1.10687183 C4.03795281,1.10687183 2.98783941,2.09799863 2.98783941,3.32061549 L2.987,4.433 L7.678,4.433 L7.67882725,3.32061549 C7.67882725,2.09799863 6.62871386,1.10687183 5.33333333,1.10687183 Z" id="path-2"></path>
+    </defs>
+    <g id="新人福利" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" opacity="0.95">
+        <g id="有进行中的学习清单" transform="translate(-302.000000, -723.000000)">
+            <g id="Now-Playing" filter="url(#filter-1)" transform="translate(24.000000, 713.000000)">
+                <g id="编组-3">
+                    <g transform="translate(291.000000, 20.000000)" id="_Glyphs-/-xSmall-/-Block">
+                        <g transform="translate(2.666667, 1.000000)">
+                            <mask id="mask-3" fill="white">
+                                <use xlink:href="#path-2"></use>
+                            </mask>
+                            <use id="Icon" fill="#595959" xlink:href="#path-2"></use>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

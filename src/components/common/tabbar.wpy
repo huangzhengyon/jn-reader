@@ -1,0 +1,128 @@
+<template>
+    <view class="tab-bar {{isAndroid ? 'android-tab-bar' :''}} {{isIphonex ? 'is-iphonex-bar':''}}" wx:if="{{showTabBar}}">
+        <view class="tab-bar-inner">
+            <view wx:for="{{list}}" wx:key="index" class="tab-bar-item" data-path="{{item.pagePath}}" data-index="{{index}}" bindtap="switchTab">
+                <view class="tab-item">
+                    <image mode="heightFix" src="{{ selected === index ? item.imgPathToday : item.imgPathToday}}" class="tab-image" wx:if="{{!showWhiteBackground && selected !== null}}"></image>
+                    <image mode="heightFix" src="{{ selected === index ? item.selectedImgPath : item.imgPath}}" class="tab-image" wx:else>{{selected}}</image>
+                </view>
+            </view>
+        </view>
+    </view>
+</template>
+<script>
+import wepy from 'wepy'
+export default class tabbar extends wepy.component{
+    props = {
+        showWhiteBackground: {
+            type: Boolean
+        },
+        selected: {
+            type: Number,
+            default: null
+        }
+    }
+    data = {
+        isAndroid: /android/i.test(wx.getSystemInfoSync().system),
+        isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+        showWhiteBackground: false,//默认不展示白底
+        
+        color: "#595959",
+        backgroundColor: "#FFFFFF",
+        selectedColor: "#595959",
+        showTabBar:true,
+        list: [
+            {
+                "pagePath": "home",
+                "text": "今日",
+                "imgPath": "../../assets/img/imgNevS1.png",
+                "imgPathToday": "../../assets/img/imgNevW1.png",
+                "selectedImgPath": "../../assets/img/imgNevB1.png"
+                // "selectedImgPath": "../../assets/img/imgNevB1.png"
+            },
+            {
+                "pagePath": "course",
+                "text": "课程",
+                "imgPath": "../../assets/img/imgNevS2.png",
+                "imgPathToday": "../../assets/img/imgNevW2.png",
+                "selectedImgPath": "../../assets/img/imgNevB2.png"
+            },
+            {
+                "pagePath": "userCenter",
+                "text": "会员",
+                "imgPath": "../../assets/img/imgNevS4.png",
+                "imgPathToday": "../../assets/img/imgNevW4.png",
+                "selectedImgPath": "../../assets/img/imgNevB4.png"
+            }
+        ]
+    }
+    onLoad() {
+        console.log(this.isIphonex)
+        console.log(wx.getSystemInfoSync())
+    }
+    methods = {
+        switchTab(e) {
+            const data = e.currentTarget.dataset
+            const url = data.path
+            wx.switchTab({ url })
+        }
+    }
+}
+</script>
+<style lang="less" scoped>
+@import '../../assets/style/theme';
+.tab-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 390rpx;
+  height: 136rpx;
+  background: transparent;
+  padding: 0 32rpx;
+  box-sizing: border-box;
+  z-index: 999;
+}
+
+.android-tab-bar {
+  height: 156rpx;
+  line-height: 156rpx;
+}
+.is-iphonex-bar {
+  height: 196rpx;
+  line-height: 196rpx;
+  padding: 20rpx 32rpx;
+  .tab-bar-inner {
+      .tab-item {
+          align-self: flex-end;
+          image {
+              display: block;
+          }
+      }
+  }
+}
+
+
+.tab-bar .tab-bar-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+}
+
+.tab-bar .tab-bar-item {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-direction: column;
+}
+.tab-bar-item .tab-item {
+    width: 108rpx;
+    height: 79rpx;
+    .flex-center();
+}
+.tab-bar-item .tab-image {
+  width: 100%;
+  height: 100%;
+}
+</style>

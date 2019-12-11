@@ -1,0 +1,183 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-add-poll-box{
+        width:100%;height:100%;background-color:@background-color-F3;position:fixed;left:0;top:0;z-index:@z-index-mask;
+        view{box-sizing:border-box;}
+        .ui-header-button text{color:@color-blue}
+        .ui-radio{
+            box-sizing:border-box;height:120rpx;padding:24rpx 32rpx;position:relative;
+            .cell-radio{
+                width:auto;margin-right:54rpx;font-size:34rpx;color:@color-black;
+                text{margin-right:12rpx;font-size:48rpx;color:@color-blue;position:relative;top:2rpx;}
+            }
+        }
+        .ui-title{
+            padding:36rpx 32rpx;background-color:@background-white;position:relative;
+            &:before{content:' ';width:100%;border-top:2rpx solid @border-gray;position:absolute;left:32rpx;bottom:0;}
+            input{width:100%;font-size:40rpx;font-weight:700;color:@color-black;line-height:56rpx;}
+        }
+        .ui-poll-list{
+            .ui-item{
+                height:120rpx;padding:0 32rpx; background-color:@background-white;position:relative;
+                &:before{content:' ';width:100%;border-top:2rpx solid @border-gray;position:absolute;left:32rpx;bottom:0;}
+                text{font-size:48rpx;color:@color-red;margin-right:16rpx;position:relative;top:4rpx;}
+                input{width:100%;font-size:34rpx;color:@color-black;}
+            }
+            .ui-add{
+                margin-top:20rpx;font-size:32rpx;color:@color-blue;
+                text{color:@color-blue;}
+            }
+        }
+        .ui-button-box{
+            width:100%;height:134rpx;
+            &.is-iphonex{
+                height:204rpx;
+                .ui-container{height:204rpx;}
+            }
+            .ui-container{width:100%;height:134rpx;padding:0 32rpx;position:fixed;left:0;bottom:0;}
+            button{width:100%;height:100rpx;background-color:@background-blue;font-size:34rpx;font-weight:700;color:@color-white;text-align:center;line-height:100rpx;border-radius:@border-radius-20;}
+        }
+    }
+</style>
+
+<template>
+    <scroll-view scroll-y class="ui-add-poll-box router-translate {{isShow ? 'router-enter' : 'router-leave'}}">
+        <jn-header hiddenButton title="添加投票">
+            <button slot="cursor-button" class="cell-back ui-header-button" @tap.stop="getClose">
+                <text class="icon-back-close"></text>
+            </button>
+        </jn-header>
+
+        <view class="ui-radio flex">
+            <view class="cell-radio cross-center" data-type="single" @tap.stop="getRadio">
+                <text class="{{seleteInfo.pollType=='single' ? 'icon-selected' : 'icon-selectable'}}"></text>单选
+            </view>
+            <view class="cell-radio cross-center" data-type="multiple" @tap.stop="getRadio">
+                <text  class="{{seleteInfo.pollType=='multiple' ? 'icon-selected' : 'icon-selectable'}}"></text>多选
+            </view>
+        </view>
+
+        <view class="ui-title">
+            <input placeholder="输入标题（选填）" maxlength="-1" data-type="title" bindblur="getBlur" />
+        </view>
+
+        <view class="ui-poll-list">
+            <repeat for="{{seleteInfo.list}}" key="index" index="index" item="item">
+                <view class="ui-item flex cross-center">
+                    <text class="icon-delete-select" data-index="{{index}}" @tap.stop="getDelete"></text>
+                    <input placeholder="选项（限28个字）"
+                           data-type="{{index}}"
+                           value="{{item.option}}"
+                           maxlength="28"
+                           bindblur="getBlur" />
+                </view>
+            </repeat>
+
+            <view class="ui-item ui-add flex cross-center" @tap.stop="getAddItem">
+                <text class="icon-add-btn"></text>添加选项
+            </view>
+        </view>
+
+        <view class="ui-button-box" :class="{'is-iphonex': isIphonex}">
+            <view class="ui-container">
+                <button disabled="{{!seleteInfo.list.length || !(seleteInfo.list[0] && seleteInfo.list[0].option)}}"
+                        @tap.stop="getConfirm">确认</button>
+            </view>
+        </view>
+    </scroll-view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+
+    export default class addPoll extends wepy.component {
+        components = {
+            'jn-header': header,
+        }
+
+        props = {
+            isShow:{
+                type: Boolean,
+                default: false
+            }
+        }
+
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            seleteInfo: {
+                title: '',
+                pollType: 'single',
+                list:[]
+            }
+        }
+
+        onLoad() {
+            let self = this
+        }
+
+        methods = {
+            /**
+             * 选择是单选还是多选
+             * @param event
+             */
+            getRadio(event) {
+                let self = this
+                let {currentTarget: {dataset: {type}}} = event
+                self.seleteInfo.pollType = type
+                self.$apply()
+            },
+            /**
+             * 删除某个投票选项
+             * @param event
+             */
+            getDelete(event) {
+                let self = this
+                let {currentTarget: {dataset: {index}}} = event
+                self.seleteInfo.list.splice(index, 1)
+            },
+            /**
+             * 投票选项输入框失去焦点
+             * @param event
+             */
+            getBlur(event) {
+                let self = this
+                let {detail: {value}, currentTarget: {dataset: {type}}} = event
+
+                if ('title' === type) {
+                    self.seleteInfo.title = value
+                } else {
+                    self.seleteInfo.list[type].option = value
+                }
+                self.$apply()
+            },
+            /**
+             * 添加选项
+             */
+            getAddItem() {
+                let self = this
+                self.seleteInfo.list.push({
+                    id: '',
+                    option: ''
+                })
+            },
+            /**
+             * 关闭组件
+             */
+            getClose() {
+                let self = this
+                self.$emit('on-add-poll', {})
+            },
+            /**
+             * 确定添加
+             */
+            getConfirm(){
+                let self = this
+                self.$emit('on-add-poll', self.seleteInfo)
+            }
+        }
+
+        events = {}
+    }
+</script>

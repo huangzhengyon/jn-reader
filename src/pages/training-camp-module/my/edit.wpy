@@ -1,0 +1,654 @@
+<template>
+    <scroll-view class="team-editor-article" scroll-y="{{true}}">
+        <jn-header title="编辑训练营"></jn-header>
+        <view class="flex-space-between-row team-editor-cell team-editor-article__header cover">
+            <text class="team-editor-article__header__title team-editor-cell-left">训练营封面
+                <text class="team-editor-cell-left__label">750px*400px</text>
+            </text>
+            <image wx:if="{{ cover }}" class="team-editor-article__header__shade team-editor-cell-right"
+                   src="{{ cover }}" mode="scaleToFill" data-target="cover"
+                   @tap.stop="handleUploadTeacherIntroduction"></image>
+            <view wx:else class="team-editor-article__header__shade team-editor-cell-right" data-target="cover"
+                  @tap.stop="handleUploadTeacherIntroduction"></view>
+            <image class="team-editor-article__header__indicator team-editor-cell-indicator"
+                   src="http://wx-small.runwise.cn/image/imageID4569c5c5dc94b49da03a5e0b1508.svg"
+                   mode="scaleToFill"></image>
+        </view><!-- header -->
+
+        <view class="flex-space-between-row team-editor-cell">
+            <text class="team-editor-cell-left">训练营名称</text>
+            <text class="team-editor-cell-right" @tap.stop="handleTapTitle">{{ name }}</text>
+            <image class="team-editor-cell-indicator"
+                   src="http://wx-small.runwise.cn/image/imageID4569c5c5dc94b49da03a5e0b1508.svg"
+                   mode="scaleToFill"></image>
+        </view><!-- cell -->
+
+        <view class="flex-space-between-row team-editor-cell">
+            <text class="team-editor-cell-left">开始日期</text>
+            <picker mode="date" value="{{beginDate}}" disabled="{{!dateEditAble}}" start="{{beginDateStart}}"
+                    end="2050-09-01" bindchange="handleBeginDateChange">
+                <view class="team-editor-cell-right" style="{{!dateEditAble?'opacity:.4':''}}">
+                    {{beginDate}}
+                </view>
+            </picker>
+            <image class="team-editor-cell-indicator"
+                   src="http://wx-small.runwise.cn/image/imageID4569c5c5dc94b49da03a5e0b1508.svg"
+                   mode="scaleToFill"></image>
+        </view><!-- cell -->
+
+        <view class="flex-space-between-row team-editor-cell">
+            <text class="team-editor-cell-left">结束日期</text>
+            <picker mode="date" value="{{endDate}}" start="{{endDateStart}}" end="2050-09-01"
+                    bindchange="handleEndDateChange">
+                <view class="team-editor-cell-right">
+                    {{endDate}}
+                </view>
+            </picker>
+            <image class="team-editor-cell-indicator"
+                   src="http://wx-small.runwise.cn/image/imageID4569c5c5dc94b49da03a5e0b1508.svg"
+                   mode="scaleToFill"></image>
+        </view><!-- cell -->
+
+        <view class="flex-space-between-row team-editor-cell goal">
+            <text class="team-editor-cell-left">训练营目标</text>
+            <text class="team-editor-cell-right ui-team-target text-muted {{ targetList.length&&'active' }}" @tap.stop="handleTapGoal">
+                {{ targetList.length? '已设定'+ targetList.length +'个': '还没有设定' }}目标
+            </text>
+            <image class="team-editor-cell-indicator"
+                   src="http://wx-small.runwise.cn/image/imageID4569c5c5dc94b49da03a5e0b1508.svg"
+                   mode="scaleToFill"></image>
+        </view><!-- cell -->
+
+        <view class="flex-space-between-row team-editor-cell">
+            <text class="team-editor-cell-left introduction">训练营介绍</text>
+            <view class="team-editor-cell-right" @tap.stop="handleTendToUploadIntroduction">
+                <image wx:if="{{ imageList.length }}" wx:for="{{ imageList }}" wx:key="{{ index }}"
+                       class="team-editor-cell-right__mask {{ 0===index&&'first' }}" src="{{ item.url }}"
+                       mode="scaleToFill"></image>
+                <view wx:if="{{ 0===imageList.length }}" class="team-editor-cell-right__mask first"></view>
+            </view><!-- right -->
+            <image class="team-editor-cell-indicator"
+                   src="http://wx-small.runwise.cn/image/imageID4569c5c5dc94b49da03a5e0b1508.svg"
+                   mode="scaleToFill"></image>
+        </view><!-- cell -->
+
+        <view class="flex-space-between-row team-editor-cell teacher">
+            <text class="team-editor-cell-left">导师介绍</text>
+            <view class="team-editor-cell-right" data-target="teacherIntroduction"
+                  @tap.stop="handleUploadTeacherIntroduction">
+                <image wx:if="{{ teacherIntroduction }}" class="team-editor-cell-right__mask"
+                       src="{{ teacherIntroduction }}" mode="scaleToFill"></image>
+                <view wx:else class="team-editor-cell-right__mask"></view>
+            </view><!-- right -->
+            <image class="team-editor-cell-indicator"
+                   src="http://wx-small.runwise.cn/image/imageID4569c5c5dc94b49da03a5e0b1508.svg"
+                   mode="scaleToFill"></image>
+        </view><!-- cell -->
+
+        <view class="member-inv-switch">
+            <text class="team-editor-cell-left">开放学员邀请</text>
+            <switch checked="{{isOpenMemberShare}}" bindchange="switchChange" name="closeSignUp"/>
+        </view>
+
+        <view class="team-editor-empty-block" style="{{ipX?'padding-bottom:40rpx':''}}">
+            <text class="inv-tip">{{isOpenMemberShare?'学员/导师/营长都可以邀请学员':'只有导师/营长可以邀请学员'}}</text>
+        </view>
+
+    </scroll-view>
+    <view class="team-editor-footer" style="{{ipX?'padding-bottom:40rpx':''}}">
+        <button class="team-editor-footer__btn" @tap.stop="handleSubmit">确定</button>
+    </view>
+
+    <!-- 评论弹窗 -->
+    <view class="poll-article-comment-cover" wx:if="{{modalVisible}}">
+        <view class="flex-space-between-column poll-article-comment-modal" catchtap="handleInvalidTap">
+            <!-- focus="{{commentModalFocus}}" -->
+            <view class="poll-article-comment-modal__title">训练营名称</view>
+            <textarea show-confirm-bar="{{false}}" class="announce-content-input" placeholder="{{titlePlaceholder}}"
+                      placeholder-class="announce-content-input-p" bindinput="handleCommentInput" maxlength="{{150}}"
+                      focus="{{ modalFocus }}" value="{{ name }}"></textarea>
+            <view class="poll-article-comment-btn-left">
+                <button class="poll-article-comment-btn" hover-class="cancel-hover" @tap.stop="handleCommentCancel">取消
+                </button>
+            </view>
+            <view class="poll-article-comment-btn-right">
+                <button class="poll-article-comment-btn btn-confirm" hover-class="confirm-hover"
+                        @tap.stop="handleCommentConfirm">确认
+                </button>
+            </view>
+        </view>
+    </view>
+    <!-- 弹窗结束 -->
+</template>
+<script>
+    import wepy from "wepy";
+    import {getStore, connect} from "wepy-redux";
+    import {team as teamApi,} from "../../../api";
+    import {sleep} from "../../../utils";
+    import header from '../../../components/common/header'
+
+    const store = getStore();
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        }, // mapState 即getters
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            // return 'userIDf6baae6dfe454ce7ae4bbcba365226c2-1524537036425-2fdbb184ae6d2c535dd58bdff5eed970'
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        },
+        role(state) {
+            return state.user.role
+        },
+        entrance(state) {
+            return state.entrance
+        },
+        ipX(state) {
+            return state.user.equipmentModel.startsWith('iPhone X')
+        }
+    })
+    export default class TeamLearningEditor extends wepy.page {
+        data = {
+            sign: '',
+            teamID: '',
+            modalVisible: false,
+            modalFocus: false,
+            titleInput: '',
+            titlePlaceholder: '请输入训练营名称',
+            name: '', // 训练营名称
+            targetList: [], // 目标
+            isHaveTarget:false,//是否有目标
+            beginDate: '2018-09-01',
+            beginDateStart: '2018-01-01',
+            beginDateEnd: '2018-12-12',
+
+            endDate: '2018-07-29',
+            endDateStart: '2018-07-19',
+            endDateEnd: '2018-12-12',
+            cover: null,
+            teacherIntroduction: null,
+            imageList: [],
+            isOpenMemberShare: false,
+            dateEditAble: false,
+            taskLastBegin: 0,
+            taskLastEnd: 0,
+        } // end data
+
+        components = {
+            'jn-header': header
+        } // end components
+
+        methods = {
+            switchChange: function (e) {
+                console.log('switch1 发生 change 事件，携带值为', e.detail.value)
+                this.isOpenMemberShare = e.detail.value
+            },
+            handleInvalidTap() {
+                return false
+            }, // end handleInvalidTap
+            handleBeginDateChange({detail: {value}}) {
+                let that = this
+                let dateTemp = value
+                dateTemp = dateTemp.replace(/-/g, '/');
+                let timestamp = new Date(dateTemp).getTime();
+                if (this.taskLastBegin && timestamp > this.taskLastBegin) {
+                    wx.showModal({
+                        content: `存在${value}之前的任务，修改后任务将丢失，是否修改？`,
+                        success: function (res) {
+                            if (res.confirm) {
+                                that.beginDate = value
+                                that.endDateStart = value
+                                that.$apply()
+                            }
+                        }
+                    })
+                } else {
+                    that.beginDate = value
+                    that.endDateStart = value
+                    that.$apply()
+                }
+
+
+            }, // ned handleBeginDateChange
+            handleEndDateChange({detail: {value}}) {
+                let that = this
+                let dateTemp = value
+                dateTemp = dateTemp.replace(/-/g, '/');
+                let timestamp = new Date(dateTemp).getTime();
+                if (this.taskLastEnd && timestamp < this.taskLastEnd) {
+                    wx.showModal({
+                        content: `存在${value}之后的任务，修改后任务将丢失，是否修改？`,
+                        success: function (res) {
+                            if (res.confirm) {
+                                that.endDate = value
+                                that.$apply()
+                            }
+                        }
+                    })
+                } else {
+                    that.endDate = value
+                    that.$apply()
+                }
+
+            }, // ned handleEndDateChange
+            handleTapTitle() {
+                this.toggleModal()
+            },
+            handleTapGoal() {
+                this.$preload({targetList: this.targetList})
+                this.$navigate(`/pages/training-camp-module/my/learning-goals`)
+            }, // end handleTapGoal
+            handleCommentInput({detail: {value}}) {
+                this.titleInput = value
+            }, // end handleCommentInput
+            handleCommentConfirm() {
+                this.toggleModal()
+                this.name = this.titleInput
+            }, // end handleCommentConfirm
+            handleCommentCancel() {
+                this.toggleModal()
+            }, // end handleCommentCancel
+            handleTendToUploadIntroduction() {
+                this.$preload({imageList: this.imageList})
+                this.$navigate(`/pages/training-camp-module/introduce?sign=${this.sign}`)
+            }, // end handleTendToUploadIntroduction
+            handleUploadTeacherIntroduction({currentTarget: {dataset: {target}}}) {
+                new Promise((resolve, reject) => {
+                    wx.chooseImage({
+                        count: 1,
+                        sizeType: ['original'],
+                        sourceType: ['album'],
+                        success: res => resolve(res),
+                        fail: error => error
+                    })
+                }) // end promise
+                    .then(({errMsg, tempFilePaths}) => new Promise((resolve, reject) => {
+                        // console.log('选择照片成功', tempFilePaths[0])
+                        let mTask = null
+                        mTask = wx.uploadFile({
+                            url: `https://wx-small.runwise.cn/api/upload?token=${this.token}&sign=${this.sign}`,
+                            filePath: tempFilePaths[0],
+                            name: 'file',
+                            success: (res) => {
+                                console.log('target______', target)
+                                const data = JSON.parse(res.data)
+                                this[target] = data['data']['url']
+                                this.$apply()
+                                return resolve(mTask)
+                            },
+                            fail: error => error
+                        }) // end uploadFile
+                    })) // end then
+                    .then(task => {
+                        console.log('taskfmeiage', task)
+                        task.onProgressUpdate(res => {
+                            console.log('上传进度', res.progress)
+                            console.log('已经上传的数据长度', res.totalBytesSent)
+                            console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
+                        }) // end task
+                    }) // end then
+            }, // end handleUploadTeacherIntroduction
+            handleSetIntroductionImage({items}) {
+                return console.log('tend to append', items)
+                this.imageList.splice(this.imageList.length, 0, ...items) // 本地追加图片
+            }, // end handleAppendIntroductionImage
+            handleSetTargetList({items}) {
+                this.targetList = items
+            }, // end handleSetTargetList
+            handleSubmit() {
+                teamApi.postEditorContent({
+                    token: this.token,
+                    isOpenMemberShare: this.isOpenMemberShare,
+                    teamID: this.teamID,
+                    beginDate: this.beginDate,
+                    endDate: this.endDate,
+                    imageList: this.imageList,
+                    imageUrl: this.cover,
+                    name: this.name,
+                    targetList: this.targetList,
+                    teacherShow: this.teacherIntroduction
+                })
+                    .then(() => new Promise((resolve, reject) => {
+                        wx.showToast({
+                            title: '编辑成功',
+                            icon: 'success',
+                            success: resolve,
+                            fail: error => error
+                        })
+                    }))
+                    .then(() => sleep(1))
+                    .then(() => {
+                        console.log('success in posting')
+                        wx.navigateBack()
+                    })
+                    .catch(error => wx.showToast({
+                        title: '编辑失败',
+                        icon: 'none'
+                    }))
+            } // end handleSubmit
+        } // end methods
+
+        toggleModal() {
+            this.modalVisible = !this.modalVisible
+            sleep(0.3)
+                .then(() => {
+                    this.modalFocus = this.modalVisible
+                    this.$apply()
+                })
+        } // toggleModal
+
+        initialize({teamID}) {
+            return teamApi.initTeamEditor({
+                token: this.token,
+                teamID: this.teamID
+            })
+                .then(({taskLastEnd, taskLastBegin, isOpenMemberShare, beginDate, endDate, imageList, imageUrl, name, sign, targetList, teacherShow, dateEditAble}) => {
+                    this.beginDate = beginDate
+                    this.endDate = endDate
+                    this.cover = imageUrl
+                    this.teacherIntroduction = teacherShow
+                    this.imageList = imageList
+                    this.name = name
+                    this.sign = sign
+                    this.targetList = targetList
+                    this.isOpenMemberShare = isOpenMemberShare
+                    this.dateEditAble = dateEditAble
+                    this.taskLastEnd = taskLastEnd
+                    this.taskLastBegin = taskLastBegin
+                    this.$apply()
+                })
+        } // end initialize
+
+        onLoad({teamID = 'defaultTeamID'}) {
+            this.teamID = teamID
+            this.initialize({teamID: this.teamID})
+            this.beginDateStart = new Date().format('yyyy-MM-dd')
+            this.endDateStart = new Date().format('yyyy-MM-dd')
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        } // end onLoad
+
+        onShow() {
+        } // end show
+
+    }
+</script>
+
+<style lang="less" scoped>
+    @import "../../../assets/style/theme";
+  .team-editor-article {
+    width: 100%;
+    height: 100%;
+    background-color: @background-gray-F4;
+  }
+
+  .team-editor-cell {
+    position: relative;
+    margin-left: 40rpx;
+    padding: 28rpx 0;
+    border-bottom: 2rpx solid @border-gray;
+    border-left: 0;
+    align-items: center;
+    background-color: #FFF;
+  }
+
+  .team-editor-cell::before {
+    content: ' ';
+    width: 42rpx;
+    border: 0;
+    height: calc(~"100% + 1rpx");
+    position: absolute;
+    z-index: 0;
+    left: -38rpx;
+    top: 0rpx;
+    background-color: #FFF;
+  }
+
+  .team-editor-cell.cover {
+    border-top: 20rpx solid @border-gray;
+    border-bottom: 20rpx solid @border-gray;
+  }
+
+  .team-editor-cell.goal {
+    border-top: 20rpx solid @border-gray;
+  }
+
+  .team-editor-cell.teacher {
+    border-top: 16rpx solid @border-gray;
+  }
+
+  .team-editor-cell-left {
+    position: relative;
+    margin-left: 0;
+    margin-right: auto;
+    font-family: PingFangSC-Regular;
+    font-size: 32rpx;
+    color: #14292C;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: ellipsis;
+  }
+
+  .team-editor-cell-left.introduction {
+    line-height: 64rpx;
+  }
+
+    .team-editor-cell-left__label {
+      position: absolute;
+      bottom: -16rpx;
+      left: 0;
+      font-family: PingFangSC-Regular;
+      font-size: 24rpx;
+      color: #A1A9AB;
+      line-height: 24rpx;
+    }
+
+    .team-editor-cell-right {
+        min-width: 186rpx;
+        min-height: 44rpx;
+        margin-left: 0;
+        margin-right: 16rpx;
+        line-height: 44rpx;
+        font-family: PingFangSC-Regular;
+        font-size: 32rpx;
+        color: #14292C;
+        text-align: right;
+    }
+    .team-editor-cell-right.ui-team-target{display: flex;align-items: center;height:40rpx;line-height:0;}
+    .team-editor-cell-right.text-muted {
+      color: #A1A9AB;
+    }
+
+    .team-editor-cell-right.text-muted.active {
+      color: #14292C;
+    }
+
+    .team-editor-cell-right__mask {
+      width: 96rpx;
+      height: 96rpx;
+      overflow: hidden;
+      display: inline-block;
+      background-color: @background-gray-F4;
+      border-radius: 8rpx;
+      margin-left: 12rpx;
+    }
+
+    .team-editor-cell-right__mask.first {
+      margin-left: 0;
+    }
+
+  .team-editor-cell-indicator {
+    width: 32rpx;
+    height: 32rpx;
+    margin-left: 0;
+    margin-right: 20rpx;
+  }
+
+  .team-editor-article__header {
+    padding: 24rpx 0;
+  }
+
+  .team-editor-article__header__title {
+    line-height: 64rpx;
+  }
+
+  .team-editor-article__header__shade {
+    width: 210rpx;
+    height: 112rpx;
+    border-radius: 8rpx;
+    overflow: hidden;
+    background-color: @background-gray-F4;
+  }
+
+  .team-editor-empty-block {
+    width: 100%;
+    height: 250rpx;
+    background-color: transparent;
+  }
+
+  .team-editor-footer {
+      width: 100%;
+      height: 140rpx;
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1100;
+  }
+
+  .team-editor-footer__btn {
+      width: 702rpx;
+      height: 100rpx;
+      line-height: 100rpx;
+      background-color: @background-blue !important;
+      color: #FFF !important;
+      border: 0 !important;
+      border-radius: @border-radius-20;
+  }
+
+  .team-editor-footer__btn::after {
+    border: 0 !important;
+  }
+
+  .poll-article-comment-cover{
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top:0;
+    background-color: rgba(0, 0, 0, .3);
+    z-index: 2018;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .poll-article-comment-modal{
+    z-index: 2019;
+    width: 606rpx;
+    height: 440rpx;
+    align-items: center;
+    background-color: #fff;
+    position: relative;
+    margin-top: 96rpx;
+    border-radius: 24rpx;
+    overflow: hidden;
+  }
+  .poll-article-comment-modal__title {
+    margin-top: 38rpx;
+    margin-bottom: 38rpx;
+    font-family: PingFangSC-Regular;
+    font-size: 32rpx;
+    color: #14292C;
+    line-height: 44rpx;
+  }
+  .poll-article-comment-btn-left{
+    position: absolute;
+    height: 140rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    left: 0;
+    bottom: 0;
+    background-color: #fff;
+  }
+  .poll-article-comment-btn-right{
+    position: absolute;
+    height: 140rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    right: 0;
+    bottom: 0;
+    color:@color-white;
+    background-color: @background-white;
+  }
+  .announce-content-input {
+    width: 510rpx;
+    height: 120rpx;
+    margin-top: 0;
+    margin-bottom: auto;
+    box-sizing: content-box;
+    border-radius: 20rpx;
+    padding: 30rpx 24rpx;
+    font-family: PingFangSC-Regular;
+    font-size: 32rpx;
+    color: #14292C;
+    background-color: @background-gray-F4;
+  }
+  .announce-content-input-p {
+    font-family: PingFangSC-Regular;
+    font-size: 32rpx;
+    color: #A1A9AB;
+    letter-spacing: 0.02rpx;
+  }
+  .poll-article-comment-btn{
+    width: 200rpx;
+    height: 72rpx;
+    line-height: 72rpx;
+    text-align: center;
+    border-radius: @border-radius-20;
+    background-color: @background-gray-F4 !important;
+    font-family: PingFangSC-Medium;
+    font-size: 32rpx;
+    color: @color-blue !important;
+    position: static;
+  }
+  .btn-confirm{
+    background-color: @background-blue !important;
+    color:#fff !important;
+  }
+  .cancel-hover{
+    background-color: @background-gray-hover !important;
+  }
+  .confirm-hover{
+    background-color: @background-blue-hover !important;
+  }
+  .poll-article-comment-btn::after {
+    border:0 !important;
+  }
+  .member-inv-switch{
+    width: 100%;
+    height: 140rpx;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff;
+    border-top: 16rpx solid @border-gray;
+  }
+  .member-inv-switch text{
+    margin-left: 40rpx;
+  }
+  .inv-tip{
+    padding: 20rpx 40rpx;
+    color:#A1A9AB;
+    font-size: 28rpx;
+  }
+</style>
+

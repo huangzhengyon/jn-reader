@@ -1,0 +1,429 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-appraisal-subject-box {
+        height: 100%;
+        view {
+            box-sizing: border-box;
+        }
+        .ui-progress-box {
+            .ui-progress {
+                width: 216rpx;
+                height: 10rpx;
+                background-color: rgba(241, 242, 245, .5);
+                border-radius: 6rpx;
+                position: relative;
+                left: 0rpx;
+                overflow: hidden;
+            }
+            .cell-current {
+                height: 100%;
+                background-color: #A1A9AB;
+                border-radius: 6rpx;
+                position: absolute;
+                left: 0;
+                top: 0;
+                transition: width .5s ease-in-out;
+            }
+            .cell-number {
+                width: 58rpx;
+                padding-left: 16rpx;
+                font-size: 24rpx;
+                color: #A1A9AB;
+            }
+            &.is-dark {
+                .ui-progress .cell-current {
+                    background-color: rgba(241, 242, 245, 1);
+                }
+                .cell-number {
+                    color: @color-white;
+                }
+            }
+        }
+        .module-swiper-box {
+            width: 100%;
+            height: 100%;
+            .ui-swiper {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+            .module-single-choice-box {
+                height: 100%;
+                &.is-phonex {
+                    height: 100%;
+                }
+            }
+        }
+        .ui-button-box {
+            width: 100%;
+            height: 100rpx;
+            padding: 0 32rpx;
+            margin-top: 20rpx;
+            position: relative;
+            button {
+                width: 100%;
+                height: 100rpx;
+                background-color: @background-gray-F4;
+                font-size: 34rpx;
+                font-weight: 700;
+                color: @color-blue;
+                text-align: center;
+                line-height: 100rpx;
+                border-radius: @border-radius-20;
+            }
+            .ui-button-mask {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: @z-index-mask;
+            }
+        }
+    }
+</style>
+
+<template>
+    <jn-loading wx:if="{{!isLoaded}}">
+    </jn-loading>
+    <view class="ui-appraisal-subject-box" wx:if="{{isLoaded}}">
+        <jn-header className="background-transparent">
+            <view slot="content" class="ui-progress-box main-center cross-center">
+                <view class="ui-progress">
+                    <view class="cell-current" style="{{'width:'+((cardCurrent+1)/originList.length) * 100+'%;'}}"></view>
+                </view>
+                <view class="cell-number">{{cardCurrent+1}}/{{originList.length}}</view>
+            </view>
+        </jn-header>
+        <view class="module-swiper-box" style="{{'height: calc(100% - '+(!isIphonex ? headerHeigth+70 : headerHeigth+90)+'px)'}}">
+            <swiper class="ui-swiper" style="{{'top:'+headerHeigth+'px;height: calc(100% - '+(!isIphonex ? headerHeigth+70 : headerHeigth+90)+'px)'}}" duration="300" current="{{cardCurrent}}" bindchange="getChange">
+                <repeat for="{{questionsList}}" key="index" index="index" item="item">
+                    <swiper-item bindtouchstart="getSwipperStart" bindtouchend="getSwipperEnd">
+                        <jn-single-choice :cardIndex.sync="index" :cardsList.sync="questionsList" isExercises></jn-single-choice>
+                    </swiper-item>
+                </repeat>
+            </swiper>
+        </view>
+        <view class="ui-button-box">
+            <button disabled="{{!cardCurrentInfo[0].isFinish}}" @tap.stop="getNextCard" wx:if="{{cardCurrent !== originList.length -1}}">下一题</button>
+            <view wx:else>
+                <button open-type="{{!phone ? 'getPhoneNumber' : ''}}" disabled="{{!cardCurrentInfo[0].isFinish}}" @getphonenumber.stop="viewResults" @tap.stop="viewResults" wx:if="{{!phone}}">马上授权登录查看测评结果</button>
+                <button disabled="{{!cardCurrentInfo[0].isFinish}}" @tap.stop="viewResultsWithoutSendPhone" wx:else>马上查看测评结果</button>
+            </view>
+            
+            <view class="ui-button-mask" wx:if="{{isShowButtonMask}}"></view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {
+        getStore,
+        connect
+    } from 'wepy-redux'
+    import {
+        getUserPhone,
+        refreshUserInformations
+    } from '../../redux/models/user'
+    import header from '../../components/common/header'
+    import Loading from '../../components/common/loading'
+    import singleChoice from '../../components/cards-type/single-choice'
+    import {
+        fetch,
+        report as reportApi
+    } from '../../api'
+    import _ from 'underscore'
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        entrance(state) { //全局场景值
+            return state.entrance
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+    export default class newAppraisalSubject extends wepy.page {
+        components = {
+            'jn-header': header,
+            'jn-loading': Loading,
+            'jn-single-choice': singleChoice
+        }
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            headerHeigth: 68,
+            isLoaded: false,
+            pageName: '',
+            paramsInfo: {},
+            startTouches: {},
+            cardCurrent: 0,
+            cardCurrentInfo: [],
+            questionsList: [],
+            originList: [],
+            isShowButtonMask:false,//是否显示下一题遮罩层
+        }
+        onLoad(parmas) {
+            let self = this
+            self.paramsInfo = parmas  
+            self.initialize()
+        }
+        initialize() {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token,
+                examID: self.paramsInfo.examID
+            }
+            fetch.getExamPracticeList(postData).then((response) => {
+                self.pageName = response.examTitle
+                _.each(response.practiceList, (data) => {
+                    data.id = data.practiceID
+                    data.bigimage = data.imageURL
+                    data.select = []
+                    _.each(data.optionList, (item) => {
+                        data.select.push({
+                            sId: _.clone(item.optionID),
+                            id: data.practiceID + item.optionID,
+                            option: item.optionContent
+                        })
+                    })
+                })
+                self.cardCurrent = 0
+                self.originList = response.practiceList
+                self.questionsList.push(self.originList[0])
+                self.cardCurrentInfo.push(self.originList[0])
+                self.isLoaded = true
+                self.$apply()
+                // ga统计
+                wepy.$instance.globalData.getLoadHuilder({
+                    pageTheme: self.pageName
+                })
+            }).catch(error => {
+                self.isLoaded = true
+                self.$apply()
+            })
+        }
+        /**
+         * 当前题未满足答题，切换下一张提示先作答
+         * @param flag
+         * @returns {boolean}
+         * @private
+         */
+        __addQuestion(flag = true) {
+            let self = this
+            if (flag &&
+                self.cardCurrent === self.questionsList.length - 1 &&
+                !self.cardCurrentInfo[0].isFinish) { // 向右
+                wx.showToast({
+                    title: '请选择正答案'
+                })
+                return false
+            }
+            return true
+        }
+        /**
+         * 提交答案
+         * @param
+         */
+        __confirmAnswer() {
+            let self = this
+            wepy.$instance.globalData.getHuilder(`测评/测评答题/题${self.originList.length}/马上查看测评结果`, 'click', '')
+            // 筛选出答题答案
+            let answerList = _.map(self.originList, (data) => {
+                return {
+                    practiceID: data.practiceID,
+                    optionID: data.selectedItem && data.selectedItem.sId
+                }
+            })
+            let postData = {
+                token: self.systemInfo.token,
+                json: {
+                    examID: self.paramsInfo.examID,
+                    practiceList: answerList
+                }
+            }
+            fetch.sendUserDoExam(postData).then((response) => {
+                wx.showToast({
+                    title: '正在生成你的结果',
+                    icon: 'loading',
+                    duration: 3000,
+                    complete: () => {
+                        wx.redirectTo({
+                            url: `/pages/activity-module/new-appraisal-results?examID=${self.paramsInfo.examID}`
+                        })
+                    }
+                })
+            }).catch(error => {
+                wx.showToast({
+                    title: '网络错误',
+                    icon: 'none'
+                })
+            })
+        }
+        /**
+         * 服务通知数据上报
+         */
+        __report(practiceID) {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token,
+                body: {
+                    json: {
+                        pageType: "测评做题页",
+                        eventType: "测评做题事件上报",
+                        componentName: "测评模块",
+                        courseID: self.paramsInfo.examID,
+                        cpnPresentName: `测评做题/题${self.cardCurrent + 1}`,
+                        senceID: self.cardCurrentInfo[0].id
+                    }
+                }
+            }
+            reportApi.doUserBehaviourLog(postData)
+        }
+        methods = {
+            /**
+             * 查看测评结果
+             * 未登录需要授权
+             */
+            viewResults(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            site
+                        }
+                    },
+                    detail: {
+                        encryptedData,
+                        errMsg,
+                        iv
+                    }
+                } = event
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            let self = this
+                            store.dispatch(refreshUserInformations({
+                                phone: response
+                            }))
+                            
+                            wepy.showToast({
+                                title:'新人全场免费体验24小时',
+                                icon:'none'
+                            })
+                            setTimeout(()=>{
+                                self.__confirmAnswer()
+                            }, 1500)
+                            
+
+                        }).catch((error) => {
+                            console.log(error)
+                        })
+                    }, 0);
+                })
+                
+            },
+            /* 已经授权的用户查看结果 */
+            viewResultsWithoutSendPhone() {
+                let self = this
+                self.__confirmAnswer()
+            },
+            getChange(event) {
+                let self = this
+                let {
+                    detail: {
+                        current
+                    }
+                } = event
+                self.cardCurrent = current
+                self.cardCurrentInfo.splice(0, 1, self.originList[self.cardCurrent])
+                self.$apply()
+            },
+            /**
+             * 开始触摸
+             * @param event
+             */
+            getSwipperStart(event) {
+                let self = this
+                self.startTouches = event.changedTouches[0]
+            },
+            /**
+             * 结束触摸
+             * @param event
+             */
+            getSwipperEnd(event) {
+                let self = this
+                let endTouches = event.changedTouches[0]
+                let space = 50
+                let distanceX = self.startTouches.pageX - endTouches.pageX
+                if (distanceX > space &&
+                    self.cardCurrent === self.questionsList.length - 1 &&
+                    !self.cardCurrentInfo[0].isFinish) { // 向右
+                    wx.showToast({
+                        title: '请选择答案'
+                    })
+                }
+            },
+            /**
+             * 点击下一道题
+             * @param event
+             */
+            getNextCard() {
+                let self = this
+                self.isShowButtonMask = true;
+                self.$apply();
+                if (self.cardCurrent !== self.originList.length - 1) {
+                    let pageNum = self.cardCurrent + 1
+                    wepy.$instance.globalData.getHuilder(`测评/测评答题/题${pageNum}/下一题`, 'click', self.pageName)
+                    let isFlag = self.__addQuestion()
+                    self.__report();
+                    isFlag && setTimeout(() => {
+                        self.cardCurrent += 1;
+                        self.isShowButtonMask = false;
+                        self.$apply()
+                    }, 300)
+                    return
+                }
+                self.__confirmAnswer()
+            }
+        }
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            },
+            /**
+             * 交互卡，选择，排序卡
+             * @param data
+             */
+            'on-interaction': (data) => {
+                let self = this
+                let item = _.find(self.questionsList, {
+                    id: data.id
+                })
+                _.extend(item, data)
+                self.cardCurrentInfo.splice(0, 1, item)
+                _.find(self.originList, (item, index) => {
+                    if (item.id === data.id) {
+                        _.extend(item, data)
+                    }
+                })
+                // 显示的最后一道题满足作答，即在后面追加下一道
+                let number = self.questionsList.length
+                if (number < self.originList.length && self.cardCurrentInfo[0].isFinish) {
+                    self.questionsList.splice(number, 0, self.originList[number])
+                }
+                self.$apply()
+            },
+        }
+    }
+</script>

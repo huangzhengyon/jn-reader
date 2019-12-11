@@ -1,0 +1,44 @@
+<style lang="less" scoped>
+
+</style>
+
+<template>
+    <view class="module-full-image-box">
+        <image mode="{{!isIpad ? 'widthFix' : 'aspectFit'}}"
+               src="{{cardItem && cardItem.bigimage}}"
+               lazy-load></image>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+
+    export default class fullImage extends wepy.component {
+        props = {
+            cardItem: {
+                type: Object,
+                default: {}
+            },
+            cardIndex: {
+                type: Number
+            },
+            current: {
+                type: Number
+            }
+        }
+
+        data = {
+            isIpad: /iPad|ipad/i.test(wx.getSystemInfoSync().model)
+        }
+
+        onLoad() {
+            let self = this
+        }
+
+        methods = {}
+
+        events = {
+
+        }
+    }
+</script>

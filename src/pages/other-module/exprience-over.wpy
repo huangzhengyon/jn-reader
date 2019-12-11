@@ -1,0 +1,109 @@
+<style lang="less" scoped>
+    @import '../../assets/style/theme.less';
+    image{width: 720rpx;}
+    .cell-btn{background: #007AFF;width: 686rpx;height: 100rpx;color:#fff;line-height: 100rpx;border-radius: 20rpx;text-align: center;margin-top: 58rpx;font-size: 34rpx;}
+    .module-header .ui-button .cell-icon{color:#007AFF}
+    .cell-title {
+        font-size: 48rpx;
+        font-weight: bold;
+        color: @color-black;
+        line-height: 2;
+        margin-top: 88rpx;
+    }
+    .cell-subtitle{
+        font-size: 32rpx;
+        color: @color-gray;
+    }
+</style>
+<template>
+    <jn-header hiddenButton statusBackground="#fff">
+        <button slot="cursor-button" class="cell-back" @tap.stop="getBackStep">
+            <text class="icon-back-close cell-icon"></text>
+        </button>
+    </jn-header>
+    <view class="cross-center dir-top"  style="height: calc(100% - {{headerHeigth}}px)">
+        <image mode="widthFix" src="http://image.runwise.cn/image/experience-over.png"></image>
+        <view class="cell-title">已完成即能初体验！</view>
+        <view class="cell-subtitle">学课获取更多即能币！</view>
+        <view class="cell-btn" @tap.stop="getAuthor">{{systemInfo.phone ? '去学课' : '注册学习更多课程'}}</view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header'
+    import {fetch} from "../../api";
+    import {getStore,connect} from "wepy-redux";
+    import {navigateToLesson} from '../../utils'
+
+    const store = getStore();
+    
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class exprienceOver extends wepy.page {
+
+        components = {
+            'jn-header': header,
+        } 
+
+        data = {
+            headerHeigth: 68,
+        };
+
+        onLoad(params) {
+            console.log(params)
+            let postData = {
+                token: this.systemInfo.token,
+                courseID: params.courseID,
+                senceID: params.senceID,
+                requestFlag: params.requestFlag,
+                teamID: params.teamID,
+                source:params.source || ''
+            }
+
+
+            fetch.sendFinish(postData).then((response) => {
+                if(response.isPlayBonusToast){
+                    this.$invoke('ScoreModal', { flag: true, title: response.title, score: response.addBonus })
+                }
+            }).catch(error => {
+
+            })
+        }
+        
+
+        onShow() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        methods = {
+            getBackStep(){
+                wepy.$instance.globalData.getHuilder('初体验结束/关闭','click','')
+                return wx.navigateBack({delta: 3})
+            },
+            getAuthor() {
+                if(this.systemInfo.phone) {
+                    wepy.$instance.globalData.getHuilder('初体验结束/去学课','click','')
+                    return wepy.switchTab({ url: '/pages/tabPages/course'})
+                }else {
+                    wepy.$instance.globalData.getHuilder('初体验结束/去授权','click','')
+                    wepy.navigateTo({url: `/pages/registered-module/author?sourcePage=exprience`}) 
+                }
+               
+            }
+        };
+        
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>
+

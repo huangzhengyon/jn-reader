@@ -1,0 +1,779 @@
+<template>
+    <view wx:if="{{ isPopBashShow }}" class="flex-space-between-column team-learning-manager__pop-wrapper">
+        <view class="team-learning-manager__pop-dash">
+            <view class="flex-space-between-row team-learning-manager__pop-dash__cell">
+                <text class="team-learning-manager__pop-dash__cell__title top">选择课程相关技能</text>
+            </view>
+            <view @tap.stop="handleSlectDashCell" wx:for="{{ dashes }}" wx:key="{{ index }}" data-cell-offset="{{ index }}" class="flex-space-between-row team-learning-manager__pop-dash__cell {{ item.actived? 'actived': '' }}">
+                <text class="team-learning-manager__pop-dash__cell__title">{{ item.name }}</text>
+                <text class="team-learning-manager__pop-dash__cell__caption"><text class="team-learning-manager__pop-dash__cell__caption__span">学员平均</text>: <text class="team-learning-manager__pop-dash__cell__caption__span-yellow">{{ item.score }}</text></text>
+            </view>
+        </view>
+
+        <image @tap.stop="handleClosePopDash" class="team-learning-manager__pop-icon" src="http://wx-small.runwise.cn/image/imageID3ce3187b43a483ac54e1caaf6882.svg" mode="scaleToFill"></image>
+    </view>
+
+    <scroll-view>
+        <jn-header title="课程评价"></jn-header>
+        <view class="team-learning-manager-member-manager" wx:if="{{type==='学员管理'}}">
+            <view class="comment-article-select-list" hidden="{{!selectListVisible}}">
+                <view class="comment-article-select-angle-wapper">
+                    <view class="comment-article-select-angle"></view>
+                </view>
+                <view class="comment-article-select-list-wapper">
+                    <view class="comment-article-select-list-item {{memberCurrentSelect.itemKey===item.itemKey? 'active': ''}}" style="{{index===0?'margin-top:0;':''}}" wx:for="{{memberSelectList}}" @tap.stop="handleMemberSelected" wx:key="{{index}}" data-select="{{item}}">
+                        {{item.item}}
+                    </view>
+                </view>
+            </view>
+            <view class="comment-article-top">
+                <view class="comment-article-top-box" @tap.stop="handleSelectListVisible">
+                    <view class="comment-article-top-order-text">{{memberCurrentSelect.item}}</view>
+                    <image class="comment-article-top-order-arrow" />
+                </view>
+            </view>
+            <view wx:if="{{ 'feedBackPercent'===memberCurrentSelect.itemKey }}" class="flex-space-between-row comment-article__remind">
+                <text class="comment-article__remind__caption">落后 {{ peopleWhoLose }} 人/总 {{ totalPeople }} 人</text>
+                <button class="comment-article__remind__btn" @tap.stop="handleSendNotification" wx:if="{{isShowSendLosePushButton}}">进度提醒</button>
+            </view>
+            <view wx:else class="comment-article__skill">
+                <block wx:for="{{ dashes }}" wx:key="{{ index }}" wx:if="{{ item.actived }}">
+                    <text class="comment-article__skill__title">{{ item.name }}</text>
+                    <text class="comment-article__skill__score">平均: {{ item.score }}</text>
+                </block>
+            </view>
+            <view class="search-view">
+                <image class="search-view-icon" src="http://wx-small.runwise.cn/image/imageIDc8916e023dc4588c632fd0fdc488.svg" mode="scaleToFill" />
+                <input class="search-view-input" bindinput="bindKeyInput" placeholder="请输入学员姓名" />
+            </view>
+            <view wx:if="{{item.searchFlag}}" class="flex-row {{index===0?'border-none':''}}" wx:for="{{member}}" wx:key="{{index}}" @tap.stop="handleMemberDetail" data-memberuserid="{{item.userID}}">
+                <view class="team-learning-manager-member-manager-left">
+                    <image mode="scaleToFill" class="member-avater" src="{{item.avatarUrl||''}}" />
+                    <view style="margin-left:36rpx">
+                        <view class="team-learning-manager-member-manager-title">{{item.name}}</view>
+                        <view class="team-learning-manager-member-manager-text">{{(item.department?item.department+' ':'')}}{{(item.position?item.position:'')}}</view>
+                    </view>
+                </view>
+                <view wx:if="{{ 'feedBackPercent'===memberCurrentSelect.itemKey }}">
+                    <view style="height: fit-content;text-align:center;">
+                        <text class="team-learning-manager-member-manager-right-num">{{item.userPercent}}</text>
+                        <text class="team-learning-manager-member-manager-right-text">%</text>
+                    </view>
+                    <view class="team-learning-manager-member-manager-right-num-edit" wx:if="{{item.loserFlag}}">
+                        <view class="team-learning-manager-member-manager-right-num-edit-icon">!</view>
+                        <view> 进度落后</view>
+                    </view>
+                </view>
+                <view wx:else class="team-learning-manager-member-manager-right-num">{{ item.mark }}</view>
+            </view>
+        </view>
+        <view class="team-learning-manager-member-manager" style="padding:0" wx:if="{{type==='课程评价'}}">
+            <view class="comment-article-select-list" hidden="{{!selectListVisible}}">
+                <view class="comment-article-select-angle-wapper">
+                    <view class="comment-article-select-angle"></view>
+                </view>
+                <view class="comment-article-select-list-wapper">
+                    <view class="comment-article-select-list-item {{currentSelect.itemKey===item.itemKey?'active':''}}" style="{{index===0?'margin-top:0;':''}}" wx:for="{{selectList}}" @tap.stop="handleSelected" wx:key="{{index}}" data-select="{{item}}">
+                        {{item.item}}
+                    </view>
+                </view>
+            </view>
+            <view class="comment-article-top">
+                <view class="comment-article-top-box" @tap.stop="handleSelectListVisible">
+                    <view class="comment-article-top-order-text">{{currentSelect.item}}</view>
+                    <image class="comment-article-top-order-arrow" />
+                </view>
+            </view>
+            <view class="comment-selectwith-usercount-row" wx:if="{{currentSelect.itemKey==='feedBackUserCount'}}">
+                <text class="comment-selectwith-usercount-row-left">无人评价课程：{{lessTeamSenceNotFeedbackSenceCount}}/{{teamSenceCount}}</text>
+            </view>
+                <view class="border-top">
+                <block wx:for="{{teamSenceList}}" wx:key="{{index}}">
+                    <view class="flex-row {{index===0?'border-none':''}}"  @tap.stop="handleCommentDetail" data-senceid="{{item.senceID}}">
+                        <view class="team-learning-manager-member-manager-left">
+                            <image mode="aspectFill" class="comment-avater" src="{{item.imageUrl}}" />
+                            <view style="margin-left:36rpx">
+                                <view class="team-learning-manager-member-manager-title" style="font-size:32rpx !important;">{{item.senceName}}</view>
+                                <view class="team-learning-manager-member-manager-text">{{item.skillGroup}}</view>
+                            </view>
+                        </view>
+                        <view style="text-align:right;">
+                            <view style="height: fit-content;">
+                                <text class="team-learning-manager-member-manager-right-num" style="color: #F5A623 !important;">{{item.avgStar}}</text>
+                                <text class="team-learning-manager-member-manager-right-text">/5</text>
+                            </view>
+                            <view class="team-learning-manager-member-manager-right-usercount">评价学员：{{item.userCount}}</view>
+                        </view>
+                    </view>
+                    <view class="comment-bottom-row">
+                        <view>
+                            <text class="comment-bottom-label">学习参与：</text>
+                            <text class="comment-bottom-score">{{item.feed1}}</text>
+                        </view>
+                        <view>
+                            <text class="comment-bottom-label">技能掌握：</text>
+                            <text class="comment-bottom-score">{{item.feed2}}</text>
+                        </view>
+                        <view>
+                            <text class="comment-bottom-label">实践指引：</text>
+                            <text class="comment-bottom-score">{{item.feed3}}</text>
+                        </view>
+                    </view>
+                </block>
+            </view>
+        </view>
+        </view>
+    </scroll-view>
+</template>
+
+<script>
+    import wepy from "wepy"
+    import {getStore, connect} from "wepy-redux"
+    import loadingMixin from "../../../mixins/loading"
+    import header from '../../../components/common/header'
+    import {team as teamApi} from '../../../api'
+
+    const store = getStore();
+    const state = store.getState();
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        }, // mapState 即getters
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            // return 'userIDeb41db7f6ab4b1b0c762b757d5cd-1526006431118-877a20689218e5c3ab4d5b500fceff01'
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        }
+    })
+    export default class TeamLearningManagerList extends wepy.page {
+        mixins = [loadingMixin] // end mixins
+        components = {
+            'jn-header': header
+        } // components
+
+        data = {
+            type: '',
+            teamID: '',
+            taskID: '',
+            isPopBashShow: false,
+            peopleWhoLose: 0, // 落后人数
+            totalPeople: 0, // 总人数
+            dashes: [{
+                name: '产品计划',
+                score: 2.6,
+                actived: false
+            }, {
+                name: '产品计划',
+                score: 2.6,
+                actived: false
+            }, {
+                name: '产品计划',
+                score: 2.6,
+                actived: false
+            }, {
+                name: '产品计划',
+                score: 2.6,
+                actived: false
+            }, {
+                name: '产品计划',
+                score: 2.6,
+                actived: false
+            }], // end dashes
+            member: [{
+                avatarUrl: 'https://wx.qlogo.cn/mmopen/vi_32/0Pnt028sM765o1XBtPmI2LKVNxcyTTzZGCg70y04NPq4nyfFIHTcS3AeV3Xj1w4uDcNvDZb3ic6htdSUibXuVB0A/132',
+                name: 'John Pion',
+                department: 'Papi',
+                position: 'minitor',
+                userPercent: 80,
+                loserFlag: true,
+                searchFlag: true,
+                userSkillSocre: []
+            }, {
+                avatarUrl: 'https://wx.qlogo.cn/mmopen/vi_32/0Pnt028sM765o1XBtPmI2LKVNxcyTTzZGCg70y04NPq4nyfFIHTcS3AeV3Xj1w4uDcNvDZb3ic6htdSUibXuVB0A/132',
+                name: 'HenNa',
+                department: 'Papi',
+                position: 'minitor',
+                userPercent: 80,
+                loserFlag: true,
+                searchFlag: true,
+                userSkillSocre: []
+            }, {
+                avatarUrl: 'https://wx.qlogo.cn/mmopen/vi_32/0Pnt028sM765o1XBtPmI2LKVNxcyTTzZGCg70y04NPq4nyfFIHTcS3AeV3Xj1w4uDcNvDZb3ic6htdSUibXuVB0A/132',
+                name: 'Blown',
+                department: 'Papi',
+                position: 'minitor',
+                userPercent: 80,
+                loserFlag: true,
+                searchFlag: true,
+                userSkillSocre: []
+            }],
+            comment: [],
+            inputValue: '',
+            selectListVisible: false,
+            currentSelect: {
+                item: '按评价人数排序',
+                itemKey: 'feedBackUserCount'
+            },
+            selectList: [{
+                item: '按评价人数排序',
+                itemKey: 'feedBackUserCount'
+            },
+                {
+                    item: '按评分排序',
+                    itemKey: 'userscore'
+                },
+            ],
+            memberCurrentSelect: {
+                item: '按进度',
+                itemKey: 'feedBackPercent'
+            },
+            memberSelectList: [{
+                item: '按进度',
+                itemKey: 'feedBackPercent'
+            },
+                {
+                    item: '按技能排序',
+                    itemKey: 'feedBackSkill'
+                },
+            ],
+            teamSenceList: [],
+            lessTeamSenceNotFeedbackSenceCount: '',
+            teamSenceCount: '',
+            isShowButton: '',
+            isShowSendLosePushButton: false,
+        };
+
+        onShow() {
+            this.getDetail()
+        }
+
+        onLoad({teamID, type, isShowSendLosePushButton}, {preload: {dashes, memberList, taskID}}) {
+            this.isShowSendLosePushButton = isShowSendLosePushButton
+            this.teamID = teamID
+            this.type = type
+            this.dashes = dashes
+            this.member = memberList.map(item => ({...item, name: item.nickName}))
+            this.taskID = taskID
+            this.peopleWhoLose = this.member.filter(item => item.loserFlag).length
+            this.totalPeople = this.member.length
+            wepy.$instance.globalData.getLoadHuilder({pageTheme: type}) // ga统计
+            wepy.setNavigationBarTitle({
+                title: type
+            })
+            this.$apply()
+
+            console.log('------------------->', memberList)
+        }
+
+        onUnload() {
+            this.isPopBashShow = false
+            this.selectListVisible = false
+            this.memberCurrentSelect = {
+                item: '按进度',
+                itemKey: 'feedBackPercent'
+            }
+        }
+
+        events = {}
+
+        updateFlag() {
+            for (let item of this.member) {
+                if (-1 !== item.name.toLowerCase().indexOf(this.inputValue.toLowerCase())) {
+                    item.searchFlag = true
+                } else {
+                    item.searchFlag = false
+                }
+            }
+        }
+
+        methods = {
+            handleSendNotification() {
+                let mLosers = this.member.filter(item => item.loserFlag)
+                if (0 === mLosers.length) return wepy.showToast({
+                    title: '暂无落后学员需要提醒',
+                    icon: 'none',
+                    mask: true
+                })
+                return teamApi.sendPush_memberLoser({
+                    token: this.token,
+                    teamID: this.teamID,
+                    taskID: this.taskID,
+                    memberUserIDList: mLosers.map(item => item['userID'])
+                })
+                    .then(({sendPushMsg}) => wepy.showToast({
+                        title: sendPushMsg,
+                        icon: 'none',
+                        mask: true
+                    }))
+                    .catch(error => wepy.showToast({title: '提醒失败，请重试', icon: 'none', mask: true}) && console.log(error))
+            }, // end handleSendNotification
+            handleSlectDashCell({currentTarget: {dataset: {cellOffset}}}) {
+                // console.log('cellOffset', cellOffset)
+                this.dashes = this.dashes.map((item, index) => ({
+                    ...item,
+                    actived: cellOffset === index ? true : false
+                }))
+                this.member = this.member.map(item => ({
+                    ...item,
+                    searchFlag: item.userSkillSocre.some(skill => skill.skillName === this.dashes[cellOffset]['name']),
+                    mark: (() => {
+                        let tmp = item['userSkillSocre'].find(skill => skill.skillName === this.dashes[cellOffset]['name'])
+                        return tmp ? tmp['skillScore'] : 0
+                    })()
+
+                }))
+                this.member = this.member.sort((prev, next) => prev.mark - next.mark)
+                this.isPopBashShow = false
+            }, // end handleSlectDashCell
+            handleClosePopDash() {
+                this.isPopBashShow = false
+            },
+            handleMemberSelected({
+                                     currentTarget: {
+                                         dataset: {
+                                             select
+                                         }
+                                     }
+                                 }) {
+                this.memberCurrentSelect = select
+                this.selectListVisible = false
+                'feedBackSkill' === select.itemKey && (this.isPopBashShow = true)
+                console.log('here bitch>>>>>>', select)
+                this.getDetail()
+            },
+            handleSelected({
+                               currentTarget: {
+                                   dataset: {
+                                       select
+                                   }
+                               }
+                           }) {
+                this.currentSelect = select
+                this.selectListVisible = false
+                this.$apply()
+                this.getDetail()
+            },
+            handleSelectListVisible() {
+                this.selectListVisible = !this.selectListVisible
+            },
+            handleMemberDetail({
+                                   currentTarget: {
+                                       dataset: {
+                                           memberuserid
+                                       }
+                                   }
+                               }) {
+                this.$navigate('/pages/training-camp-module/my/students-management', {
+                    teamID: this.teamID,
+                    memberUserID: memberuserid
+                })
+            },
+            handleCommentDetail({
+                                    currentTarget: {
+                                        dataset: {
+                                            senceid
+                                        }
+                                    }
+                                }) {
+                console.log('handleCommentDetail')
+                this.$navigate('/pages/training-camp-module/my/course-evaluation', {
+                    teamID: this.teamID,
+                    senceID: senceid
+                })
+            },
+            handleBeginLearn() {
+                return wepy.navigateBack({
+                    delta: 2
+                })
+            },
+            bindKeyInput: function (e) {
+                // this.setData({
+                //     inputValue: e.detail.value
+                // })
+                this.inputValue = e.detail.value
+                // this.$apply()
+                this.updateFlag()
+            },
+        }
+
+        onReady() {
+        }
+
+        getDetail() {
+            return teamApi.getTeamSenceFeedBackList({
+                token: this.token,
+                teamID: this.teamID,
+                orderByType: this.currentSelect.itemKey
+            })
+                .then(response => {
+                    if (!response) return
+                    // if (this.type === '学员管理') {
+                    //     this.member = response.memberList.map(item => ({ ...item, searchFlag: true }))
+                    // } else {
+                    //     this.comment = response.courseList
+                    // }
+                    this.lessTeamSenceNotFeedbackSenceCount = response.lessTeamSenceNotFeedbackSenceCount
+                    this.teamSenceCount = response.teamSenceCount
+                    this.teamSenceList = response.teamSenceList
+                    this.isShowButton = response.isShowButton
+                    this.member = this.member.map(item => ({...item, searchFlag: true}))
+                    this.$apply()
+                })
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+    @import "../../../assets/style/theme";
+
+    .border-top {
+        padding: 0 36rpx;
+    }
+    .team-learning-manager-member-manager {
+        border-bottom: 120rpx solid #fff;
+        padding: 0 36rpx;
+        height: calc(~"100% - 72rpx");
+    }
+    .team-learning-manager-member-manager-title-row {
+        width: 100%;
+        height: 140rpx;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .team-learning-manager-member-manager-title-row-left {
+        color: @color-black;
+        font-size: 40rpx;
+        font-weight: bold;
+    }
+    .team-learning-manager-member-manager-title-row-right {
+        color: @color-black;
+        font-family: PingFangSC-Medium;
+        font-size: 32rpx;
+    }
+    .flex-row {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        height: 180rpx;
+        align-items: center;
+    }
+    .border-none {
+        border: 0 !important;
+    }
+    .team-learning-manager-member-manager-left {
+        height: fit-content;
+        display: flex;
+    }
+    .member-avater {
+        width: 120rpx;
+        height: 120rpx;
+        border-radius: 50%;
+        background-color: #F5A623;
+    }
+    .comment-avater {
+        width: 120rpx;
+        height: 120rpx;
+    }
+    .team-learning-manager-member-manager-left {
+        height: fit-content;
+        display: flex;
+        align-items: center;
+    }
+    .team-learning-manager-member-manager-title {
+        color: @color-black;
+        font-family: PingFangSC-Semibold;
+        font-weight: bold;
+        font-size: 36rpx;
+        max-width: 360rpx;
+    }
+    .team-learning-manager-member-manager-text {
+        color: @color-gray;
+        font-family: PingFangSC-Regular;
+        font-size: 28rpx;
+        margin-top: 12rpx;
+        white-space: pre;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 360rpx;
+    }
+    .team-learning-manager-member-manager-right-usercount {
+        margin-top: 20rpx;
+        opacity: .4;
+        color: @color-black;
+        font-family: PingFangSC-Regular;
+        font-size: 24rpx;
+    }
+    .team-learning-manager-member-manager-right-num {
+        color: @color-black;
+        font-weight: bold;
+        font-size: 40rpx;
+        height: fit-content;
+    }
+    .team-learning-manager-member-manager-right-text {
+        color: @color-black;
+        font-size: 36rpx;
+        margin-left: 4rpx;
+        height: fit-content;
+    }
+    .team-learning-manager-top-data-row-num {
+        color: #F5A623;
+        font-family: PingFangSC-Semibold;
+        font-weight: bold;
+        font-size: 48rpx;
+    }
+    .team-learning-manager-body {
+        width: 100%;
+        height: 100%;
+    }
+    .font-size-medium {
+        font-size: 44rpx !important;
+    }
+    .search-view {
+        height: 72rpx;
+        margin: 40rpx 0;
+        border-radius: @border-radius-32;
+        background-color: @background-gray-F4;
+        display: flex;
+        align-items: center;
+    }
+    .search-view-icon {
+        width: 50rpx;
+        height: 50rpx;
+        margin-left: 36rpx;
+    }
+    .search-view-input {
+        margin-left: 20rpx;
+        height: 100%;
+        font-size: 32rpx;
+    }
+    .team-learning-manager-member-manager-right-num-edit {
+        margin-top: 16rpx;
+        color: @color-red;
+        font-family: PingFangSC-Medium;
+        font-size: 24rpx;
+        line-height: 24rpx;
+        display: flex;
+    }
+    .team-learning-manager-member-manager-right-num-edit-icon {
+        width: 22rpx;
+        height: 22rpx;
+        border-radius: 50%;
+        border: 2rpx solid @color-red;
+        line-height: 26rpx;
+        text-align: center;
+        color: @color-red;
+        font-size: 16rpx;
+        margin-right: 6rpx;
+    }
+    .comment-bottom-row {
+        height: 60rpx;
+        display: flex;
+        padding: 0 36rpx;
+        border-bottom: 2rpx solid @border-gray;
+        margin: 0 -36rpx;
+        justify-content: space-between;
+    }
+    .comment-bottom-label {
+        color: @color-gray;
+        font-family: PingFangSC-Regular;
+        font-size: 24rpx;
+    }
+    .comment-bottom-score {
+        color: #f5a623;
+        font-family: PingFangSC-Regular;
+        font-size: 24rpx;
+    }
+    .comment-article-top {
+        width: 100%;
+        height: 96rpx;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: @background-white;
+    }
+    .comment-article-top-box {
+        margin: 0 36rpx;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+    .comment-article-top-order-text {
+        color: @color-gray;
+        font-family: PingFangSC-Medium;
+        font-size: 32rpx;
+    }
+    .comment-article-top-order-arrow {
+        margin-left: 12rpx;
+        width: 0;
+        height: 0;
+        border-left: 15rpx solid transparent;
+        border-right: 15rpx solid transparent;
+        border-top: 15rpx solid @color-blue;
+        margin-top: 12rpx;
+    }
+    .comment-article-select-list {
+        position: absolute;
+        top: 210rpx;
+        left: 44rpx;
+        z-index: 3;
+    }
+    .comment-article-select-list-wapper {
+        padding: 36rpx 20rpx 36rpx;
+        background-color: @background-blue;
+        color: rgba(255, 255, 255, .8);
+        font-family: PingFangSC-Regular;
+        font-size: 32rpx;
+        border-radius: 12rpx;
+        min-width: 140rpx;
+    }
+    .comment-article-select-list-item {
+        margin-top: 36rpx;
+    }
+    .comment-article-select-list-item.active {
+        color: @color-white;
+        font-family: PingFangSC-Bold;
+        font-size: 38rpx;
+    }
+    .full-screen-cover {
+        position: fixed;
+        height: 100vh;
+        width: 750rpx;
+        background-color: transparent;
+        z-index: 2;
+    }
+    .comment-article-select-angle {
+        margin-left: 72rpx;
+        width: 0;
+        height: 0;
+        border-left: 12rpx solid transparent;
+        border-right: 12rpx solid transparent;
+        border-bottom: 15rpx solid @border-blue;
+    }
+    .comment-selectwith-usercount-row{
+        height: 140rpx;
+        padding: 0 36rpx;
+        display: flex;
+        align-items: center;
+        border-top: 2rpx solid @border-gray;
+    }
+    .comment-selectwith-usercount-row-left{
+        color: @color-black;
+        font-family: PingFangSC-Medium;
+        font-size: 32rpx;
+    }
+    .comment-article__remind {
+        height: 140rpx;
+        border-top: 2rpx solid @border-gray;
+        align-items: center;
+    }
+
+    .comment-article__remind__caption {
+        display: block;
+        margin-left: 0;
+        margin-right: auto;
+        color: @color-black;
+        font-family: PingFang-SC-Medium;
+        font-size: 32rpx;
+    }
+    .comment-article__remind__btn {
+        width: 200rpx;
+        height: 72rpx;
+        line-height: 72rpx;
+        border-radius: @border-radius-20;
+        margin-left: auto;
+        margin-right: 0;
+        background-color: @background-gray-F4 !important;
+        font-family: PingFangSC-Medium;
+        font-size: 28rpx;
+        color: @color-blue;
+    }
+    .comment-article__remind__btn::after {
+        border: 0 !important;
+    }
+    .comment-article__skill {
+        height: 140rpx;
+        line-height: 140rpx;
+        border-top: 4rpx solid @border-gray;
+        color: @color-black;
+        font-family: PingFang-SC-Medium;
+        font-size: 32rpx;
+    }
+    .comment-article__skill__title {
+        margin-right: 50rpx;
+    }
+    .team-learning-manager__pop-dash {
+        width: 630rpx;
+        height: 800rpx;
+        border-radius: 24rpx;
+        box-shadow: 10rpx 20rpx 10rpx rgba(0, 0, 0, .5);
+        margin-top: 270rpx;
+        margin-bottom: 0;
+        background-color: #FFF;
+        backface-visibility:hidden;
+        -webkit-backface-visibility:hidden;
+        z-index: 5;
+        overflow-y: scroll;
+    }
+    .team-learning-manager__pop-dash__cell {
+        width: 100%;
+        height: 120rpx;
+        border-bottom: 4rpx solid @border-gray;
+        align-items: center;
+    }
+    .team-learning-manager__pop-dash__cell.actived > .team-learning-manager__pop-dash__cell__title {
+        color: @color-blue;
+        animation: customBounceIn .3s;
+    }
+    .team-learning-manager__pop-dash__cell__title {
+        display: block;
+        margin-left: 40rpx;
+        margin-right: auto;
+        color: @color-black;
+        font-family: PingFangSC-Semibold;
+        font-size: 36rpx;
+    }
+    .team-learning-manager__pop-dash__cell__title.top {
+        color: @color-black;
+        opacity: .7;
+        font-family: PingFangaSC-Regular;
+        font-size: 32rpx;
+    }
+    .team-learning-manager__pop-dash__cell__caption {
+        display: block;
+        margin-left: auto;
+        margin-right: 40rpx;
+        color: @color-black;
+        font-family: PingFangSC-Regular;
+        font-size: 26rpx;
+    }
+    .team-learning-manager__pop-dash__cell__caption__span-yellow {
+        color: #F5A623;
+    }
+    .team-learning-manager__pop-dash__cell__caption__span {
+        opacity: .7;
+    }
+    .team-learning-manager__pop-icon {
+        width: 88rpx;
+        height: 88rpx;
+        margin-top: 80rpx;
+        margin-bottom: auto;
+    }
+    .team-learning-manager__pop-wrapper {
+        width: 750rpx;
+        height: 100vh;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, .6);
+        z-index: 4;
+    }
+</style>
+

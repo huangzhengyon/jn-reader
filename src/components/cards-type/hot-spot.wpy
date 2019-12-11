@@ -1,0 +1,112 @@
+<style lang="less" scoped>
+</style>
+
+<template>
+    <view class="module-hot-spot-box" :class="{'is-phonex': isIphonex}">
+        <view class="ui-title">{{cardItem.title}}</view>
+        <view class="ui-thumb">
+            <image mode="widthFix" src="{{cardItem.bigimage}}"></image>
+            <repeat for="{{cardItem.hotSpotPosition}}" key="index" index="index" item="item">
+                <view class="ui-hot-pointer"
+                      style="left:{{item.left}}%;top:{{item.top}}%"
+                      data-item="{{item}}"
+                      @tap.stop="getSelected">
+                    <view class="cell-corrugated"></view>
+                    <view class="cell-corrugated"></view>
+                </view>
+            </repeat>
+        </view>
+    </view>
+</template>
+
+<script>
+    /**
+     * <jn-hot-spot></jn-hot-spot>
+     * @module components/cards-type/poll
+     * @desc 热点卡
+     * @param {cardsList} [Array] - 交互卡的数组- ----【】
+     * @param {cardIndex} [Number] - 当前循环的交互卡的数组索引键值- ----【】
+     * @param {cardItem} [Object] - 当前热点卡的数据- ----【】
+     */
+    import wepy from 'wepy'
+    import _ from 'underscore'
+
+    export default class hotSpotCard extends wepy.component {
+        props = {
+            cardIndex: {
+                type: Number
+            },
+            cardItem: {
+                type: Object,
+                default: {}
+            },
+            cardsList: {
+                type: Array,
+                default: []
+            }
+        }
+
+        data = {}
+
+        onLoad() {
+            let self = this
+        }
+
+        __emit(selectedItem) {
+            let self = this
+            let data = {
+                isFinish: true,
+                isAnswerOver: true,
+                isAnimation: true,
+                buttonShow: true,
+                id: self.cardItem.id,
+                selectedId: selectedItem.id,
+                selectedItem: selectedItem,
+                width: selectedItem.width,
+                height: selectedItem.height,
+                fullImageBottomtText: '继续学习',
+                json: selectedItem.sId,
+                answerStatus: 3, // 3 不提示正确还是错误
+                answerIcon: selectedItem.icon,
+                answerDescription: selectedItem.description
+            }
+
+            self.$emit('on-interaction', data)
+        }
+
+        methods = {
+            /**
+             * 选中某个选项
+             * @param event
+             * @returns {boolean}
+             */
+            getSelected(event) {
+                let self = this
+                wepy.$instance.globalData.getHuilder('微课学习/热点','click','')
+                let {currentTarget: {offsetTop, dataset:{item}}} = event
+
+                let selectedItem = _.find(self.cardsList[self.cardIndex].select, (data) => {
+                    return !data.hidden && data.index + 1 === item.location
+                })
+
+                self.__emit(selectedItem)
+            }
+        }
+
+        events = {
+            /**
+             * 监听父级，重置初始化数据
+             * @param data
+             */
+            'broadcast-reset-status': (data) => {
+                let self = this
+                self.oldIndex = -1 // 记录之前的卡片索引
+                self.selectedId = 0 // 当前选中的那个选项
+                self.selectedOffsetTop = 0
+                self.selectedTargetTop = 0
+                self.resultId = -1 // 正确的结果id
+                self.$apply()
+            }
+        }
+    }
+</script>

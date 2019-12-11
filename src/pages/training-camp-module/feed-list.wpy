@@ -1,0 +1,153 @@
+<style lang="less" scoped>
+   .ui-feed-list{
+        height: 100%;
+        .ui-not-more{
+            font-size: 26rpx;
+            color: #8F8E94;
+            text-align: center;
+            padding: 108rpx 0 218rpx;
+        }
+   }
+</style>
+<template>
+    <mloading wx:if="{{ !isLoaded  }}"/>
+    
+    <view class="ui-feed-list">
+        <jn-header title="feed列表" buttonColor="#007AFF"></jn-header>
+        <!-- feed动态列表S -->
+        <dynamic :intereact.sync="feedList" :team.sync="teamID" :role.sync="role" isEditor hideActoin wx:if="{{feedList.length}}"></dynamic>
+        <view class="ui-not-more">{{isBotttomLoading &&  feedList.length > pageSize ?'正在努力加载...' : '没有更多了'}}</view>
+        <!-- feed动态列表E -->
+    </view>
+    <view></view>
+    
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header'
+    import {fetch} from "../../api";
+    import {getStore,connect} from "wepy-redux";
+    import Loading from '../../components/common/loading';
+    import {initializationDeligate} from '../../utils';
+    import dynamic from "../../components/team-module/training-camp-dynamic";
+
+    const store = getStore();
+
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        token(state){
+            return state.user.token
+        }
+    })
+    export default class feedList extends wepy.page {
+        config = {
+            navigationBarTitleText: "下拉刷新",
+            enablePullDownRefresh: true,
+            backgroundTextStyle: "dark"
+        }
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+            dynamic,//feed动态列表
+        } 
+
+        data = {
+            isLoaded:false,//页面是否加载完
+            isScroll:true,//是否可以滚动
+            teamID:'',//训练营id
+            role:'',//角色
+            feedList:[],//feed数组
+            pageNum:'0',//页数
+            pageSize:'10',//每页请求数
+            iconList:{
+                'discuss' : 'icon-discuss',
+                'poll' : 'icon-poll',
+                'notice' : 'icon-inform',
+                'practice' : 'icon-practice'
+            },
+            isBotttomLoading:false,//是否在上拉加载
+            feedCounts:'',//feed总数
+        };
+        
+
+        onLoad(params) {
+            let self = this;
+            self.teamID = params.teamID;
+            self.role = params.role;
+            
+            self.isLoaded = true;
+            self.$apply();
+        }
+
+        onShow() {
+            let self = this 
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            initializationDeligate({initializeFunc: self.initialize.bind(self)})
+        }
+
+        initialize() {
+            let self = this
+            self.feedList = [] ;
+            self.__getFeedList()
+        }
+
+        __getFeedList(){
+            let self = this;
+            let postData = {
+                token: self.systemInfo.token,
+                teamID : self.teamID,
+                pageNum: self.pageNum,
+                pageSize: self.pageSize
+            }
+            self.isBotttomLoading = true 
+            return fetch.getFeedList(postData).then(res => {
+                self.isBotttomLoading = false ;
+                self.feedList = [...self.feedList,...res.data.rtList];
+                self.$apply();
+            }).catch((err)=> {
+                console.log(err)
+            })
+        }
+        /**
+         * 下拉刷新
+         * @param
+         */
+        onPullDownRefresh() {
+            let self = this
+            self.pageNum = 0 ;
+            self.feedList = [];
+            self.__getFeedList().then(()=>{
+                wx.stopPullDownRefresh()
+            }).catch((error)=>{
+                console.log(error)
+            })
+        }
+        /**
+         * 上拉加载
+         * @param
+         */
+        onReachBottom() {
+            let self = this
+            if(self.feedList.length < self.feedCounts){
+                self.pageNum++
+                self.__getFeedList()
+            }
+        }
+        methods = {
+            
+        }
+        events = {
+            /**
+             * 刷新列表
+             */
+            'do-update': () => {
+                let self = this 
+                self.initialize()
+            }
+        }
+    }
+</script>
+

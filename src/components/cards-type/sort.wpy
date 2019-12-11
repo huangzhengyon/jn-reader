@@ -1,0 +1,404 @@
+<style lang="less" scoped>
+    @import '../../assets/style/theme';
+    /* 排序题 */
+    .module-sort-box {
+        box-sizing: border-box;
+        width: 100%;
+        height: calc(~"100% - 72px");
+        &.is-phonex {
+            width: 100%;
+            height: calc(~"100% - 106px");
+        }
+        view {
+            box-sizing: border-box;
+        }
+        .ui-content {
+            height: 100%;
+            padding: 0 72rpx;
+        }
+        .ui-title {
+            padding-top: 24rpx;
+            font-size: 36rpx;
+            font-weight: 700;
+            color: #000;
+            line-height: 60rpx;
+        }
+        .ui-subtitle {
+            padding-top: 16rpx;
+            font-size: 28rpx;
+            color: #8F8E94;
+            line-height: 60rpx;
+        }
+        .ui-answer-list {
+            padding: 4rpx 0;
+            position: relative;
+        }
+        .ui-item {
+            width: 100%;
+            height: 112rpx;
+            padding: 0 24rpx;
+            margin-top: 40rpx;
+            background: #F5F5F5;
+            border-radius: 16rpx;
+            position: absolute;
+            left: 0;
+            top: 0;
+            transition: all .25s;
+            &.cell-opacity {
+                opacity: 0;
+                position: relative;
+            }
+            &.ui-item-hover {
+                background: rgba(0, 0, 0, .3);
+            }
+            &.is-selected {
+                
+                &.is-error {
+                    
+                    .cell-title text:first-child {
+                        background-color: #fe6061;
+                        border: 2rpx solid #fe6061;
+                    }
+                }
+                .cell-title text:first-child {
+                    background-color: #007AFF;
+                    color: #fff;
+                    border: 2rpx solid #007AFF;
+                }
+            }
+            .cell-title {
+                font-size: 32rpx;
+                color: #000;
+                position: relative;
+                .cell-text {
+                    width: 100%;
+                    text-overflow: -o-ellipsis-lastline;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                }
+                .cell-main {
+                    display: flex;
+                    flex: 1;
+                    align-content: center;
+                    justify-content: space-between;
+                    .cell-choose-status {
+                        .flex-center();
+                        image {
+                            width: 40rpx;
+                            height: 40rpx;
+                        }
+                    }
+                }
+            }
+            .cell-title text:first-child {
+                display: block;
+                width: 48rpx;
+                height: 48rpx;
+                margin-right: 24rpx;
+                font-size: 32rpx;
+                text-align: center;
+                border-radius: 50%;
+                border: 2rpx solid #000;
+            }
+        }
+        .module-exercises-result {
+            .cell-exercises-button {
+                background-color: transparent;
+                color: @color-blue;
+                font-size: 32rpx;
+                font-weight: normal;
+            }
+        }
+    }
+</style>
+
+<template>
+    <scroll-view class="module-sort-box" :class="{'is-phonex': isIphonex}" scroll-y scroll-top="{{scrollTop}}">
+        <view class="ui-content">
+            <view class="ui-module-mold" wx:if="{{isShowType}}">
+                <text class="icon-sort"></text>排序题
+            </view>
+            <view class="ui-thumb" wx:if="{{cardItem.bigimage}}">
+                <image mode="aspectFit" src="{{cardItem.bigimage}}"></image>
+            </view>
+            <view class="ui-module-tips">
+                <text class="ui-title">{{cardItem.description}}</text>
+            </view>
+            <view class="ui-subtitle" wx:if="{{!isExercises}}">{{cardItem.singleChoiceDescribe}}</view>
+            <view class="ui-answer-list" style="height: {{ 152 * cardItem.select.length + 10 }}rpx;">
+                <repeat for="{{cardItem.select}}" key="index" index="index" item="item">
+                    <view class="ui-item" :class="{'is-selected': cardsList[cardIndex].selectedInfo[item.id].isSelected ,'is-error': (cardsList[cardIndex].allowToNext && ((cardsList[cardIndex].selectedInfo[item.id].index + 1) != item.index) || (cardsList[cardIndex].isDone && (item.selectIndex != item.index)))}"
+                        hover-class="{{!isAnswerOver && !cardItem.allowToNext ? 'ui-item-hover' : ''}}" style="top: {{(cardsList[cardIndex].selectedInfo[item.id] ? cardsList[cardIndex].selectedInfo[item.id].index : index) * 152}}rpx" data-item="{{ item }}" data-index="{{ index }}"
+                        @tap.stop="getSelected">
+                        <view class="cell-title cross-center">
+                            <text class="flex-box-0">{{cardsList[cardIndex].selectedInfo[item.id].isSelected ? (cardsList[cardIndex].allowToNext ? item.index : (cardsList[cardIndex].selectedInfo[item.id].index + 1) ): ''}}</text>
+                            <view class="flex-box-1 cell-main">
+                                <view class="cell-text">{{item.option}}</view>
+                                <view class="cell-choose-status" wx:if="{{isAnswerOver}}">
+                                    <image src="../../assets/img/icon-wrong.svg" wx:if="{{(cardsList[cardIndex].allowToNext && ((cardsList[cardIndex].selectedInfo[item.id].index + 1) != item.index) || (cardsList[cardIndex].isDone && (item.selectIndex != item.index)))}}"></image>
+                                    <image src="../../assets/img/icon-right.svg" wx:else></image>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                </repeat>
+            </view>
+            <view class="ui-module-feedback" wx:if="{{!isExercises && (cardsList[cardIndex].isAnswerOver || cardsList[cardIndex].isDone)}}" :class="{'is-error' : cardsList[cardIndex].answerStatus == 2 || (cardsList[cardIndex].isCorrect == 2 && cardsList[cardIndex].isDone)}">
+                <view class="cell-name">
+                    {{cardsList[cardIndex].answerTitle || cardsList[cardIndex].reviewFeedback.title}}</view>
+                <view class="cell-content">{{cardsList[cardIndex].answerDescription || cardsList[cardIndex].reviewFeedback.description}}</view>
+            </view>
+            <view class="module-exercises-result" :class="{'is-show': isExercises && isAnswerOver}" wx:if="{{disabled}}">
+                <view class="main-justify">
+                    <view class="cell-exercises-title">题目解释</view>
+                    <button hover-class="cell-exercises-hover" class="cell-exercises-button" @tap.stop="getToDiscuss">
+                            {{commentsCount>0 ? commentsCount+'条讨论' : '参与评论'}}</button>
+                </view>
+                <view class="ui-description">{{description}}</view>
+            </view>
+        </view>
+    </scroll-view>
+</template>
+
+<script>
+    /**
+     * <jn-sort></jn-sort>
+     * @module components/cards-type/single-choice
+     * @desc 即学即练排序
+     * @param {cardsList} [Array] - 测练的数组- ----【】
+     * @param {cardIndex} [Number] - 当前循环的测练数组索引键值- ----【】
+     * @param {isExercises} [Number] - option是否占整行，需要给option文本后面留出一定的空间，显示正确错误的图标- ----【0】
+     * @param {commentsCount} [Number] - 即练提交答案后显示的参与评论的条数- ----【0】
+     */
+    import wepy from 'wepy'
+    import _ from 'underscore'
+    export default class sortCard extends wepy.component {
+        props = {
+            cardIndex: {
+                type: Number
+            },
+            cardItem: {
+                type: Object,
+                default: {}
+            },
+            cardsList: {
+                type: Array,
+                default: []
+            },
+            isExercises: {
+                type: Number,
+                default: 0
+            },
+            isShowType: {
+                type: Number,
+                default: 0
+            },
+            commentsCount: {
+                type: Number,
+                default: 0
+            },
+            disabled: {
+                type: Boolean,
+                default: false
+            }
+        }
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            scrollTop: 0, // 滚动条的位置
+            senceID: null,
+            oldIndex: -1, // 记录之前的卡片索引
+            selectedId: '', // 选中的顺序
+            sourceList: [], // 默认排序
+            orderList: [], // 用户选择后的排序
+            resultId: -1, // 正确的结果id
+            isAnswerOver: false, // 是否作答结束
+            description: '', // 选中的答案的解释详情
+        }
+        onLoad() {
+            let self = this
+            self.senceID = self.isExercises && self.$parent.paramsInfo.senceID;
+        }
+        /**
+         * 初始化排序的初始顺序
+         * @param
+         */
+        __sortInit() {
+            let self = this
+            let selectedInfo = self.cardsList[self.cardIndex].selectedInfo = {}
+            _.each(self.cardItem.select, (data, index) => {
+                selectedInfo[data.id] = {
+                    index: index,
+                    isSelected: false,
+                    id: data.id,
+                    weight: data.weight
+                }
+                // 记录最开始的默认排序
+                self.sourceList.push({
+                    id: data.id,
+                    weight: data.weight
+                })
+            })
+        }
+        /**
+         * 排序动画
+         * @param item
+         */
+        __sortAnimation(item) {
+            let self = this
+            // 选中的个数
+            let maxList = [];
+            let sortList = []
+            let selectedInfo = self.cardsList[self.cardIndex].selectedInfo
+            _.mapObject(selectedInfo, (value, key) => {
+                value.isSelected && maxList.push(value)
+            })
+            let size = _.clone(maxList.length)
+            if (selectedInfo[item.id].isSelected) { // 选中
+                _.mapObject(selectedInfo, (value, key) => {
+                    if (value.isSelected && value.id === item.id) {
+                        value.index = maxList.length - 1
+                    } else if (!value.isSelected) {
+                        value.index = size
+                        size++
+                    }
+                    // 选中的排序 
+                    if (maxList.length === self.cardItem.select.length) {
+                        self.orderList = []
+                        sortList.push(value)
+                        sortList = _.sortBy(sortList, 'index')
+                        self.selectedId = _.pluck(sortList, 'id').join(',')
+                        if (sortList.length === self.cardItem.select.length) {
+                            _.each(sortList, (data) => {
+                                self.orderList.push({
+                                    id: data.id,
+                                    weight: data.weight
+                                })
+                            })
+                        }
+                    }
+                    return value
+                })
+            } else { // 取消选中
+                _.mapObject(selectedInfo, (value, key) => {
+                    value.isSelected = value.index >= selectedInfo[item.id].index ? false : true
+                    return value
+                })
+            }
+            if (maxList.length === self.cardItem.select.length) {
+                self.__sortSelected(item, 1)
+            } else {
+                self.__sortSelected(item)
+            }
+            self.$apply()
+        }
+        /**
+         * 通知选择好的排序
+         * @param item
+         */
+        __sortSelected(item, type) {
+            let self = this
+            let answerStatus = 2
+            let answerTitle = self.cardItem.feedbackType3.wrong.title
+            let answerDescription = self.cardItem.feedbackType3.wrong.description
+            if (self.cardItem.trueSequence == self.selectedId) {
+                answerStatus = 1
+                answerTitle = self.cardItem.feedbackType3.right.title
+                answerDescription = self.cardItem.feedbackType3.right.description
+            }
+            let data = {
+                isFinish: type ? true : false,
+                isAnswerOver: false,
+                id: self.cardItem.id,
+                selectedId: type ? self.selectedId : null,
+                selectedItem: type ? item : null,
+                fullImageBottomtText: type ? '我已选好' : '请选择先后顺序',
+                json: JSON.stringify({
+                    sourceList: self.sourceList,
+                    orderList: self.orderList
+                }),
+                answerStatus: answerStatus, // 1回答正确, 2回答错误
+                answerTitle: answerTitle,
+                answerDescription: answerDescription
+            }
+            self.$emit('on-interaction', data)
+            self.description = _.clone(answerDescription)
+            self.$apply()
+        }
+        methods = {
+            /**
+             * 选中某个选项
+             * @param event
+             * @returns {boolean}
+             */
+            getSelected(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            index
+                        }
+                    }
+                } = event
+                _.isEmpty(self.cardsList[self.cardIndex].selectedInfo) && self.__sortInit() // 第一次点击
+                if (self.isAnswerOver &&
+                    self.oldIndex === self.cardIndex ||
+                    self.cardItem.allowToNext) {
+                    return false
+                }
+                let selectedInfo = self.cardsList[self.cardIndex].selectedInfo;
+                selectedInfo[item.id].isSelected = !selectedInfo[item.id].isSelected;
+                self.__sortAnimation(item, index)
+            },
+            /**
+             * 前往评论列表
+             * @param event
+             * @returns {boolean}
+             */
+            getToDiscuss() {
+                let self = this
+                wx.navigateTo({
+                    url: `/pages/course-module/course-discuss?practiceCardID=${self.cardItem.id}&senceID=${self.senceID}`
+                })
+            }
+        }
+        events = {
+            /**
+             * 监听父级页面触发提交答案
+             * @param data
+             */
+            'broadcast-sort': (data) => {
+                let self = this
+                self.resultId = self.cardItem.trueSequence;
+                self.isAnswerOver = true;
+                self.oldIndex = _.clone(self.cardIndex);
+                wx.createSelectorQuery().select('.ui-answer-list').boundingClientRect(function(rect) {
+                    self.scrollTop = rect.bottom;
+                    self.$apply()
+                }).exec()
+                self.$apply()
+            },
+            /**
+             * 监听父级，重置初始化数据
+             * @param data
+             */
+            'broadcast-reset-status': (data) => {
+                let self = this
+                if(data.type != 'order')return;
+                console.log(data)
+                self.scrollTop = 0
+                self.oldIndex = -1 // 记录之前的卡片索引
+                self.selectedId = 0 // 当前选中的那个选项
+                self.resultId = -1 // 正确的结果id
+                self.isAnswerOver = data.allowToNext // 是否作答结束
+                if(data.isWrong !== undefined) {
+                    self.description = data.isWrong ? data.feedbackType3.wrong.description : data.feedbackType3.right.description
+                }
+                self.$apply()
+            }
+        }
+    }
+</script>

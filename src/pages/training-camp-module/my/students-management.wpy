@@ -1,0 +1,347 @@
+<template>
+    <scroll-view>
+        <jn-header title="学员管理"></jn-header>
+        <view class="team-member-body">
+            <view class="team-member-body-person-info">
+                <image class="team-member-body-person-info-avator" src="{{member.avatarUrl}}"></image>
+                <view class="team-member-body-person-info-data">
+                    <view class="team-member-body-person-info-data">
+                        <view class="team-member-body-person-info-data-name">{{member.name||member.nickName}}</view>
+                        <view class="team-member-body-person-info-data-wapper">
+                            <view class="team-member-body-person-info-data-desc" wx:if="{{member.department}}">{{member.department}}</view>
+                            <view class="team-member-body-person-info-data-desc" wx:if="{{member.position}}">{{member.position}}</view>
+                            <view class="team-member-body-person-info-data-desc" wx:if="{{member.phoneNum}}">{{member.phoneNum}}</view>
+                            <view class="team-member-body-person-info-data-desc" wx:if="{{member.coEmail}}">{{member.coEmail}}</view>
+                            <view class="team-member-body-person-info-data-desc" wx:if="{{member.coNo}}">{{member.coNo}}</view>
+                            <view class="team-member-body-person-info-data-desc" wx:if="{{member.email}}">{{member.email}}</view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+            <view class="team-member-body-statistics-wapper">
+                <view class="team-member-body-statistics-block">
+                    <view>
+                        <text class="team-member-body-statistics-block-num color1">{{averageFinish}}</text>
+                        <text class="team-member-body-statistics-block-ndesc">%</text>
+                    </view>
+                    <view class="team-member-body-statistics-block-ndesc">完成比例</view>
+                </view>
+                <view class="team-member-body-statistics-block">
+                    <view>
+                        <text class="team-member-body-statistics-block-num color2">{{averageLearnAllTime}}</text>
+                        <text class="team-member-body-statistics-block-ndesc">min</text>
+                    </view>
+                    <view class="team-member-body-statistics-block-ndesc">学习总时长</view>
+                </view>
+            </view>
+            <view class="team-member-body-statistics-wapper">
+                <view class="team-member-body-statistics-block">
+                    <view>
+                        <text class="team-member-body-statistics-block-num color3">{{averageSenceScore}}</text>
+                        <text class="team-member-body-statistics-block-ndesc">/5</text>
+                    </view>
+                    <view class="team-member-body-statistics-block-ndesc">平均微课评分</view>
+                </view>
+                <view class="team-member-body-statistics-block">
+                    <view>
+                        <text class="team-member-body-statistics-block-num color4">{{averageSenceLearnTime}}</text>
+                        <text class="team-member-body-statistics-block-ndesc">min</text>
+                    </view>
+                    <view class="team-member-body-statistics-block-ndesc">平均微课学习时长</view>
+                </view>
+            </view>
+
+            <view class="team-member-body-skill" wx:if="{{skillGroupList.length||skillSet.length}}">
+                <mSkillSet :skillGroupList.sync="skillGroupList" :skillSet.sync="skillSet" :extendAble.sync="extendAble" title="个人技能"></mSkillSet>
+            </view>
+            <view class="team-member-body-content">
+                    <view wx:for="{{courseList}}" wx:key="{{index}}">
+                        <view class="team-member-body-content-title">{{item.courseName}}</view>
+                        <view class="flex-row {{index===0?'border-none':''}}" wx:for="{{item.courseSenceList}}" wx:key="{{index}}">
+                            <view class="team-learning-manager-member-manager-left">
+                                <image mode="aspectFill" class="comment-avater" src="{{item.imageUrl}}" />
+                                <view style="margin-left:36rpx">
+                                    <view class="team-learning-manager-member-manager-title" style="font-size:32rpx !important;">{{item.senceName}}</view>
+                                    <view class="team-learning-manager-member-manager-text">
+                                        <view>
+                                            <text class="team-member-body-content-row-desc-desc color3">{{item.senceScore}}</text>
+                                            <text>/5</text>
+                                        </view>
+                                        <view>
+                                            <text class="team-member-body-content-row-desc-desc color4">{{item.senceTime}}</text>
+                                            <text>min</text>
+                                        </view>
+                                    </view>
+                                </view>
+                            </view>
+                            <view style="height: fit-content;">
+                                <text class="team-learning-manager-member-manager-right-num" style="color: #F5A623 !important;">{{item.sencePercent}}</text>
+                                <text class="team-learning-manager-member-manager-right-text">%</text>
+                            </view>
+                        </view>
+                    </view>
+            </view>
+        </view>
+     </scroll-view>
+</template>
+<style lang="less" scoped>
+    @import "../../../assets/style/theme";
+    .team-member-body-skill{
+        padding: 0 32rpx;
+        border-top: 20rpx solid #f1f2f5;
+    }
+    .team-member-body {
+        height: 100%;
+        width: 100%;
+    }
+    .color1{
+        color: #8852b8;
+    }
+    .color2{
+        color: #007aff;
+    }
+    .color3{
+        color: #f5a623;
+    }
+    .color4{
+        color: #00ca9d;
+    }
+    .team-member-body-content{
+        width: calc(~"100% - 72rpx");
+        padding: 0 36rpx 120rpx 36rpx;
+        border-top: 20rpx solid #f1f2f5;
+    }
+    .team-member-body-content-title{
+        height: 152rpx;
+        display: flex;
+        align-items: center;
+        color: #303f48;
+        font-family: PingFangSC-Semibold;
+        font-weight: bold;
+        font-size: 40rpx;
+        line-height: 56rpx;
+    }
+     .team-member-body-content-row{
+         width: 100%;
+         height: 180rpx;
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+     }
+    .team-member-body-person-info {
+        width: calc(~"100% - 40rpx");
+        display: flex;
+        padding: 60rpx 0rpx 48rpx 40rpx;
+        border-bottom: 2rpx solid #f1f2f5;
+    }
+    .team-member-body-person-info-avator {
+        margin-right: 36rpx;
+        width: 200rpx;
+        height: 200rpx;
+        border-radius: 50%;
+    }
+    .team-member-body-person-info-data {}
+    .team-member-body-person-info-data-name {
+        margin-bottom: 36rpx;
+        color: #294657;
+        font-family: PingFangSC-Semibold;
+        font-weight: bold;
+        font-size: 48rpx;
+        line-height: 48rpx;
+    }
+    .team-member-body-person-info-data-wapper {
+        max-width: 480rpx;
+    }
+    .team-member-body-person-info-data-desc {
+        color: #4d626d;
+        font-family: PingFangSC-Regular;
+        font-size: 28rpx;
+        line-height: 28rpx;
+        display: inline-block;
+        margin-right: 60rpx;
+        margin-top: 24rpx;
+        float: left;
+    }
+    .team-member-body-statistics-wapper {
+        width: 100%;
+        display: flex;
+    }
+    .team-member-body-statistics-block {
+        width: 50%;
+        height: 240rpx;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .team-member-body-statistics-block-num {
+        font-family: PingFangSC-Semibold;
+        font-size: 60rpx;
+        line-height: 84rpx;
+    }
+    .team-member-body-statistics-block-ndesc {
+        margin-left: 8rpx;
+        color: #294657;
+        font-family: PingFangSC-Regular;
+        font-size: 28rpx;
+        line-height: 40rpx;
+    }
+    .team-member-body-statistics-block-desc {
+        margin-top: 30rpx;
+        color: #294657;
+        font-family: PingFangSC-Regular;
+        font-size: 26rpx;
+        line-height: 34rpx;
+    }
+    .team-learning-manager-member-manager-title-row {
+        width: 100%;
+        height: 180rpx;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 400rpx;
+    }
+
+    .team-learning-manager-member-manager-left {
+        height: fit-content;
+        display: flex;
+    }
+    .team-learning-manager-member-manager-title {
+        color: #303f48;
+        font-family: PingFangSC-Semibold;
+        font-weight: bold;
+        font-size: 36rpx;
+        max-width: 400rpx;
+    }
+    .team-learning-manager-member-manager-text {
+        color: #303f48;
+        font-family: PingFangSC-Medium;
+        font-size: 28rpx;
+        margin-top: 20rpx;
+        white-space: pre;
+        display: flex;
+        width:250rpx;
+        justify-content: space-between
+    }
+    .team-member-body-content-row-desc-desc{
+        font-size: 32rpx;
+        line-height: 40rpx;
+        /* font-weight: bold; */
+        margin-right: 8rpx;
+    }
+    .team-learning-manager-member-manager-right-num {
+        color: #8852b8;
+        font-family: PingFangSC-Semibold;
+        font-weight: bold;
+        font-size: 40rpx;
+        height: fit-content;
+    }
+    .team-learning-manager-member-manager-right-text {
+        color: #303f48;
+        font-family: PingFangSC-Semibold;
+        /* font-weight: bold; */
+        font-size: 36rpx;
+        margin-left: 4rpx;
+        height: fit-content;
+    }
+    .comment-avater {
+        width: 120rpx;
+        height: 120rpx;
+        /*background-color: #8852b8;*/
+    }
+    .flex-row {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        height: 180rpx;
+        border-top: 2rpx solid #f1f2f5;
+        align-items: center;
+    }
+    .border-none {
+        border: 0 !important;
+    }
+
+</style>
+<script>
+    import wepy from "wepy"
+    import {getStore, connect} from "wepy-redux"
+    import SkillSet from '../../../components/SkillSet/index'
+    import loadingMixin from "../../../mixins/loading"
+    import header from '../../../components/common/header'
+    import {team as teamApi} from '../../../api'
+    const store = getStore();
+    const state = store.getState();
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        }, // mapState 即getters
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            // return 'userIDa17893b9d893483ab6cd9108b77714fe-1523802021681-90096bde7b9b3902ff6bbe596f0bd55d'
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        }
+    })
+    export default class TeamLearningMemberDetail extends wepy.page {
+        mixins = [loadingMixin] // end mixins
+        components = {
+            'jn-header': header,
+            'mSkillSet':SkillSet
+        }
+        data = {
+            teamID: '',
+            memberUserID: '',
+            courseList:[],
+            averageFinish:'',
+            averageLearnAllTime:'',
+            averageSenceLearnTime:'',
+            averageSenceScore:'',
+            member:{},
+            skillGroupList:[],
+            skillSet:[],
+            extendAble:true,
+        };
+        onShow() {}
+        onLoad({
+            teamID,
+            memberUserID
+        }) {
+            this.teamID = teamID
+            this.memberUserID = memberUserID
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            this.getDetail()
+        }
+        getDetail() {
+            teamApi.showAdminToMemberPage({
+                    token: this.token,
+                    teamID: this.teamID,
+                    memberUserID: this.memberUserID
+                })
+                .then(response => {
+                    if (!response) return
+                    this.courseList = response.courseList
+                    this.averageFinish = response.averageFinish
+                    this.averageLearnAllTime = response.averageLearnAllTime
+                    this.averageSenceLearnTime = response.averageSenceLearnTime
+                    this.averageSenceScore = response.averageSenceScore
+                    this.member = response.member
+
+                    this.skillGroupList = response.skillGroupList
+                    this.skillSet = response.skillSet
+                    this.$apply()
+                })
+        }
+        events = {} // end events
+        methods = {
+            handleBeginLearn() {
+                return wx.navigateBack()
+            },
+
+        }
+    }
+</script>

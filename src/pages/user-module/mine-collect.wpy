@@ -1,0 +1,211 @@
+<style lang="less" scoped>
+    /* 列表 */
+    .ui-mine-collect{
+        padding-bottom:100rpx;
+        .ui-type{
+            height: 104rpx;padding-left: 24rpx;position:fixed;z-index:3;background:#fff;
+            view{
+                width: 200rpx;height: 60rpx;font-size: 36rpx;color: #000;font-weight: bold;line-height: 60rpx;
+                &.cell-selected{color: #007AFF;}
+            }
+        }
+        
+        .ui-course-list{
+            padding-top:104rpx;
+            .ui-content-header{
+                height: 176rpx;padding-left:32rpx;border-top:10rpx solid#E5E5EA;
+                .ui-img{
+                    margin-right: 24rpx;
+                    image{width: 112rpx;height: 112rpx;border-radius: 28rpx;}
+                }
+                .ui-detail{
+                    .cell-title{font-size: 32rpx;color: #000;font-weight: bold;}
+                    .cell-dec{font-size: 26rpx;color:#8F8E94;margin-top:12rpx}
+                }
+            }
+            .ui-scroll-list{
+                overflow:hidden;white-space:nowrap;margin-bottom:60rpx;
+                .ui-item{
+                    display:inline-block;margin-right:20rpx;border: 2rpx solid #D1D1D6;border-radius: 20rpx;width: 300rpx;height: 400rpx;overflow: hidden;
+                    image{width: 300rpx;border-radius: 20rpx;height: 402rpx;}
+                    &:first-of-type{margin-left:32rpx;}
+                }
+            }
+        }
+        .ui-editor-list{
+            padding: 104rpx 32rpx 0;
+            .ui-item{
+                height: 208rpx;border-bottom: 2rpx solid #EFEFF4;
+                image{height: 160rpx;width: 160rpx;border-radius: 12rpx;}
+                .cell-name{font-size: 34rpx;font-weight: bold;padding-right:20rpx;}
+                .ui-num{
+                    font-size: 24rpx;color: #8E8E93;
+                    text{
+                        color:#E5E5EA;font-size:27rpx;margin-right:10rpx;
+                        &:last-of-type{margin-left: 40rpx;}
+                    }
+                }
+            }
+        }
+        
+        
+    }
+</style>
+
+<template>
+    <mloading wx:if="{{ !isLoaded  }}"/>
+	<jn-header title="我的收藏"  background="#fff" buttonColor="#007AFF"></jn-header>
+    <view class="ui-mine-collect">
+        <view class="ui-type cross-center">
+            <view :class="{'cell-selected' : 1 == type}" @tap.stop="getType" data-type="1">课程({{collectList.length}})</view>
+            <view :class="{'cell-selected' : 2 == type}" @tap.stop="getType" data-type="2">专题({{editorList.length}})</view>
+        </view>
+        <view class="ui-course-list" wx:if="{{1 == type}}">
+            <repeat for="{{collectList}}" key="index" index="index" item="item">
+                <view class="ui-content-header cross-center" @tap.stop="getLesson" data-item="{{item}}" data-type="sence">
+                    <view class="ui-img">
+                        <image src="{{item.img}}"/>
+                    </view>
+                    <view class="ui-detail">
+                        <view class="cell-title">{{item.senceName}}</view>
+                        <view class="cell-dec">#{{item.senceTarget}}</view>
+                    </view>
+                </view>
+                <scroll-view class="ui-scroll-list" scroll-x>
+                    <repeat for="{{item.cardList}}" key="senceIndex" index="senceIndex" item="senceItem">
+                        <view class="ui-item" @tap.stop="getLesson" data-type="card" data-sence-id="{{item.senceID}}" data-course-id="{{item.courseID}}" data-item="{{senceItem}}">
+                            <image src="{{senceItem.bigimage}}" mode="scaleToFill"/>
+                        </view>
+                    </repeat>
+                </scroll-view>
+            </repeat>
+        </view>
+        
+        <view wx:else class="ui-editor-list">
+            <repeat for="{{editorList}}" key="index" index="index" item="item">
+                <view class="ui-item cross-center main-justify"
+                    wx:if="{{item.name}}" @tap.stop="getEditor" data-item="{{item}}">
+                    <view class="flex-width-1 dir-top main-around">
+                        <view class="cell-name text-overflow-t">{{item.name}}</view>
+                        <view class="ui-num">
+                            <text class="icon-eyes"></text>{{item.userCount}}
+                            <text class="icon-praise"></text>{{item.likeCount}}
+                        </view>
+                    </view>
+                    <image src="{{item.coverImageURL}}"></image>
+                </view>
+            </repeat>
+        </view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+	import wepy from 'wepy'
+	import {getStore,connect} from "wepy-redux"
+	import Loading from '../../components/common/loading'
+	import header from '../../components/common/header'
+    import {navigateToLesson, initializationDeligate} from '../../utils'
+    import {fetch} from "../../api";
+
+	const store = getStore();
+	@connect({
+		systemInfo(state) {
+            return state.user
+        }
+	})
+	export default class MineCollect extends wepy.page {
+		components = {
+			'mloading': Loading,
+			'jn-header': header
+		}
+
+		data = {
+			isLoaded: false,
+            collectList:[],
+            type:1,
+            editorList:[]
+		}
+		onLoad() {
+            let self = this
+            initializationDeligate({initializeFunc: self.initialize.bind(self)})
+		}
+
+        onShow() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+		methods = {
+            getType(event) {
+                let {currentTarget: {dataset:{type}}} = event
+                this.type = type;
+                1 == type ? wepy.$instance.globalData.getHuilder(`我的/我的收藏/课程`,'click','') : wepy.$instance.globalData.getHuilder(`我的/我的收藏/专题`,'click','')
+                this.$apply()
+            },
+			getLesson(event){
+                let {currentTarget: {dataset:{item,courseId,senceId,type}}} = event
+                let courseID = item.courseID ? item.courseID : courseId;
+                let senceID = item.senceID ? item.senceID : senceId;
+                let resumeLastRead = 'NO'
+                let senceName = item.senceName
+                if(item.xuhao) {
+                    resumeLastRead = item.xuhao ;
+                }
+                if('sence' == type) {
+                    wepy.$instance.globalData.getHuilder(`我的/我的收藏/微课`,'click',senceName)
+                }else {
+                    wepy.$instance.globalData.getHuilder(`我的/我的收藏/微课卡片`,'click',senceName)
+                }
+                
+                navigateToLesson({courseID:courseID, senceID:senceID, resumeLastRead: resumeLastRead})
+            },
+             /**
+             * 前往专题学习
+             * @param event
+             */
+            getEditor(event) {
+                let self = this
+                let {currentTarget: {dataset:{item}}} = event
+                let courseID = item.id;
+                let name = item.name
+                wepy.$instance.globalData.getHuilder(`我的/我的收藏/专题/item`,'click', `${name}`)
+                return self.$navigate('/pages/SpecialCourse/index', {courseID})
+            },
+        }
+
+        initialize() {
+            let self = this
+            self.__fetchCollectList();
+            self.__EditorCollectList()
+        }
+
+        __fetchCollectList() {
+            let self = this;
+            let postData = {
+                token:self.systemInfo.token
+            }
+            fetch.getCardCollections(postData).then(res => {
+                self.collectList = res.senceList
+                self.isLoaded = true;
+                self.$apply();
+            }).catch(()=> {
+
+            })
+        }
+        __EditorCollectList() {
+            let self = this;
+            let postData = {
+                token:self.systemInfo.token
+            }
+            fetch.getEditorCollections(postData).then(res => {
+                self.editorList = res;
+                self.$apply();
+            }).catch(()=> {
+
+            })
+        }
+
+
+	}
+</script>
+

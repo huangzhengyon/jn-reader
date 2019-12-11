@@ -1,0 +1,255 @@
+<template>
+    <scroll-view class="module-poll-box"
+                 :class="{'is-phonex': isIphonex && !isLearning, 'is-learning': isLearning}"
+                 scroll-y>
+        <view class="ui-content">
+            <view class="ui-thumb" wx:if="{{cardsList[cardIndex].bigimage}}">
+                <image mode="aspectFit" src="{{cardsList[cardIndex].bigimage}}"></image>
+            </view>
+            <view class="ui-module-mold" wx:if="{{isShowType}}">
+                <text class="icon-vote"></text>投票题
+            </view>
+            <view class="ui-module-tips">
+                <text class="ui-type"  wx:if="{{isShowType}}">{{cardsList[cardIndex].cardStatus === 'single' || cardsList[cardIndex].pollType === 'single' ? '单选' : '多选'}}</text>
+                <text class="ui-title">{{cardsList[cardIndex].title}}</text>
+            </view>
+            
+            <view class="ui-description">{{cardsList[cardIndex].pollDesc}}</view>
+            
+
+            <view class="ui-answer-list">
+                <repeat for="{{cardsList[cardIndex].select || cardsList[cardIndex].optionList}}" key="index" index="index" item="item">
+                    <view class="ui-item"
+                          hover-class="{{!cardsList[cardIndex].isAnswerOver && !cardsList[cardIndex].allowToNext ? 'ui-item-hover' : ''}}"
+                          :class="{'is-selected': item.selected, 'is-selected-over': (cardsList[cardIndex].isAnswerOver || cardsList[cardIndex].isDone) && item.selected }"
+                          data-item="{{item}}"
+                          data-index="{{index}}"
+                          @tap.stop="getSelected">
+                        <view class="ui-prop"
+                              style="width: {{ballotInfo[item.id] || item.prop}}%"></view>
+                        <view class="cell-title cross-center">
+                            <view class="cell-pointer {{(cardsList[cardIndex].isDone) ? 'cell-opacity' : ''}}" :class="{'single': cardsList[cardIndex].cardStatus === 'single' || cardsList[cardIndex].pollType === 'single' }">
+                                <text class="icon-complete" wx:if="{{item.selected && !(cardsList[cardIndex].cardStatus === 'single' || cardsList[cardIndex].pollType === 'single')}}"></text>
+                            </view>
+                            <text class="cell-option">{{item.option}}</text>
+                            <view class="cell-number" wx:if="{{cardsList[cardIndex].isDone}}">{{ballotInfo[item.id] || item.prop || 0}}%</view>
+                        </view>
+                    </view>
+                </repeat>
+            </view>
+        </view>
+    </scroll-view>
+</template>
+
+<script>
+    /**
+     * <jn-poll></jn-poll>
+     * @module components/cards-type/poll
+     * @desc 投票卡
+     * @param {cardsList} [Array] - 交互卡的数组- ----【】
+     * @param {cardIndex} [Number] - 当前循环的交互卡的数组索引键值- ----【】
+     * @param {isLearning} [Number] - 适配一些引用的页面的样式- ----【0】
+     */
+    import wepy from 'wepy'
+    import {parsePercentageForPoll} from '../../utils'
+    import _ from 'underscore'
+
+    export default class pollCard extends wepy.component {
+        props = {
+            cardIndex: {
+                type: Number
+            },
+            cardsList: {
+                type: Array,
+                default: []
+            },
+            isLearning: {
+                type: Number,
+                default: 0
+            },
+            isShowType: {
+                type: Number,
+                default: 0
+            }
+        }
+
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            oldIndex: -1, // 记录之前的卡片索引
+            selectedId: '', // 选中的顺序
+            selectedInfo: {}, // 当前选中的那个选项
+            ballotInfo: {}, // 投票比例
+            ballotTotal: 0, // 全部票数
+            resultId: -1, // 正确的结果id
+            description: '',// 选中的答案的解释详情
+            isAnswerOver: false, // 是否作答结束
+        }
+
+        onLoad() {
+            let self = this
+        }
+
+        methods = {
+            /**
+             * 选中某个选项
+             * @param event
+             * @returns {boolean}
+             */
+            getSelected(event) {
+                let self = this
+                let {currentTarget: {dataset: {item, index}}} = event
+                let cardItem = self.cardsList[self.cardIndex]
+
+                if ((!item.id && !self.cardsList) || (cardItem.role && 'member' !== cardItem.role)) {
+                    return
+                }
+
+                // poll只能投一次
+                if (cardItem.isDone
+                    || (cardItem.isAnswerOver && self.oldIndex === self.cardIndex)) {
+                    return false
+                }
+
+                let selectList = cardItem.select || cardItem.optionList
+                let selectedIds = []
+                if ('single' === cardItem.cardStatus || 'single' === cardItem.pollType) {
+                    _.each(selectList, (data) => {
+                        data.selected = item.id === data.id ? true : false
+                    })
+                } else {
+                    selectList[index].selected = !selectList[index].selected
+                }
+
+                 _.each(selectList, (data) => {
+                    if (data.selected) {
+                        return selectedIds.push(data.id)
+                    }
+                })
+
+                let data = {
+                    optionList: cardItem.optionList,
+                    isFinish: selectedIds.length ? true : false,
+                    id: cardItem.id || cardItem.pollID,
+                    pollID: cardItem.id || cardItem.pollID,
+                    selectedId: item.id,
+                    selectedItem: {id: selectedIds.join(',')},
+                    select: selectList,
+                    fullImageBottomtText: selectedIds.length ? '我选好了' : '请投票'
+                }
+
+                self.$emit('on-interaction', data)
+            }
+        }
+
+        events = {
+            /**
+             * 监听父级页面触发提交答案
+             * @param data
+             */
+            'broadcast-poll': (data) => {
+                let self = this
+                let index = self.cardIndex
+                let cardItem = data || self.cardsList[index]
+                let optionList = data.select || cardItem.select || cardItem.optionList
+                self.isAnswerOver = true;
+
+                let item = _.find(optionList, {id: data.selectedId})
+                self.resultId = item.id
+                // 统计全部投票人数
+                if (_.isUndefined(data.ballotTotal)) {
+                    let ballotTotal = _.reduce(optionList, (memo, data) => {
+                        data.add = data.selected ? 1 : 0
+                        data.ballot = data.ballot >= 0 ? data.ballot : data.count
+                        return memo + data.ballot + data.add
+                    }, 0)
+                    cardItem.ballotTotal = ballotTotal || 0
+
+                    // 计算每个投票的比例
+                    _.each(optionList, (data) => {
+                        let add = data.id === item.id ? 1 : 0
+                        self.ballotInfo[data.id] = data.prop = Math.floor((data.ballot + data.add) / ballotTotal * 1000) / 10
+                    })
+                } else {
+                    // 计算每个投票的比例
+                    _.each(optionList, (data) => {
+                        let add = data.selected ? 1 : 0
+                        self.ballotInfo[data.id] = data.prop = Math.floor((data.ballot + add) / data.ballotTotal * 1000) / 10
+                    })
+                }
+
+                cardItem.isDone = true
+                cardItem.isAnswerOver = true
+                self.oldIndex = _.clone(index)
+                setTimeout(() => {
+                    self.$emit('on-interaction', cardItem)
+                }, 300)
+                self.$apply()
+            },
+            /**
+             * 监听父级，重置初始化数据
+             * @param data
+             */
+            'broadcast-reset-status': (data) => {
+                let self = this
+                if (!self.cardsList) {
+                    return
+                }
+
+                let index = data.index || self.cardIndex
+                let cardItem = self.cardsList[index]
+
+                self.oldIndex = -1 // 记录之前的卡片索引
+                self.selectedId = 0 // 当前选中的那个选项
+                self.resultId = -1 // 正确的结果id
+                cardItem.isAnswerOver = false // 是否作答结束
+                self.$apply()
+            }
+        }
+    }
+</script>
+<style lang="less" scoped>
+@import '../../assets/style/theme';
+/* 投票卡 */
+.module-poll-box{
+    width:100%;width:100%;height:calc(~"100% - 72px");
+    &.is-phonex{width:100%;height:calc(~"100% - 96px");}
+    &.is-learning{
+        .ui-content{padding:0;}
+        .ui-title{padding-top:0;font-weight:400;}
+        .ui-answer-list{padding:0;}
+    }
+    view{box-sizing:border-box;}
+    .ui-content{
+        padding:0 72rpx;
+        .ui-description{padding-top:18rpx;font-size:28rpx;color:@color-gray;line-height:40rpx;}
+    }
+
+    .ui-answer-list{
+        .ui-item{
+            width:100%;margin-top:32rpx;border-radius:20rpx;position:relative;overflow:hidden;transition:all .2s;background: #F5F5F5;height:130rpx;padding:0 24rpx;
+            .ui-prop{width:0;height:100%;background:#E2F2FF;position:absolute;left:0;top:0;transition:all .2s;}
+            .cell-title{
+                font-size:32rpx;color:#000;position:relative;z-index:1;padding-right:92rpx;
+                .cell-option{display: flex;flex:1;padding-right:12rpx;}
+            }
+            .cell-number{font-size:32rpx;color:#000;text-align:right;position: absolute;right:0;font-weight: bold}
+            .cell-pointer{
+                width:40rpx;height:40rpx;border:1px solid #ccc;margin-right: 24rpx;position: relative;
+                background: @background-white;opacity:.9;
+                &.single{border-radius:50%;}
+            }
+            .cell-opacity {opacity: .5;}
+            &.is-selected{
+                .cell-pointer{
+                    border:1px solid #007AFF;background:#007AFF;
+                    text{color:#fff;position: absolute;left:50%;top:50%;transform: translate(-50%,-50%)}
+                    &.single{
+                        background: #F5F5F5;
+                        &::before{content:' ';width:28rpx;height:28rpx;background-color:#007AFF;border-radius:50%;position:absolute;left:50%;top:50%;transform: translate(-50%,-50%)}
+                    }
+                }
+            } 
+        }
+    }
+}
+</style>

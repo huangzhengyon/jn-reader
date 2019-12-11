@@ -1,0 +1,199 @@
+<template>
+    <scroll-view scroll-y="{{true}}" class="ui-task-list-scroll">
+        <jn-header title="全部任务"></jn-header>
+        <view class="body">
+            <view wx:for="{{taskSenceList}}" wx:key="{{index}}" >
+                <view class="ui-off-line" wx:if="{{ 'offline'===item.taskType }}">
+                    <image wx:if="{{ '图片'===item.contentType }}" class="cell-image" wx:for-item="poster" mode="widthFix" src="{{ item.image }}" />
+                    <view wx:else class="ui-detail">
+                        <image class="cell-img" src="{{ item.portrait }}" mode="scaleToFill"></image>
+                        <view class="ui-content">
+                            <text class="cell-title">{{ item.offlineTaskName }}</text>
+                            <view class="ui-teacher">
+                                <view class="cell-key">主持人:</view>
+                                <view class="cell-value">{{ item.teacherName }}</view>
+                            </view>
+                            <view class="ui-time">
+                                <view class="cell-key">授课时间:</view>
+                                <view class="cell-value"> {{ item.offlineTime }}</view>
+                            </view>
+                            <view class="ui-address">
+                                <view class="cell-key">授课地点:</view>
+                                <view class="cell-value"> {{ item.address }}</view>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+                <view class="ui-on-line" wx:else
+                data-item="{{item}}"
+                data-team-i-d="{{teamID}}"
+                @tap.stop="handleSenceTap">
+                    <view class="ui-top">
+                        <view class="cell-time">{{item.taskDate}}</view>
+                        <view class="cell-tip cell-{{item.buttonStatus}}">{{item.buttonMsg}}</view>
+                    </view>
+                    <view class="ui-content">
+                        <view class="ui-left">
+                            <image class="cell-img" src="{{item.imageUrl}}" mode="aspectFill"></image>
+                            <view class="ui-text">
+                                <view class="cell-title">{{item.senceName}}</view>
+                                <view class="cell-desc">{{item.skillGroup}}</view>
+                            </view>
+                        </view>
+                        <view class="ui-score" wx:if="{{item.isShowSenceScore}}">
+                            <view class="cell-num">{{item.mySenceScore}}<text>/{{item.allSenceScore}}</text>
+                            </view>
+                            <view class="cell-lable">score</view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+        </view>
+        <view class="ui-margin"></view>
+    </scroll-view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {
+        getStore,
+        connect
+    } from "wepy-redux"
+    import {
+        team as teamApi
+    } from '../../api'
+    import header from '../../components/common/header'
+    import {
+        navigateToLesson
+    } from '../../utils/index'
+    const store = getStore();
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        }, // mapState 即getters
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            // return 'userIDf6baae6dfe454ce7ae4bbcba365226c2-1532435689952-213b1af327116634c64eeb0e0d167ca9'
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        },
+    })
+    export default class TeamLearningTaskList extends wepy.page {
+        components = {
+            'jn-header': header
+        } // end components
+        data = {
+            taskSenceList: [],
+            teamID: '',
+            status: {
+                'notBegin': '未完成',
+                'notFinish': '未完成',
+                'finish': '已完成',
+                'dateNotBegin': '未开始',
+            }
+        }
+
+        onLoad({
+            teamID
+        }) {
+            this.teamID =  teamID //= 'T1528970734023'
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            // this.initialize()
+        }
+        onShow() {
+            this.initialize()
+        }
+        methods = {
+            handleSenceTap(event) {
+                let {currentTarget:{dataset: {item,teamID}}} = event
+                let courseID = item.courseID;
+                let senceID = item.senceID;
+                let readable = item.isActive;
+                let buttonStatus = item.buttonStatus;
+                let lessonType = item.lessonType;
+                if (!readable){
+                    return wepy.showToast({
+                        title: '任务尚未开始,请耐心等待',
+                        icon: 'none',
+                        duration: 1000,
+                        mask: true
+                    })
+                }
+
+                if ('previewTest' === lessonType){
+                    return this.$navigate(`/pages/activity-module/appraisal-start`, {courseID, senceID})
+                }
+                if ('review' === buttonStatus) {
+                    return this.$navigate('/pages/course-module/course-cover', {courseID, senceID, teamID})
+                }
+                navigateToLesson({courseID, senceID, teamID})
+            }
+        }
+        initialize() {
+            teamApi.getTeamTaskAll({token: this.token, teamID: this.teamID}).then(data => {
+                this.taskSenceList = data.taskContentList
+                this.$apply()
+            })
+        }
+    }
+</script>
+
+<style lang="less" scpoed>
+    @import "../../assets/style/theme";
+    .ui-off-line{
+        padding:0 32rpx;
+        .cell-image{ border-radius: @border-radius-20;display: block;width:100%;background-color: @background-white;margin-top: 48rpx;box-sizing: border-box;}
+        .ui-detail{
+            display:flex;width: 100%;position: relative;background-color: @background-white;border-radius: @border-radius-20;margin-top: 48rpx;box-sizing: border-box;padding: 27rpx 18rpx 27rpx 20rpx;
+            .cell-img{width: 160rpx;height: 198rpx;display: block;margin-right: 24rpx;}
+            .ui-content{
+                margin-left: 0;margin-right: auto;
+                .cell-title{display: block;max-width: 394rpx;margin-top: 0;margin-bottom: 0;font-family: PingFangSC-Semibold;font-size: 40rpx;color: @color-black;letter-spacing: 0.04rpx;text-align: justify;line-height: 100%;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+                .cell-key{font-family: PingFangSC-Regular;font-size: 26rpx;color: @color-gray;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width: 120rpx;text-align: left;}
+                .cell-value{max-width: 320rpx;display: inline-block;vertical-align: middle;margin-left: 10rpx;font-family: PingFangSC-Medium;font-size: 26rpx;color: @color-black;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+                .ui-teacher{line-height: 100%;margin-top: 24rpx;margin-bottom: 0;display: flex;}
+                .ui-time{line-height: 100%;margin-top: 8rpx;margin-bottom: 0;display: flex;}
+                .ui-address{line-height: 100%;margin-top: 8rpx;margin-bottom: 0;display: flex;}
+            }
+        }
+    }
+    .ui-on-line{
+        width: 686rpx;position: relative;background-color:  @background-white;border-radius: @border-radius-20;margin-top: 48rpx;margin-left: 32rpx;
+        .ui-top{
+            width: 100%;height: 28rpx;padding-top: 18rpx;margin-bottom: 5rpx;display: flex;justify-content: space-between;
+            .cell-time{line-height: 28rpx;margin-left: 30rpx;font-family: PingFangSC-Regular;font-size: 24rpx;color: @color-gray;}
+            .cell-tip{line-height: 28rpx;margin-right: 30rpx;font-family: PingFangSC-Regular;font-size: 26rpx;color: @color-gray;text-align: right;}
+            .cell-finish {color: @color-black;}
+            .cell-notFinish {color: @color-red;}
+            .cell-notBegin {color: @color-gray;}
+        }
+        .ui-content{
+            width: 100%;display: flex;justify-content: space-between;padding:27rpx 0;
+            .ui-left{
+                padding-left: 24rpx;display: flex;
+                .cell-img{width: 120rpx;height: 120rpx;border-radius: @border-radius-32}
+                .ui-text{
+                    padding-left: 16rpx;min-height: 120rpx;width: 370rpx;display: flex;flex-direction: column;align-items: flex-start;justify-content: center;max-height: 150rpx;height: fit-content;
+                    .cell-title{font-size: 32rpx;color: @color-black;line-height: 40rpx;font-weight: bold}
+                    .cell-desc{font-family: PingFangSC-Regular;font-size: 24rpx;color: @color-gray;line-height: 25.6rpx;margin-top: 28rpx;}
+                }
+            }
+            .ui-score{
+                width: 120rpx;height: 120rpx;padding-right: 16rpx;display: flex;align-items: center;justify-content: center;flex-direction: column;
+                .cell-num{
+                    font-size: 40rpx;color:  @color-red;line-height: 40rpx;display: flex;align-items: flex-end;font-weight: bold;
+                    text {font-family: PingFangSC-Regular;font-size: 22rpx;color: @color-gray;line-height: 28rpx;}
+                }
+                .cell-lable{font-family: PingFangSC-Regular;font-size: 22rpx;color: @color-gray;line-height: 28rpx;}
+            }
+        }
+    }
+    ::-webkit-scrollbar {width: 0;height: 0;background-color: transparent;color: transparent;}
+    .body {width: 100%;}
+    .ui-margin{height: 140rpx;width: 100%;}
+    .ui-task-list-scroll {width: 100%;height: 100%;background-color: @background-gray-F4;}
+</style>

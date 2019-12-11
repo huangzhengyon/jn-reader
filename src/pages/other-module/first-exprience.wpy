@@ -1,0 +1,61 @@
+<style lang="less" scoped>
+    .ui-first-exprience{position: absolute;top: 0}
+</style>
+<template>
+    <jn-header hiddenButton statusBackground="#fff"></jn-header>
+    <view class="ui-first-exprience main-center cross-center"  style="height: calc(100% - {{headerHeigth}}px)">
+        <image mode="widthFix" src="http://wx-small.runwise.cn/image/imageIDe2ce7da71cc45bbf0b52ec73eb1e.gif"></image>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header'
+    import {fetch} from "../../api";
+    import {getStore,connect} from "wepy-redux";
+    import {navigateToLesson} from '../../utils'
+
+    const store = getStore();
+    
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class firstExprience extends wepy.page {
+
+        components = {
+            'jn-header': header,
+        } 
+
+        data = {
+            headerHeigth: 68,
+            parmasInfo:{}
+        };
+
+        onShow() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+        
+
+        onLoad(parmas) {
+            setTimeout(() => {
+                navigateToLesson({courseID:parmas.courseID,senceID:parmas.senceID,source:'firstExprience',isExprience: true,resumeLastRead: 'NO'})
+            }, 1200);
+        }
+
+        methods = {
+           
+        };
+        
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>
+

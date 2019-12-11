@@ -1,0 +1,260 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-discuss-box{
+        width:100%;height:100%;position:relative;
+        view{box-sizing:border-box;}
+        .ui-container{width:100%;height:100%;position:relative;}
+
+        .ui-discuss-list{
+            width:100%;height:100%;position:absolute;left:0;top:0;
+            .ui-fill-box{width:100%;height:128rpx;}
+            .ui-more{height:140rpx;font-size:26rpx;color:@color-gray;}
+            .ui-item{height:auto;padding-top:36rpx;}
+            .ui-portrait{
+                width:78rpx;height:78rpx;margin-left:32rpx;border-radius:50%;overflow:hidden;
+                image{width:78rpx;height:78rpx;}
+            }
+            .ui-content{margin-left:20px;padding:0 32rpx 32rpx 0;border-bottom:1px solid @border-gray;}
+            .cell-name{
+                >text{font-size:32rpx;color:@color-gray;line-height:44rpx;}
+                .cell-praise{
+                    width:80rpx;font-size:24rpx;color:@color-gray-c7;
+                    text{margin-right:14rpx;font-size:42rpx;}
+                    &.active text{color:@color-blue;}
+                }
+            }
+            .cell-time{font-size:24rpx;color:@color-gray;line-height:35rpx;}
+            .ui-description{padding-top:10px;font-size:30rpx;color:@color-black;line-height:40rpx;white-space:pre-wrap;word-break:break-all;}
+            .ui-no-discuss{
+                padding-top:296rpx;
+                text{display:block;text-align:center;}
+                text:nth-of-type(1){font-size:128rpx;color:#D1D0CF;}
+                text:nth-of-type(2){font-size:34rpx;color:#828282;line-height:52rpx;}
+            }
+        }
+
+        .ui-button-box{
+            height:auto;background-color:@background-mask-deep-white;padding:24rpx 32rpx;position:relative;z-index:1;transform:all .25;
+            &.is-iphonex{padding-bottom:58rpx}
+            textarea{
+                box-sizing:border-box;width:434rpx;height:80rpx;padding:5rpx 20rpx;float:left;background:@background-gray-F4;font-size:32rpx;color:@color-black;border-radius:@border-radius-20;position:relative;padding-top:20rpx;
+                &::before{content:' ';width:200%;height:1px;background-color:@background-gray-F4;position:absolute;left:-20rpx;top:-20rpx;}
+            }
+            .cell-placeholder{color:@color-gray;line-height:80rpx;}
+            .cell-button{width:180rpx;height:80rpx;float:right;font-size:32rpx;color:@color-blue;background:@background-gray-F4;border-radius:@border-radius-20;}
+            .cell-hover{background: @background-gray-hover}
+        }
+    }
+</style>
+
+<template>
+    <view class="ui-discuss-box">
+        <jn-header :title.sync="headerTitle"
+                   buttonIcon="back-close"
+                   className="background-transparent"></jn-header>
+
+        <view class="ui-container dir-bottom" style="height: calc(100% - {{headerHeigth}}px)">
+            <scroll-view class="ui-discuss-list" scroll-y>
+                <repeat for="{{discussList}}" key="index" index="index" item="item">
+                    <view class="ui-item flex">
+                        <view class="ui-portrait flex-box-0">
+                            <image mode="scaleToFill" src="{{item.avatarUrl}}" />
+                        </view>
+                        <view class="ui-content dir-top flex-box-1">
+                            <view class="cell-name main-justify">
+                                <text>{{item.nickName}}</text>
+                                <view class="cell-praise"
+                                      :class="{'active': item.hasLike==1}"
+                                      data-index="{{index}}"
+                                      @tap.stop="getLinkPraise"><text class="icon-praise"></text>{{item.likeCount}}</view>
+                            </view>
+                            <view class="cell-time">{{item.postTime}}</view>
+                            <view class="ui-description"><text>{{item.content}}</text></view>
+                        </view>
+                    </view>
+                </repeat>
+
+                <view class="ui-more main-center cross-center" wx:if="{{discussList.length}}">没有更多内容了</view>
+                <view class="ui-no-discuss" wx:if="{{!discussList.length}}">
+                    <text class="icon-no-discuss"></text>
+                    <text>暂时还没有评论哦，\n赶紧成为第一个发表评论的人吧</text>
+                </view>
+
+                <view class="ui-fill-box"></view>
+            </scroll-view>
+
+            <view class="ui-button-box main-justify cross-end"
+                  :class="{'is-iphonex': isIphonex}" style="bottom:{{keyboardHeight}}px">
+                <textarea maxlength="100"
+                          bindinput="getContent"
+                          bindfocus="getFocus"
+                          bindblur="getBlur"
+                          value="{{textareaContent}}"
+                          placeholder-class="cell-placeholder"
+                          auto-focus
+                          adjust-position="{{false}}"
+                          placeholder="评论" />
+                <button hover-class="cell-hover" class="cell-button main-center cross-center" @tap.stop="getMessage">发送</button>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+    import Loading from '../../components/common/loading'
+    import {fetch} from '../../api'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class courseDiscuss extends wepy.page {
+        config = {
+            disableScroll: true
+        }
+
+        components = {
+            'jn-header': header,
+            'jn-loading': Loading
+        }
+
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            headerTitle: '',
+            headerHeigth: 68,
+            keyboardHeight: 0,
+            discussList: [],
+            textareaContent: ''
+        }
+
+        onLoad(params) {
+            let self = this
+            self.params = params
+        }
+
+        onShow() {
+            let self = this
+            self.__discussList()
+        }
+
+        /**
+         * 获取评论列表
+         */
+        __discussList() {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token,
+                senceID: self.params.senceID,
+                practiceCardID: self.params.practiceCardID
+            }
+
+            fetch.discussList(postData).then((response) => {
+                self.discussList = response.postList
+                self.headerTitle = `${self.discussList.length}条评论`
+                wepy.$instance.globalData.getLoadHuilder({pageTheme: response.senceName}) // ga统计
+                self.$apply()
+            }).catch(error => {
+
+            })
+        }
+
+        methods = {
+            /**
+             * 点赞
+             * @param event
+             */
+            getLinkPraise(event) {
+                let self = this
+                let {currentTarget: {dataset: {index}}} = event
+                let item = self.discussList[index]
+                if (item.isPraise) {
+                    return
+                }
+
+                item.isPraise = true // like或cancelLike
+                let postData = {
+                    token: self.systemInfo.token,
+                    postID: item.postID,
+                    clickType: 1 == item.hasLike ? 'cancelLike' : 'like'
+                }
+                fetch.discussLink(postData).then((response) => {
+                    item.isPraise = false
+                    if (1 == item.hasLike) {
+                        item.hasLike = 0
+                        item.likeCount = parseInt(item.likeCount) - 1
+                    } else {
+                        item.hasLike = 1
+                        item.likeCount = parseInt(item.likeCount) + 1
+                    }
+                    self.discussList.splice(index, 1, item)
+                    self.$apply()
+                }).catch(error => {
+                    item.isPraise = false
+                })
+            },
+            /**
+             * 监听用户输入的内容
+             * @param event
+             */
+            getContent(event) {
+                let self = this
+                let {detail:{value}} = event
+                self.textareaContent = value
+                self.$apply()
+            },
+            /**
+             * textarea聚焦
+             */
+            getFocus(event) {
+                let self = this
+                let {detail:{height}} = event
+                self.keyboardHeight = height
+                self.$apply()
+            },
+            getBlur(event) {
+                let self = this
+                self.keyboardHeight = 0
+                self.$apply()
+            },
+            /**
+             * 发送留言
+             */
+            getMessage() {
+                let self = this
+                let postData = {
+                    token: self.systemInfo.token,
+                    senceID: self.params.senceID,
+                    practiceCardID: self.params.practiceCardID,
+                    content: self.textareaContent
+                }
+                if(self.textareaContent == ''){
+                    wepy.showToast({
+                        title:'评论内容不能为空',
+                        icon:'none'
+                    })
+                    return
+                }
+                fetch.discussLeaveMessage(postData).then((response) => {
+                    self.textareaContent = ''
+                    self.__discussList()
+                    self.$apply()
+                }).catch(error => {
+
+                })
+            }
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>

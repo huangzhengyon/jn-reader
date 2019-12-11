@@ -1,0 +1,211 @@
+<style lang="less">
+    @import "../../assets/style/theme";
+    .ui-scroll{height: 100%;}
+    .ui-pre-practice{
+        display: flex;flex-direction: column;align-items: center;width: 100%;height: 100%;position: absolute;top:0;left: 0;
+        .ui-box{
+            width: 100%;position: fixed;bottom: 0rpx;display: flex;flex-direction: column;align-items: center;background-image:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,1));
+            .cell-btn{
+                margin: 0 72rpx 56rpx;width: 686rpx;height: 100rpx;border-radius: @border-radius-20;background: @background-blue;font-family: PingFangSC-Semibold;font-size: 34rpx;color:@color-white;display: flex;flex-direction: column;align-items: center;line-height: 100rpx;
+                &::after{border: 0 !important;}
+            }
+            .cell-hover{background: @background-blue-hover}
+        }
+        .ui-img{
+            width: 100%;overflow:scroll;height: 100%;
+            image{width: 100%;}
+        }
+    }
+</style>
+
+<template>
+    <mloading wx:if="{{ !isLoaded }}"/>
+    <view class="ui-scroll">
+        <jn-header className="background-transparent" buttonAfter></jn-header>
+        <view wx:if="{{ isLoaded }}" class="ui-pre-practice">
+            <view class="ui-img">
+                <image mode="widthFix" src="{{imageBottomURL}}" />
+            </view>
+            <view class="ui-box">
+                <button  hover-class="cell-hover" class="cell-btn"
+                        open-type="{{!phone ? 'getPhoneNumber' : ''}}"
+                        @getphonenumber.stop="getPhone"
+                        @tap.stop="getPhone">开始测试</button>
+            </view>
+        </view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {fetch, report as reportApi} from '../../api'
+    import {getStore, connect} from 'wepy-redux'
+    import {login} from "../../redux/models/user"
+    import Loading from '../../components/common/loading'
+    import header from '../../components/common/header'
+    import {initializationDeligate} from "../../utils"
+    import {getUserPhone,refreshUserInformations} from '../../redux/models/user'
+
+    const store = getStore()
+    @connect({
+        token(state) {
+            return state.user.token
+        },
+        phone(state) {
+            return state.user.phone;
+        },
+    })
+    export default class appraisalStart extends wepy.page {
+        config = {
+            disableScroll: true
+        }
+
+        components = {
+            'mloading': Loading,
+            'jn-header': header
+        }
+
+        data = {
+            senceID: 'defaultSenceID',
+            description: '',
+            name: 'defaultName',
+            examID: null,
+            wxPushType: '',
+            isFirst: false,
+            imageBottomURL: '',
+            imageHeaderURL: '',
+            imagePracticeURL: '',
+            imageResultURL: '',
+            isLoaded: false,
+            headerHeigth:0,
+            shareImageURL:'',
+            shareContent:''
+        }
+
+        onLoad(data) {
+            this.courseID = data.courseID
+            this.senceID = data.senceID
+            this.examID = data.examID
+            this.wxPushType = data.wxPushType
+            this.$apply()
+        }
+
+        onShow() {
+            let self = this
+            initializationDeligate({initializeFunc: self.initialize.bind(self)})
+        }
+
+        initialize() {
+            let self = this
+            let postData = {
+                token: self.token,
+                examID: self.examID
+            }
+            if (self.wxPushType) {
+                postData.wxPushType = self.wxPushType
+            }
+            return fetch.getExamFront(postData).then((data) => {
+                self.description = data.description
+                self.imageBottomURL = data.imageBottomURL
+                self.imageHeaderURL = data.imageHeaderURL
+                self.imagePracticeURL = data.imagePracticeURL
+                self.imageResultURL = data.imageResultURL
+                self.subjectHeading = data.subjectHeading
+                self.shareImageURL = data.shareImageURL
+                self.shareContent = data.shareContent
+                self.name = data.subject
+                self.isLoaded = true
+                self.$apply()
+
+                wepy.$instance.globalData.getLoadHuilder({pageTheme: self.subjectHeading}) // ga统计
+            })
+        }
+        /**
+         * 服务通知数据上报
+         */
+        __report() {
+            let self = this
+            if (self.isFirst) {
+                return
+            }
+            self.isFirst = true
+            let postData = {
+                token: self.token,
+                body: {
+                    json: {
+                        pageType: "测评首页",
+                        EventType: "服务通知点击",
+                        ComponentName: "测评服务通知点击",
+                        senceID: self.examID,
+                        CpnPresentName: "测评服务通知点击"
+                    }
+                }
+            }
+
+            reportApi.doUserBehaviourLog(postData)
+        }
+
+        methods = {
+            /* 
+            授权手机号
+            */
+            getPhone(event) {
+                let self = this
+                let {detail: {encryptedData, errMsg, iv}} = event
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            store.dispatch(refreshUserInformations({phone: response}))
+                            wepy.$instance.globalData.getHuilder('测评/测评封面/开始测试', 'click', `${self.subjectHeading}`)
+                            // 服务通知进来的才上报
+                            if (self.wxPushType) {
+                                self.__report()
+                            }
+                            
+                            let params = {
+                                examID: self.examID,
+                                bgUrl: self.imageBottomURL,
+                                imagePracticeURL: self.imagePracticeURL,
+                                subjectHeading: self.subjectHeading
+                            }
+                            if (self.imageResultURL) {
+                                params.imageResultURL = self.imageResultURL
+                            }
+                            self.$redirect('/pages/activity-module/appraisal-questions', params)
+                            self.$apply()
+
+                        }).catch(error =>　{
+                            console.log(error)
+                        })
+                    }, 0);
+                })
+                
+            }
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+
+
+
+        onShareAppMessage(event) {
+            let self = this
+            wepy.$instance.globalData.getHuilder('测评/测评封面/分享', 'click', `${self.subjectHeading}`)
+            wepy.$instance.globalData.getReportFlow('share')
+            return {
+                title: self.subjectHeading,
+                path: `/pages/activity-module/appraisal-start?examID=${self.examID}`,
+                imageUrl: self.shareImageURL
+            }
+        }
+    }
+</script>

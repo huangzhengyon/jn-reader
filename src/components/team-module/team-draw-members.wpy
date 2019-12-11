@@ -1,0 +1,206 @@
+<template>
+    <view class="ui-draw-member-module" wx:if="{{show}}">
+        <view class="ui-module-mask"></view>
+        <view class="ui-module-content">
+            <form bindsubmit="handleSavePushCode" report-submit>
+                <view class="ui-content-image">
+                    <image src="https://wx-small.runwise.cn/image/team-alert-bg.png"></image>
+                </view>
+                <view class="ui-content-button">
+                    <button  form-type="submit" class="cell-button-cancle" @tap.stop="cancle">
+                        不感兴趣
+                    </button>
+                    <view class="cell-button-ensure">
+                        <button open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getTeamMember" form-type="submit" @tap.stop="getTeamMember" >立即组队</button>
+                    </view>
+                </view>
+            </form>
+        </view>
+    </view>
+</template>
+<script>
+import wepy from 'wepy'
+import { getStore, connect } from 'wepy-redux'
+import { setStorageAsync, getStorageAsync} from '../../utils'
+import { getUserPhone, refreshUserInformations } from '../../redux/models/user'
+import { fetch, report as reportApi } from '../../api';
+import PushMixin from '../../mixins/push';
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+
+export default class teamDrawMember extends wepy.component{
+    mixins = [PushMixin]
+    props = {
+        showByTop: {
+            type: Boolean,
+            default: false
+        },
+        showByBottom: {
+            type: Boolean,
+            default: false
+        },
+        groupSource: {
+            type: String
+        }
+    }
+    computed = {
+        show() {
+            return this.showByTop || this.showByBottom
+        }
+    }
+
+    data = {
+        groupDrawStatusNum:null,//弹窗次数
+    }
+    onLoad() {
+        let self = this
+        /* 获取组队弹窗弹出次数 */
+        getStorageAsync({key:'groupDrawStatusNum'}).then(response => {
+            self.groupDrawStatusNum = Number(response);
+            self.$apply();
+        })
+    }
+
+    methods = {
+        /* 不感兴趣 */
+        cancle() {
+            let self = this
+            wepy.$instance.globalData.getHuilder('组队抽会员/限时活动弹窗/不敢兴趣','click', '')
+            self.$emit('on-hide-teamdraw', {
+                type: self.showByBottom ? '0' : '1'
+            })
+            setStorageAsync({
+                key:'groupDrawStatusNum',
+                value:self.groupDrawStatusNum + 1
+            }).catch(error => console.log('设置弹窗次数失败'))
+            self.showByTop = self.showByBottom = false;
+            self.$apply();
+        },
+        /* 授权 -> 参加组队 */
+        getTeamMember(event) {
+            let self = this
+            let { detail: { encryptedData, errMsg, iv } } = event
+
+            
+            wepy.login().then((res) => {
+                res.code && store.dispatch(refreshUserInformations({
+                    code: res.code
+                }))
+                setTimeout(() => {
+                    res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                        store.dispatch(refreshUserInformations({
+                            phone: response
+                        }))
+                        wepy.$instance.globalData.getHuilder('组队抽会员/限时活动弹窗/手机号码授权/授权', 'click', '')
+                        /* 设置缓存次数+1 */
+                        setStorageAsync({
+                            key:'groupDrawStatusNum',
+                            value:self.groupDrawStatusNum + 1
+                        }).catch(error => console.log('设置弹窗次数失败'))
+                        /* 隐藏弹窗 */
+                        self.showByTop = self.showByBottom = false;
+
+                        let postData = {
+                            token:self.systemInfo.token,
+                            source: self.groupSource
+                        }
+                        fetch.buildGroup(postData).then(response => {
+                            let { groupId, unclaimed, drawResult, drawExtra, code, message} = response;
+                            if(code == 0) {
+                                wepy.navigateTo({url:`/pages/activity-module/team-learning?groupId=${groupId}&unclaimed=${unclaimed}&drawResult=${drawResult}&drawExtra=${drawExtra}`})
+                            } else {
+                                wepy.showToast({
+                                    title: message,
+                                    icon: 'none'
+                                })
+                            }
+                            
+                        })
+
+                        self.$apply();
+                    }).catch((error) => {
+                        console.log(error)
+                        if(error && error.indexOf('getPhoneNumber') > -1){
+                            wepy.$instance.globalData.getHuilder('组队抽会员/限时活动弹窗/手机号码授权/拒绝', 'click', '')
+                        }
+                    })
+                }, 0);
+            })
+        }
+    }
+}
+</script>
+<style lang="less" scoped>
+@import '../../assets/style/theme';
+.ui-draw-member-module {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    .flex-center();
+    z-index: @z-index-highest;
+    .ui-module-mask {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: @background-mask-normal-4;
+    }
+    .ui-module-content {
+        width: 100%;
+        height: 950rpx;
+        border-radius: @border-radius-32;
+        z-index: @z-index-lower;
+        position: relative;
+        .ui-content-image {
+            width: 100%;
+            height: 100%;
+            image {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        .ui-content-button {
+            position: absolute;
+            .flex-center();
+            left: 0;
+            right: 0;
+            bottom: 166rpx;
+            .cell-button-cancle {
+                width: 252rpx;
+                height: 88rpx;
+                color: @color-gray-8c;
+                font-size: 32rpx;
+                border-radius: @border-radius-48;
+                border: solid 1rpx @border-gray;
+                background: @background-white;
+                .flex-center();
+            }
+            .cell-button-ensure {
+                button {
+                    width: 252rpx;
+                    height: 88rpx;
+                    color: @color-white;
+                    font-weight: bold;
+                    font-size: 32rpx;
+                    border-radius: @border-radius-48;
+                    background: @background-blue;
+                    .flex-center();
+                    margin-left: 24rpx;
+                }
+            }
+        }
+    }
+    
+}
+</style>

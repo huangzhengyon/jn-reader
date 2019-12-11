@@ -1,0 +1,208 @@
+<template>
+    <view class="mine-article__body">
+        <jn-header title="更改手机号码"></jn-header>
+        <view class="ui-edit-phone">
+            <view class="ui-form">
+                <view class="ui-phone ui-input cross-center">
+                    <input value="{{phoneNumber}}" type="number" maxlength="11" placeholder="手机号码" placeholder-class="cell-phone"
+                        bindinput="getPhoneWrite"/>
+                    <button class="cell-auto" @tap.stop="getPhone">自动填写</button>
+                </view>
+                <view class="ui-code ui-input  cross-center">
+                    <input value="{{codeNum}}" maxlength="4" placeholder="验证码" bindinput="getVerifyWrite"/>
+                    <button :class="{'cell-code-false': !isPhone || isDownTime }" disabled="{{!isPhone || isDownTime}}" @tap.stop="getVerifyCode" >{{!isDownTime ? '获取验证码' : againTime+'s'}}</button>
+                </view>
+            </view>
+            <view class="ui-button">
+                <button :class="{'cell-sure-false' : !isPhone || codeNum.length!== 4}"  class="cell-sure" @tap.stop="getSave">确定</button>
+                
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import {getStore, connect} from "wepy-redux";
+    import {auth as authApi, fetch, report as reportApi} from "../../api";
+    import {getUserPhone, refreshUserInformations} from '../../redux/models/user'
+    import header from '../../components/common/header'
+
+    const store = getStore();
+    @connect({
+        token(state) {
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        },
+        phone(state) {
+            return state.user.phone;
+        }
+    })
+    export default class MineEditPhone extends wepy.page {
+
+        data = {
+            headerHeigth: 68,
+            scrollTop: 0,
+            isScroll: true, // 是否能滚动
+            phoneNumber: '',
+            phoneCode:'',
+            codeNum: '',
+            againTime: 0,
+            isPhone:false,
+            isDownTime: false,
+        }
+
+        components = {
+            'jn-header': header,
+        }
+        methods = {
+            /**
+             * 监听输入手机号码
+             * @param event
+             */
+            getPhoneWrite(event) {
+                let self = this
+                let {detail: {value}} = event
+                let reg = /^[1][3,4,5,7,8][0-9]{9}$/;
+                if(!value) return
+                self.isPhone = !reg.test(value) ? false : true
+                self.phoneNumber = value
+                self.$apply()
+            },
+             /**
+             * 监听输入验证码
+             * @param event
+             */
+            getVerifyWrite(event) {
+                let self = this
+                let {detail: {value}} = event
+                self.codeNum = value
+            },
+            /**
+             * 再次获取短信验证码倒计时
+             */
+            getVerifyCode() {
+                let self = this
+                if(!self.isPhone || self.isDownTime) return
+                self.isDownTime = true
+                self.againTime = 60
+                let timer = setInterval(() => {
+                    self.againTime--
+                    self.$apply()
+                    if (!self.againTime) {
+                        self.isDownTime = false
+                        clearInterval(timer)
+                        self.$apply()
+                    }
+                }, 1000)
+
+                self.__phoneCode()
+
+            },
+            /* 
+            授权手机号
+            */
+            getPhone(event) {
+                let self = this
+                if(!self.phone){
+                    wepy.navigateTo({url: `/pages/registered-module/author`})
+                }else {
+                    self.phoneNumber = self.phone;
+                    self.isPhone = true
+                    self.$apply()
+                }
+            },
+            getSave(){
+                let self = this
+                if(!self.isPhone || self.codeNum.length!=4) {
+                    return wepy.showToast({
+                        title: '手机号码或验证码不正确',
+                        icon:'none'
+                    })
+                }else {
+                    reportApi.saveUserCenterInfo({
+                        token:self.token,
+                        json: {mobile:self.phoneNumber,verCode:self.codeNum},
+                        flag:'mobile'
+                    })
+                    .then((res) => {
+                        if(res.success === 0) {
+                            return wepy.showToast({
+                                title: '手机号码或验证码不正确',
+                                icon:'none'
+                            })
+                        }else {
+                            wx.navigateBack()
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                    })
+                }
+            }
+
+        };
+        /**
+         * 获取验证码
+         * @private
+         */
+        __phoneCode() {
+            let self = this
+            let postData = {
+                token: self.token,
+                mobile: self.phoneNumber
+            }
+            fetch.setVerCode(postData).then((response) => {
+                let message = response.data.message || '验证码已发送'
+                wx.showToast({
+                    icon: 'none',
+                    title: message
+                })
+            }).catch(error => {
+                console.log(error)
+            })
+        }
+
+        onLoad(options) {
+            let self = this
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            if(!options.phone) return
+            self.phoneNumber = options.phone
+            self.isPhone = true
+            self.$apply()
+        }
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+    .mine-article__body {background-color: #EFEFF4;height: 100%;}
+    .ui-edit-phone{
+        margin-top:20rpx;font-size: 32rpx;
+        view{box-sizing:border-box;}
+        .ui-input{height: 128rpx;padding-right:40rpx;color:#000;padding-left:40rpx;background: #fff}
+        .ui-phone{
+            border-bottom:2rpx solid #EFEFF4;font-size:32rpx;
+            .cell-auto{width: 160rpx;height: 52rpx;background: #007AFF;border-radius:8rpx;font-size: 28rpx;color: #fff;text-align: center;line-height: 52rpx;}
+            .cell-phone{color: #8F8E94;}
+        }
+        .ui-code{
+            button{width:160rpx;height:52rpx;font-size:28rpx;padding:0;text-align:center;line-height:52rpx;background:  #007AFF;color: #fff;margin: 0}
+            button.cell-code-false{opacity: 0.2;}
+        }
+        input{width: 500rpx;}
+        .ui-button{
+            display:flex;justify-content:center;
+            .cell-sure{width: 400rpx;height: 100rpx;background: #007AFF;border-radius: 20rpx;color:#fff;font-size:36rpx;letter-spacing: 0.04rpx;text-align: center;line-height: 100rpx;margin-top: 110rpx}
+            .cell-sure.cell-sure-false {opacity: 0.2;}
+        }
+    }
+</style>

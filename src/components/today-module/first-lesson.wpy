@@ -1,0 +1,33 @@
+<template>
+    <view class="ui-first-lesson" wx:if="{{ 0 == roleStatus && newRoleRecommend.courseName }}">
+        <button form-type="submit" hover-stay-time="100" class="ui-new-role" @tap.stop="getCourseDetail" data-type="roleStatus" data-item="{{newRoleRecommend}}" style="background-image: url('{{newRoleRecommend.bgImg}}');">
+            <view class="ui-shadow">
+                <view class="cell-dec text-overflow">{{newRoleRecommend.courseDec}}</view>
+                <view class="cell-title">{{newRoleRecommend.courseName}}</view>
+                <view class="cell-num">已有{{newRoleRecommend.userCount}}人体验学习</view>
+                <view class="cell-btn">领取第一课</view>
+                <view class="cell-price">原价¥258</view>
+            </view>
+        </button>
+    </view>
+</template>
+<script>
+export default class firstLesson extends wepy.component{
+    props = {
+
+    }
+
+    data = {
+
+    }
+
+    onLoad(){
+
+    }
+}
+</script>
+<style lang="less" scoped>
+
+
+</style>
+

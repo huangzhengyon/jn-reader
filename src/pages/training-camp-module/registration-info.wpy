@@ -1,0 +1,300 @@
+<template>
+    <jn-header title="报名信息"></jn-header>
+  	<view class="ui-team-learning-apply"  style="height: calc(100% - {{headerHeigth}}px)">
+		<view class="cell-team-learning-tip">{{computedTip}}</view>
+		<form>
+			<button open-type="{{!name ? 'getUserInfo' : ''}}" bindgetuserinfo="getAuthorize" @tap.stop="getAuthorize" class="ui-item">
+				<text class="iconfont icon-name"></text>
+				<input value="{{name}}" disabled="{{true}}" placeholder-style="color:#A1A9AB" placeholder="姓名" />
+				<button class="cell-auto-phone" open-type="{{!name ? 'getUserInfo' : ''}}" bindgetuserinfo="getAuthorize" @tap.stop="getAuthorize">自动填写</button>
+			</button>
+			<view class="ui-item">
+        		<text class="iconfont icon-phone"></text>
+				<input value="{{phone}}" disabled="{{true}}" placeholder-style="color:#A1A9AB" placeholder="手机号码" maxlength="11" type="number"/>
+				
+			</view>
+		</form>
+		<view class="ui-apply-button">
+			<button class="cell-apply-sure" @tap.stop="getSureBtn">确定</button>
+		</view>
+		<view class="ui-contact-module" wx:if="{{isShowContactButton}}">
+        	<view class="ui-contact-module-mask"></view>
+			<view class="ui-contact-content">
+				<view class="ui-title-box">
+					关注公众号
+				</view>
+				<view class="ui-close">
+					<image mode="widthFix"  @tap.stop="closeContactBtn" class="cell-close" src="../../assets/img/alert-close.svg"></image>
+				</view>
+				<view class="ui-image-box">
+					<image src="https://wx-small.runwise.cn/image/attention-team-tips.png"></image>
+					<view class="cell-text">发送“报名”给客服</view>
+					<view class="cell-text">即可获取 Up 酱联系方式</view>
+				</view>
+				<view class="ui-button-box">
+					<button class="ui-contact-button main-justify cross-center" open-type="contact" send-message-img="{{coverImageUrl}}" send-message-title="即能" show-message-card data-name="contact" @tap.stop="closeContactBtn">去关注</button>
+				</view>
+			</view>
+		</view>
+  	</view>
+	<view></view>
+</template>
+
+<script>
+	import wepy from 'wepy'
+    import {getStore,connect} from "wepy-redux"
+	import {team as teamApi, auth as authApi} from '../../api'
+	import {getLoginInfo, getUserPhone, refreshUserInformations} from '../../redux/models/user'
+	import {initializationDeligate } from "../../utils"
+    import header from '../../components/common/header'
+	import Loading from "../../components/common/loading"
+
+  	const store = getStore();
+ 	@connect({
+		token(state) {
+			return state.user.token;
+		},
+	  	phone(state) {
+			return state.user.phone
+		},
+		name(state) {
+            return state.user.nickName
+        }
+  	})
+  	export default class TeamLearningApply extends wepy.page {
+		components = {
+            mloading: Loading,
+            'jn-header': header
+		}
+
+		data = {
+			teamID: 'defaultTeamID',
+			roleType: 'defaultShareFlag', // 团队角色
+			buttonStatus: 'defaultButtonStatus', // allowSignUp   学员允许报名状态; teamManagerByConfirm 营长待确认 teamTeacherByConfirm 老师待确认
+			companyName:'',
+			teamName:'',
+			headerHeigth:0,
+			isClose:false,
+			shareId:'',//分享链接唯一标识
+			isShowContactButton: false,//是否展示跳转客服弹窗
+		}
+		computed = {
+			// 头部提示语
+			computedTip() {
+				return 'allowSignUp'===this.buttonStatus? '填写姓名和手机号码，方便老师联系你': 'teamManagerByConfirm'===this.buttonStatus? '请填写你的姓名和手机号码': 'teamTeacherByConfirm'===this.buttonStatus? '请填写你的姓名和手机号码':'请填写你的姓名和手机号码'
+			},
+			// input 提示语
+			computedInput() {
+				return 'allowSignUp'===this.buttonStatus? '开营通知手机号': 'teamManagerByConfirm'===this.buttonStatus? '手机号码': 'teamTeacherByConfirm'===this.buttonStatus? '手机号码':''
+			},
+		}
+
+		onShow() {
+			let self = this
+			initializationDeligate({
+                initializeFunc: self.initialize.bind(self)
+            })
+		}
+
+		initialize() {
+			let self = this
+			self.name = getStore().getState().user.nickName
+			self.$apply();
+		}
+
+		methods = {
+			closeContactBtn() {
+				let self = this
+				self.isShowContactButton = false;
+				self.$apply()
+			},
+			/**
+             * 微信授权昵称
+             */
+            getAuthorize(event) {
+                let self = this
+                let {
+                    detail: {
+                        errMsg,
+                        userInfo,
+                        rawData
+                    }
+                } = event
+                store.dispatch(getLoginInfo({
+                    userInfo,
+                    errMsg
+                })).then(response => {
+                    wepy.$instance.globalData.getHuilder('训练营报名页/授权昵称', 'click', '')
+					self.name = userInfo.nickName;
+					self.$apply();
+                }).catch(error => {})
+            },
+			// 点击确认 触发的方法
+			getSureBtn() {
+				let self = this
+
+				if(this.name == '' || !this.name){
+					return wepy.showToast({
+                        title: '姓名不能为空',
+                        icon: 'none',
+        				mask: true
+                    })
+				}
+				// 确认报名接口
+				teamApi.signUpNewTeamLearning({
+					token: self.token,
+					teamID: self.teamID,
+					buttonStatus: self.buttonStatus,
+					name: self.name,
+					shareId: self.shareId,
+					phoneNum: self.phone,
+					roleType: self.roleType
+				}).then( response => {
+					if(response.success == '0') {
+						let t = setTimeout(() => {
+							wepy.showToast({
+								title: `欢迎加入【${self.teamName}】`,
+								icon: 'none',
+								duration: 2000
+							})
+							clearTimeout(t)
+						}, 4000);
+						let rounter = getCurrentPages();
+						rounter.length > 2 ? wx.redirectTo({url:`/pages/training-camp-module/training-detail?teamID=${this.teamID}`}) : wx.reLaunch({url:`/pages/training-camp-module/training-detail?teamID=${this.teamID}`}) ;
+					} else {
+						if(!response.joinPermission) {
+							self.isShowContactButton = true
+							self.$apply()
+						} else {
+							wepy.showToast({
+								title: response.message,
+								icon: 'none',
+								duration: 2000
+							})
+						}
+					}
+				}).catch(error => {
+					console.log(error + 'fail to confirm from backend')
+				})
+			}
+		}
+		onLoad(params) {
+			console.log(params)
+			this.teamID = params.teamID
+			this.buttonStatus = params.buttonStatus
+			this.roleType = params.roleType
+			this.teamName = params.name
+			this.shareId = params.shareId == "undefined" ? '' : params.shareId;
+			
+			this.$apply()
+            wepy.$instance.globalData.getLoadHuilder({pageTheme: this.teamName}) // ga统计
+		
+		}
+		events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+  	}
+</script>
+
+
+<style lang="less" scoped>
+	@import '../../assets/style/theme';
+	.ui-team-learning-apply {
+		background-color: #EFEFF4;
+		.cell-team-learning-tip {font-size: 28rpx;color:#8F8E94;padding:32rpx 0 32rpx 36rpx;}
+		.ui-item{
+			background-color: #fff;font-size: 32rpx;height: 120rpx;display:flex;align-items:center;border-bottom: 1px solid #EFEFF4;
+			input{width:60%;text-align: left;}
+			text{margin: 0 20rpx 0 40rpx;color:#8F8E94;}
+			.cell-auto-phone {width:160rpx;height:56rpx;background-color:#007AFF;color:#fff;border-radius:8rpx;text-align:center;line-height:56rpx;font-size:32rpx;padding:0;}
+
+		}
+		.ui-apply-button{
+			display: flex;justify-content: center;
+			.cell-apply-sure{width:702rpx;height:100rpx;background-color:#007AFF;color:#fff;line-height:100rpx;text-align:center;border-radius:20rpx;margin-top:128rpx;display:flex;justify-content:center;font-size: 40rpx}
+		}
+		/* 关注公众号弹窗 */
+		.ui-contact-module {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			z-index: @z-index-mask-header;
+			.flex-center();
+			flex-wrap: wrap;
+			padding: 32rpx;
+			box-sizing: border-box;
+			.ui-contact-module-mask {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: @background-mask-normal-4;
+				z-index: @z-index-mask-header;
+			}
+			.ui-contact-content {
+				width: 622rpx;
+				height: 828rpx;
+				background: @background-white;
+				border-radius: @border-radius-32;
+				z-index: @z-index-lower-header;
+				.flex-center();
+				flex-wrap: wrap;
+				position: relative;
+				.ui-title-box {
+					width: 100%;
+					font-size: 32rpx;
+					line-height: 48rpx;
+					font-weight: bold;
+					color: @color-black;
+					.flex-center();
+				}
+				.ui-close {
+					position: absolute;
+					top:-72rpx;
+					right:-36rpx;
+					image {
+						width: 64rpx;
+						height: 64rpx;
+					}
+				}
+				.ui-image-box {
+					width: 100%;
+					margin: 0 32rpx;
+					image {
+						width: 558rpx;
+						height: 448rpx;
+						margin-bottom: 30rpx;
+					}
+					.cell-text {
+						width: 100%;
+						text-align: center;
+						font-size: 28rpx;
+						color: @color-gray-64;
+						line-height: 44rpx;
+					}
+				}
+				.ui-button-box {
+					width: 100%;
+					.flex-center();
+					button {
+						width: 494rpx;
+						height: 88rpx;
+						color: @color-white;
+						background: @background-blue;
+						font-size: 30rpx;
+						font-weight: bold;
+						border-radius: @border-radius-88;
+						.flex-center();
+					}
+				}
+			}
+		}
+	}
+</style>

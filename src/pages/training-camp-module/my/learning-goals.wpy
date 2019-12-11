@@ -1,0 +1,110 @@
+<template>
+    <jn-header title="训练营目标"></jn-header>
+    <view class="goal-article">
+        <view wx:for="{{ goals }}" wx:key="{{ index }}" class="flex-space-between-row goal-article__section">
+            <block>
+                <image class="goal-article__section__icon" data-offset="{{ index }}"
+                       src="http://wx-small.runwise.cn/image/imageID14735f999cf41e9cb902cf1c239c.png" mode="scaleToFill"
+                       @tap.stop="handleDelete"></image>
+                <input class="goal-article__section__content" maxlength="36" value="{{ item.message }}"
+                       placeholder="目标（限36个字）" data-offset="{{ index }}" bindinput="handleTargetInput"/>
+            </block>
+        </view>
+
+
+        <view class="flex-space-between-row goal-article__section addition" @tap.stop="handleAddition">
+			<view class="ui-add-icon">
+				<text class="icon-add"></text>
+			</view>
+            <text class="goal-article__section__content green">添加目标</text>
+        </view>
+
+        <view class="pushlink-body__footer-btn-wapper">
+            <button class="pushlink-body__footer-btn disable" plain="{{ true }}" @tap.stop="handleConfirm">确定</button>
+        </view>
+
+    </view>
+</template>
+
+<style lang="less">
+	@import "../../../assets/style/theme";
+	.ui-add-icon{
+		background:@background-blue; width: 40rpx;height: 40rpx;margin-left: 40rpx;margin-right: 20rpx;border-radius: 50%;line-height: 40rpx;display: flex;justify-content: center;align-items: center;
+		text{color: @color-white;font-size: 24rpx;}
+	}
+	.goal-article {width: 100%;height: calc(~"100% - 64rpx");background-color: @background-gray-F4;}
+	.goal-article__section {padding: 52rpx 0 24rpx;background-color: @background-white;border-bottom: 2rpx solid @border-gray;}
+	.goal-article__section.addition {position: sticky;position: -webkit-sticky;left: 0;bottom: 140rpx;backface-visibility: hidden;z-index: 9;background-color: @background-white;}
+	.goal-article__section__icon {width: 40rpx;height: 40rpx;margin-left: 40rpx;margin-right: 20rpx;display: block;}
+	.goal-article__section__content {width: 610rpx;margin-left: 0;margin-right: auto;display: block;font-family: PingFangSC-Regular;font-size: 32rpx;line-height: 44rpx;color: @color-black;}
+	.goal-article__section__content.green {color: @color-blue;}
+	.pushlink-body__footer-btn-wapper {width: 100%;height: 140rpx;position: fixed;left: 0;bottom: 0;display: flex;justify-content: center;align-items: center;border-top: @border-gray 2rpx solid;z-index: 9;}
+	.pushlink-body__footer-btn {width: 702rpx;height: 100rpx;line-height: 100rpx;background-color: @background-blue !important;color: @color-white !important;border: 0 !important;border-radius:@border-radius-20;}
+</style>
+
+<script>
+  import wepy from "wepy";
+  import {getStore, connect} from "wepy-redux";
+  import header from '../../../components/common/header'
+  const store = getStore();
+  @connect({
+    userName(state) {
+      return state.user.nickName;
+    }, // mapState 即getters
+    avatar(state) {
+      return state.user.avatarUrl;
+    },
+    token(state) {
+      // return 'userIDf6baae6dfe454ce7ae4bbcba365226c2-1524537036425-2fdbb184ae6d2c535dd58bdff5eed970'
+      return state.user.token;
+    },
+    code(state) {
+      return state.user.code;
+    },
+    role(state) {
+      return state.user.role
+    },
+    entrance(state) {
+      return state.entrance
+    }
+  })
+  export default class TeamLearningUpload extends wepy.page {
+    components = {
+        'jn-header': header
+    } // end components
+
+    data = {
+      goals: [],
+      inputAllowed: false
+    } // end data
+
+    methods = {
+      handleAddition() {
+        this.goals.splice(this.goals.length, 0, { message: '', type: 'input' })
+      }, // end handleAddtion
+      handleDelete({ currentTarget: { dataset: { offset } } }) {
+        console.log('tend to delete', offset)
+        this.goals.splice(offset, 1)
+      }, // end handleDelete
+      handleTargetInput({ currentTarget: { dataset: { offset } }, detail: { value } }) {
+        // console.log('input', offset, value)
+        this.goals[offset]['message'] = value
+      }, // end handleTargetInput
+      handleConfirm() {
+        let mPages = getCurrentPages()
+        let mTarget = mPages.find(item => 'pages/training-camp-module/my/edit' === item.__route__ )
+        mTarget.handleSetTargetList({ items: this.goals.map(item => item.message).filter(item => item) })
+        wx.navigateBack({ delta: 1 })
+      } // end handleConfirm
+    } // end methods
+
+    onLoad(option, { preload: { targetList } }) {
+      this.goals = targetList.map(item => ({ message: item, type: 'previous' }))
+        wepy.$instance.globalData.getLoadHuilder() // ga统计
+      this.$apply()
+    } // end onLoad
+
+    onShow() {
+    } // end onShow
+  }
+</script>

@@ -1,0 +1,659 @@
+<style lang="less" scoped>
+    @import "../../../assets/style/theme";
+    .ui-select-list{
+        box-sizing:border-box;height:120rpx;padding:24rpx 32rpx;background-color:@background-color-F3;border-bottom:2rpx solid @border-color;position:relative;
+        .cell-radio{
+            width:auto;margin-right:32rpx;font-size:34rpx;color:@color-black;
+            text{margin-right:12rpx;font-size:48rpx;color:@color-blue;position:relative;top:2rpx;}
+        }
+        .ui-switch{
+            width:auto;position:absolute;right:32rpx;top:0;
+            text{margin-right:16rpx;font-size:34rpx;color:@color-black;}
+        }
+    }
+    .ui-picker-box{
+        box-sizing:border-box;height:140rpx;padding:16rpx 32rpx;background-color:@background-color-F3;border-bottom:2rpx solid @border-color;
+        picker:nth-of-type(1){margin-right:28rpx;}
+        .cell-unit{width:36rpx;margin:0 18rpx 0 28rpx;padding-top:48rpx;text-align:center;font-size:24rpx;color:@color-blue;text-align:center;line-height:56rpx;}
+        .cell-label{height:40rpx;padding-bottom:8rpx;font-size:24rpx;color:@color-gray;line-height:40rpx;}
+        .cell-time{
+            height:56rpx;padding:0 20rpx;background-color:@background-white;font-size:24rpx;color:@color-blue;line-height:56rpx;border-radius:@border-radius-32;
+            text{display:block;font-size:24rpx;transform:rotate(90deg);}
+        }
+    }
+    .ui-tool{
+        .ui-submit-button{
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex: 2;
+            flex-wrap: nowrap;
+            button{
+                width: 120rpx;
+                height: 56rpx;
+                font-size: 28rpx;
+                padding: 0 20rpx;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: @color-white;
+                background: @background-blue;
+                border-radius: @border-radius-44;
+            }
+        }
+        .ui-container{
+            position: fixed;
+            z-index: @z-index-normal;
+        }
+    }
+</style>
+
+<template>
+    <view hidden="{{isShowFullComponent}}">
+        <jn-header title="讨论"></jn-header>
+        <view class="ui-select-list">
+            <view class="ui-radio dir-left">
+                <view class="cell-radio cross-center" data-type="important" @tap.stop="getRadio">
+                    <text class="{{sendData.infoType=='important' ? 'icon-selected' : 'icon-selectable'}}"></text>通知
+                </view>
+                <view class="cell-radio cross-center" data-type="normal" @tap.stop="getRadio">
+                    <text class="{{sendData.infoType=='normal' ? 'icon-selected' : 'icon-selectable'}}"></text>其他
+                </view>
+            </view>
+
+            <view class="ui-switch cross-center">
+                <text>置顶</text>
+                <switch color="#007AFF"
+                        checked="{{sendData.isTop}}"
+                        bindchange="getSwitch"></switch>
+            </view>
+        </view>
+
+        <view class="ui-picker-box dir-left">
+            <picker mode="date"
+                    data-type="date"
+                    value="{{currentDate}}"
+                    bindchange="getDateChange">
+                <view class="cell-label">开始时间</view>
+                <view class="cell-time main-justify">{{currentDate}}<text class="icon-right-arrow"></text></view>
+
+            </picker>
+            <view class="cell-unit">:</view>
+            <picker mode="time"
+                    data-type="time"
+                    value="{{currentTime}}"
+                    bindchange="getDateChange">
+                <view class="cell-label"></view>
+                <view class="cell-time main-justify">{{currentTime}}<text class="icon-right-arrow"></text></view>
+            </picker>
+        </view>
+
+        <view class="module-team-discuss-edit">
+            <view class="ui-title">
+                <textarea placeholder="输入标题（选填）"
+                          maxlength="-1"
+                          auto-height="{{true}}"
+                          adjust-position="{{false}}"
+                          data-type="title"
+                          value="{{sendData.title}}"
+                          bindblur="getBlur"></textarea>
+            </view>
+
+            <repeat for="{{sendData.infoList}}" key="index" index="index" item="data">
+                <view class="ui-description" wx:if="{{'text'==data.type}}">
+                    <textarea placeholder="输入内容"
+                              maxlength="-1"
+                              auto-height="{{true}}"
+                              adjust-position="{{false}}"
+                              data-type="content"
+                              value="{{data.content}}"
+                              bindblur="getBlur"></textarea>
+                </view>
+
+                <view class="ui-link main-justify" wx:if="{{'link'==data.type}}">
+                    <textarea maxlength="-1"
+                              auto-height="{{true}}"
+                              data-type="{{index}}"
+                              value="{{data.title}}"
+                              adjust-position="{{false}}"
+                              bindblur="getBlur"></textarea>
+                    <view class="cell-close cross-center">
+                        <text class="icon-delete-select"
+                              data-index="{{index}}"
+                              data-item="{{data}}"
+                              @tap.stop="getDetele"></text>
+                    </view>
+                </view>
+
+                <view class="ui-thumb" wx:if="{{'image'==data.type}}">
+                    <image mode="widthFix" src="{{data.img}}"></image>
+                    <text class="icon-delete-select"
+                          data-index="{{index}}"
+                          data-item="{{data}}"
+                          @tap.stop="getDetele"></text>
+                </view>
+
+                <view class="ui-lesson" wx:if="{{'lesson'==data.type}}">
+                    <repeat for="{{data.list}}" key="index" index="index" item="item">
+                        <view class="ui-item flex">
+                            <view class="cell-thumb flex-box-0">
+                                <image mode="aspectFit" src="{{item.imageUrl}}"></image>
+                            </view>
+                            <view class="ui-content main-justify cross-center">
+                                <view class="ui-info">
+                                    <view class="cell-title">{{item.senceName}}</view>
+                                    <view class="cell-description">{{item.senceTarget}}…</view>
+                                </view>
+                            </view>
+                        </view>
+                    </repeat>
+                    <text class="icon-delete-select"
+                          data-index="{{index}}"
+                          data-item="{{data}}"
+                          @tap.stop="getDetele"></text>
+                </view>
+
+                <view class="ui-practice" wx:if="{{'practice'==data.type}}">
+                    <repeat for="{{data.list}}" key="index" index="index" item="item">
+                        <jn-single-choice :cardIndex.sync="index" :cardsList.sync="data.list" isExercises></jn-single-choice>
+                    </repeat>
+                    <text class="icon-delete-select"
+                          data-index="{{index}}"
+                          data-item="{{data}}"
+                          @tap.stop="getDetele"></text>
+                </view>
+
+                <view class="ui-poll" wx:if="{{'poll'==data.type}}">
+                    <jn-poll :cardIndex.sync="index" :cardsList.sync="sendData.infoList"></jn-poll>
+                    <text class="icon-delete-select"
+                          data-index="{{index}}"
+                          data-item="{{data}}"
+                          @tap.stop="getDetele"></text>
+                </view>
+            </repeat>
+
+            <view class="ui-tool" :class="{'is-iphonex': isIphonex}">
+                <view class="ui-container main-justify">
+                    <view class="ui-list flex-box-1">
+                        <button class="cell-item"
+                                data-type="image"
+                                disabled="{{!status.isThumb}}"
+                                @tap.stop="getAddLayer"><text class="icon-thumb"></text></button>
+                        <button class="cell-item"
+                                data-type="link"
+                                @tap.stop="getAddLayer"><text class="icon-link"></text></button>
+                        <button class="cell-item"
+                                data-type="lesson"
+                                disabled="{{!status.isLesson}}"
+                                @tap.stop="getAddLayer"><text class="icon-course1"></text></button>
+                        <button class="cell-item"
+                                wx:if="{{sendData.infoType!='important'}}"
+                                data-type="practice"
+                                disabled="{{!status.isPractice}}"
+                                @tap.stop="getAddLayer"><text class="icon-practice"></text></button>
+                        <button class="cell-item"
+                                wx:if="{{sendData.infoType!='important'}}"
+                                data-type="poll"
+                                disabled="{{!status.isPoll}}"
+                                @tap.stop="getAddLayer"><text class="icon-poll"></text></button>
+                    </view>
+                    <view class="ui-submit-button">
+                        <button class="cell-button"
+                        disabled="{{!isSumbit}}"
+                        @tap.stop="getSumbitDiscuss">发布</button>
+                    </view>
+                    
+                </view>
+            </view>
+        </view>
+    </view>
+    <jn-insert-link :isShow.sync="isShowInsertLink"></jn-insert-link>
+    <jn-insert-lesson :isShow.sync="isShowInsertLesson"></jn-insert-lesson>
+    <jn-insert-practice :isShow.sync="isShowInsertPractice"></jn-insert-practice>
+    <jn-insert-poll :isShow.sync="isShowInsertPoll"></jn-insert-poll>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../../components/common/header'
+    import insertLink from '../../../components/team-module/insert-link'
+    import insertLesson from '../../../components/team-module/add-lesson'
+    import insertPractice from '../../../components/team-module/add-practice'
+    import insertPoll from '../../../components/team-module/add-poll'
+    import singleChoice from '../../../components/cards-type/single-choice'
+    import poll from '../../../components/cards-type/poll'
+    import config from '../../../api/config'
+    import {fetch} from '../../../api'
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class myReleaseDiscuss extends wepy.page {
+        components = {
+            'jn-header': header,
+            'jn-insert-link': insertLink,
+            'jn-insert-lesson': insertLesson,
+            'jn-insert-practice': insertPractice,
+            'jn-insert-poll': insertPoll,
+            'jn-single-choice': singleChoice,
+            'jn-poll': poll
+        }
+
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            paramsInfo: {},
+            isShowFullComponent: false,
+            isShowInsertLink: false,
+            isShowInsertLesson:false,
+            isShowInsertPractice:false,
+            isShowInsertPoll: false,
+            isSumbit: true,
+            currentDate: '2019-01-01',
+            currentTime: '00:00',
+            startDate: '2019-01-01',
+            startTime: '00:00',
+            status: { // 底部按钮是否可用, 微课跟联系是互斥
+                isThumb: true,
+                isLesson: true,
+                isPractice: true,
+                isPoll: true
+            },
+            sendData: {
+                title: '',
+                isTop: false,
+                infoType: 'normal', // 信息类型
+                roleType: 'admin',
+                userID: 'defaultUserID',
+                postID: 'defaultpostID',
+                infoList: [
+                    {
+                        content: "",
+                        index: 0,
+                        type: "text"
+                    }
+                ]
+            }
+        }
+
+        /**
+         * @param teamID 训练营ID
+         * */
+        onLoad(params) {
+            let self = this
+            let date = new Date();
+            self.paramsInfo = params;
+            self.currentDate = date.format('yyyy-MM-dd');
+            self.currentTime = date.format('hh:mm');
+            self.startDate = self.currentDate + '';
+            self.startTime = self.currentTime + '';
+            self.sendData.roleType = self.paramsInfo.role;
+            self.sendData.userID = self.paramsInfo.userID;
+            params && params.data && self.__initData(params.data)
+            self.$apply()
+        }
+
+        onShow() {
+            let self = this
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+        /**
+         * 初始化修改传来的参数
+         * @param data
+         */
+        __initData(data) {
+            let self = this 
+            let res = JSON.parse(data)
+            console.log(res,typeof(res))
+            self.sendData.infoType = res.infoType;
+            self.sendData.isTop = res.isTop;
+            let createTime = new Date(res.orderTime);
+            self.currentDate = createTime.format('yyyy-MM-dd');
+            self.currentTime = createTime.format('hh:mm');
+            self.sendData.title = res.moduleTitle;
+            self.sendData.postID = res.postID;
+            self.sendData.userID = res.userID;
+            let textObj = {
+                type: 'text',
+                content: res.content,
+                index: 0
+            }
+            self.sendData.infoList[0] = textObj
+            if(res.linkLoaction){
+                let linkObj = {
+                    title: res.linkName || res.linkLoaction,
+                    link: res.linkLoaction,
+                    type: 'link',
+                    index: 1
+                }
+                self.sendData.infoList.push(linkObj)
+                self.isShowInsertLink = false;
+            }
+            if(res.lessonList && res.lessonList.length){
+                let lessonObj = {
+                    type:'lesson',
+                    index: 1,
+                    list:res.lessonList
+                }
+                self.sendData.infoList.push(lessonObj);
+                self.status.isLesson = false
+                self.isShowInsertLesson = false
+                self.isShowFullComponent = false
+            }
+            if(res.img){
+                let imgObj = {
+                    img: res.img,
+                    index: 1,
+                    type: "image"
+                }
+                self.sendData.infoList.push(imgObj) ;
+                self.status.isThumb = false ;
+            }
+            if(res.practiceList && res.practiceList.length){
+                let practiceObj = {
+                    type:'practice',
+                    index:1,
+                    list:res.practiceList
+                }
+                self.sendData.infoList.push(practiceObj)
+                self.status.isPractice = false
+                self.status.isPoll = false
+                self.isShowInsertPractice = false
+                self.isShowFullComponent = false
+            }
+            if(res.select && res.select.length){
+                let pollObj = {
+                    type:'poll',
+                    pollType:res.pollType,
+                    index: 1,
+                    select: res.select
+                }
+                self.sendData.infoList.push(pollObj);
+                self.status.isPractice = false
+                self.status.isPoll = false
+                self.isShowInsertPoll = false
+                self.isShowFullComponent = false
+            }
+        }
+
+        /**
+         * 删除模块
+         * @param index
+         * @private
+         */
+        __deteleModule(item, index) {
+            let self = this
+            let list = self.sendData.infoList
+            list.splice(index, 1)
+
+            switch (item.type) {
+                case 'image':
+                    self.status.isThumb = true
+                    break
+                case 'lesson':
+                    self.status.isLesson = true
+                    break
+                case 'practice':
+                case 'poll':
+                    self.status.isPractice = true
+                    self.status.isPoll = true
+                    break
+            }
+
+            self.$apply()
+        }
+
+        /**
+         * 上传图片到服务器
+         * @param flie
+         * @private
+         */
+        __chooseImage(flie) {
+            let self = this
+            let list = self.sendData.infoList
+            wx.uploadFile({
+                url: `${config.baseUrl + 'app/upload'}?token=${self.systemInfo.token}`,
+                filePath: flie,
+                name: 'file',
+                header: {
+                    'content-type': 'application/x-www-form-urlencoded'  //这里注意POST请求content-type是小写，大写会报错
+                },
+                success(response) {
+                    let info = JSON.parse(response.data)
+                    list.push({
+                        img: info.data.url,
+                        index: list.length,
+                        type: "image"
+                    })
+                    self.status.isThumb = false
+                    self.$apply()
+                }
+            })
+        }
+
+        methods = {
+            getRadio(event) {
+                let self = this
+                let {currentTarget: {dataset: {type}}} = event
+                self.sendData.infoType = type
+                self.$apply()
+            },
+            getSwitch(event) {
+                let self = this
+                let {detail: {value}} = event
+                self.sendData.isTop = value
+                self.$apply()
+            },
+            getDateChange(event) {
+                let self = this
+                let {detail: {value}, currentTarget: {dataset: {type}}} = event
+
+                switch (type) {
+                    case 'date':
+                        self.currentDate = value
+                        break
+                    case 'time':
+                        self.currentTime = value
+                        break
+                }
+                self.$apply()
+            },
+            /**
+             * textarea失去焦点
+             * @param event
+             */
+            getBlur(event) {
+                let self = this
+                let {detail:{value}, currentTarget: {dataset: {type}}} = event
+                switch(type) {
+                    case 'title':
+                        self.sendData.title = value
+                        break
+                    case 'content':
+                        self.sendData.infoList[0].content = value
+                        break
+                    default:
+                        if ('' === value) {
+                           self.__deteleModule(type)
+                        }
+                }
+            },
+            /**
+             * 弹出对应的添加框
+             * @param event
+             */
+            getAddLayer(event) {
+                let self = this
+                let {currentTarget: {dataset: {type}}} = event
+
+                switch (type) {
+                    case 'image':
+                        let list = self.sendData.infoList
+                        wx.chooseImage({
+                            count: 1,
+                            success: (data) => {
+                                self.__chooseImage(data.tempFiles[0].path)
+                            }
+                        })
+                        break
+                    case 'link':
+                        self.isShowInsertLink = true
+                        break
+                    case 'lesson':
+                        self.isShowInsertLesson = true
+                        self.isShowFullComponent = true
+                        break
+                    case 'practice':
+                        self.isShowInsertPractice = true
+                        self.isShowFullComponent = true
+                        break
+                    case 'poll':
+                        self.isShowInsertPoll = true
+                        self.isShowFullComponent = true
+                        break
+                }
+
+            },
+            /**
+             * 删除模块
+             * @param event
+             */
+            getDetele(event) {
+                let self = this
+                let {currentTarget: {dataset: {item, index}}} = event
+                self.__deteleModule(item, index)
+            },
+            /**
+             * 提交讨论信息
+             */
+            getSumbitDiscuss() {
+                let self = this
+                setTimeout(()=>{
+                    if (!self.sendData.infoList[0].content) {
+                        wx.showToast({title: '请填写内容', icon: 'none'})
+                        return
+                    }
+                    self.sendData.infoList[0].content.split('\n').join('&hc');
+                    self.isSumbit = false
+                    self.$apply()
+                    let postData = {
+                        token: self.systemInfo.token,
+                        body: {
+                            json: {
+                                teamID: self.paramsInfo.teamID,
+                                beginTime: `${self.currentDate} ${self.currentTime}:00`,
+                                ...self.sendData
+                            }
+                        }
+                    }
+                    let targetTime = new Date(postData.body.json.beginTime.replace(new RegExp(/-/g),'/'))
+                    let showToastTitle = targetTime.getTime() > new Date().getTime() ? '已保存' : '已发布';
+
+                    fetch.saveTeamPost(postData).then(response => {
+                        self.isSumbit = true
+                        self.sendData = {
+                            title: '',
+                                infoList: [
+                                {
+                                    content: "",
+                                    index: 0,
+                                    type: "text"
+                                }
+                            ]
+                        }
+                        self.$apply()
+                        wx.showToast({title: showToastTitle,icon:'none'})
+                        setTimeout(() => {
+                            wx.navigateBack()
+                        }, 1500)
+                    }).catch(error => {
+                        wx.showToast({title: '网络错误', icon: 'none'})
+                        self.isSumbit = true
+                        self.$apply()
+                    })
+                }, 300)
+            }
+        }
+
+        events = {
+            'on-insert-link': (data) => {
+                let self = this
+                let list = self.sendData.infoList
+                let item = _.find(list, {type: 'link'})
+
+                if (!_.isEmpty(data)) {
+                    if (!item) {
+                        list.push({
+                            title: data.title || data.link,
+                            link: data.link,
+                            type: 'link',
+                            index: list.length
+                        })
+                    } else {
+                        item.title = data.title,
+                            item.link = data.link
+                    }
+                }
+
+                self.isShowInsertLink = false
+                self.$apply()
+            },
+            'on-add-lesson': (data) => {
+                let self = this
+                let list = self.sendData.infoList
+                if (!_.isEmpty(data)) {
+                    list.push({
+                        list: data,
+                        type: 'lesson',
+                        index: list.length
+                    })
+                    self.status.isLesson = false
+                }
+
+                self.isShowInsertLesson = false
+                self.isShowFullComponent = false
+                self.$apply()
+            },
+            'on-add-practice': (data) => {
+                let self= this
+                let list = self.sendData.infoList
+                if (!_.isEmpty(data)) {
+                    list.push({
+                        list: data,
+                        type: 'practice',
+                        index: list.length
+                    })
+                    self.status.isPractice = false
+                    self.status.isPoll = false
+                }
+
+                self.isShowInsertPractice = false
+                self.isShowFullComponent = false
+                self.$apply()
+            },
+            'on-add-poll': (data) => {
+                let self= this
+                let list = self.sendData.infoList
+                if (!_.isEmpty(data)) {
+                    list.push({
+                        select: data.list,
+                        title: data.title,
+                        pollType: data.pollType,
+                        type: 'poll',
+                        index: list.length
+                    })
+                    self.status.isPractice = false
+                    self.status.isPoll = false
+                }
+
+                self.isShowInsertPoll = false
+                self.isShowFullComponent = false
+                self.$apply()
+            }
+        }
+    }
+</script>

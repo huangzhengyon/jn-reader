@@ -1,0 +1,187 @@
+<style lang="less" scoped>
+    @import '../../assets/style/theme.less';
+    image{width: 720rpx;}
+    .cell-btn{background: #007AFF;width: 686rpx;height: 100rpx;color:#fff;line-height: 100rpx;border-radius: 20rpx;text-align: center;margin-top: 58rpx;font-size: 34rpx;}
+    .module-header .ui-button .cell-icon{color:#007AFF}
+    .cell-title {
+        font-size: 48rpx;
+        font-weight: bold;
+        color: @color-black;
+        line-height: 2;
+        margin-top: 88rpx;
+    }
+    .cell-subtitle{
+        font-size: 32rpx;
+        color: @color-gray;
+    }
+    .ui-stepby-box {
+        .flex-center();
+        flex-direction: column;
+    }
+    .ui-review-box {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+
+        image {
+            width: 600rpx;
+        }
+        .ui-back-home {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 40rpx;
+            .flex-center();
+
+            &.is-iphonex {
+                padding-bottom: 114rpx;
+            }
+            button {
+                width: 670rpx;
+                height: 88rpx;
+                font-size: 34rpx;
+                color: @color-blue;
+                background: @background-gray-F4;
+                border-radius: @border-radius-16;
+                font-weight: bold;
+            }
+        }
+        
+    }
+</style>
+<template>
+    <jn-loading wx:if="{{!isLoaded}}"></jn-loading>
+    <jn-header hiddenButton statusBackground="#fff">
+        <button slot="cursor-button" class="cell-back" @tap.stop="getBackStep">
+            <text class="icon-back-close cell-icon"></text>
+        </button>
+    </jn-header>
+    <view>
+        <view class="ui-review-box" wx:if="{{isReview}}">
+            <image mode="widthFix" src="http://wx-small.runwise.cn/image/review-banner.svg"></image>
+            <view class="ui-back-home" :class="{'is-iphonex': isIphonex}">
+                <button class="main-center cross-center" @tap.stop="gotoHome">返回今日页</button>
+            </view>
+        </view>
+        <view class="ui-stepby-box" wx:else>
+            <image mode="widthFix" src="http://image.runwise.cn/image/experience-over.png"></image>
+            <view class="cell-title">学完本课啦！</view>
+            <view class="cell-subtitle">评价可获得更多即能币哟！</view>
+            <view class="cell-btn" @tap.stop="gotoEvalution">马上去评价</view>
+        </view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header';
+    import Loading from '../../components/common/loading';
+    import {fetch} from "../../api";
+    import {getStore,connect} from "wepy-redux";
+    import _ from 'underscore';
+
+    const store = getStore();
+    
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class completeWithNoPractice extends wepy.page {
+
+        components = {
+            'jn-header': header,
+            'jn-loading': Loading,
+        } 
+
+        data = {
+            headerHeigth: 68,
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isLoaded: false,
+            courseID:'',//课程id
+            senceID:'',//微课id
+            source:'',//渠道
+            teamID:'',//
+            paramsInfo:'',//
+            routerDelta:'',//返回几层
+            finishResultInfo:'',//微课完成信息
+            skipRoutes: [
+                'pages/course-module/course-cover',
+                'pages/course-module/course-cover',
+                'pages/course-module/course-learning',
+                'pages/course-module/course-exercises'
+            ],
+        };
+
+        onLoad(params) {
+            let self = this
+            self.isLoaded = false
+            // 分享进来的
+            if (1 === getCurrentPages().length) {
+                wx.reLaunch({url: '/pages/tabPages/course'})
+                return
+            }
+            
+            let {courseID, senceID, teamID,source,isReview, isFromTodayListing} = params
+            let {user: {token, platform}, cards: {requestFlag}} = getStore().getState()
+            self.paramsInfo = {courseID, senceID, teamID, platform, requestFlag,source,isReview, isFromTodayListing}
+            self.isLoaded = true;
+            self.$apply()
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            self.__originalRouter()
+        }
+        
+        computed = {
+            isReview() {
+                return this.paramsInfo.isReview == 'true' ? true : false;
+            }
+        }
+        
+        routerDelta(newValue,oldValue) {
+                console.log(newValue,oldValue)
+            }
+        /**
+         * 计算返回到微课入口页面
+         * @private
+         */
+        __originalRouter() {
+            let self = this
+            let routers = getCurrentPages()
+            let lenght = routers.length - 2
+            self.routerDelta = 1
+
+            _.find(routers, (data, index) => {
+                let item = routers[lenght - index]
+                if (item && -1 === _.indexOf(self.skipRoutes, item.route)) {
+                    return data
+                } else {
+                    self.routerDelta++
+                    self.$apply()
+                }
+            })
+            self.$apply()
+        }
+
+
+
+        methods = {
+            gotoHome() {//返回今日页
+                wepy.$instance.globalData.getHuilder('无练习微课完成页/返回今日页','click','')
+                wepy.switchTab({ url: '/pages/tabPages/home'})
+            },
+            getBackStep(){
+                wepy.$instance.globalData.getHuilder('无练习微课完成页/关闭','click','')
+                return wx.navigateBack({delta: 3})
+            },
+            gotoEvalution() {
+                let self = this
+                wepy.$instance.globalData.getHuilder('无练习微课完成页/去评价','click','')
+
+                wx.navigateTo({url: `/pages/course-module/course-complete?courseID=${self.paramsInfo.courseID}&senceID=${self.paramsInfo.senceID}&teamID=${self.paramsInfo.teamID}&source=${self.paramsInfo.source}&isReview=${self.paramsInfo.isReview}&isFromTodayListing=${self.paramsInfo.isFromTodayListing}&noProgressBar=true`})
+            }
+        };
+        
+        events = {}
+    }
+</script>

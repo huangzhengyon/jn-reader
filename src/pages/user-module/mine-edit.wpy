@@ -1,0 +1,211 @@
+<template>
+    <view class="mine-article__body">
+        <jn-header title="个人信息" hiddenButton>
+            <button slot="cursor-button" class="cell-back ui-header-button" @tap.stop="getClosePage">
+                <text class="icon-back"></text>
+            </button>
+        </jn-header>
+        <view class="ui-mine-edit">
+            <view class="ui-mine main-justify cross-center">
+                <text>头像</text>
+                <image src="{{userObj.avatarUrl}}"/>
+            </view>
+            <view class="ui-row-box">
+                <view class="ui-row main-justify cross-center">
+                    <view class="cell-key">昵称</view>
+                    <view class="cell-value cell-name">{{userObj.nickName}}</view>
+                </view>
+                <view class="ui-row main-justify cross-center" @tap.stop="getEditPhonePage" data-item="{{phone}}">
+                    <view class="cell-key">手机号码</view>
+                    <view class="cell-value">
+                        <view wx:if="{{phone}}">{{phone}}</view>
+                        <text class="icon-details"></text>
+                    </view>
+                </view>
+                <view class="ui-row main-justify cross-center" @tap.stop="getEditEmailPage" data-email="{{userObj.email}}">
+                    <view class="cell-key">邮箱</view>
+                    <view class="cell-value">
+                        <view wx:if="{{userObj.email}}">{{userObj.email ? userObj.email : ''}}</view>
+                        <text class="icon-details"></text>
+                    </view>
+                </view>
+            </view>
+            <view class="ui-row-box" @tap.stop="getEditStatusPage">
+                <view class="ui-row main-justify cross-center">
+                    <view class="cell-key">职能标签</view>
+                    <view class="cell-value">
+                        <view>{{statusItem}}</view>
+                        <text class="icon-details"></text>
+                    </view>
+                </view>
+                <view class="ui-row main-justify cross-center" @tap.stop="getEditInterestPage">
+                    <view class="cell-key">兴趣标签</view>
+                    <view class="cell-value">
+                        <view>{{interestItem}}</view>
+                        <text class="icon-details"></text>
+                    </view>
+                </view>
+                <view class="ui-row main-justify cross-center" @tap.stop="getEditTargetPage">
+                    <view class="cell-key">学习目标</view>
+                    <view class="cell-value">
+                        <view>{{targetItem.label}}</view>
+                        <text class="icon-details"></text>
+                    </view>
+                </view>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import {connect} from "wepy-redux";
+    import {report as reportApi} from "../../api";
+    import header from '../../components/common/header'
+
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+    })
+    export default class MineEdit extends wepy.page {
+        data = {
+            headerHeigth: 68,
+            userObj:{},
+            phone:'',
+            interestList:[],//兴趣标签
+            targetItem:[],//学习目标
+            statusList:[],//学习目标
+            source:''
+        }
+        components = {
+            'jn-header': header,
+        }
+        methods = {
+            getClosePage() {
+                if(this.source) {
+                    wepy.switchTab({url: `/pages/tabPages/home`})
+                }else {
+                    wepy.switchTab({url: `/pages/tabPages/userCenter`})
+                }
+            },
+            // 跳转修改手机页面
+            getEditPhonePage(event){
+                let {currentTarget: {dataset:{item}}} = event
+                wx.navigateTo({url: `/pages/user-module/mine-edit-phone?phone=${item}`})
+            },
+            // 跳转修改邮箱页面
+            getEditEmailPage(event){
+                let {currentTarget: {dataset:{email}}} = event
+                wx.navigateTo({url: `/pages/user-module/mine-edit-email?email=${email}`})
+            },
+            // 跳转修改兴趣页面
+            getEditInterestPage(){
+                wx.navigateTo({url: '/pages/user-module/mine-edit-interest'})
+            },
+            // 跳转修改目标页面
+            getEditTargetPage(){
+                wx.navigateTo({url: '/pages/user-module/mine-edit-target'})
+            },
+            // 跳转修改职能页面
+            getEditStatusPage(){
+                wx.navigateTo({url: '/pages/user-module/mine-edit-status'})
+            }
+
+        }
+
+        computed = {
+            interestItem() {
+                if(!this.interestList.length) return ''
+                if(this.interestList.length <= 1) {
+                    return this.interestList[0].label
+                }else{
+                    return this.interestList[0].label + ' 等' +this.interestList.length + '个'
+                }
+            },
+            statusItem() {
+                if(!this.statusList.length) return ''
+                if(this.statusList.length <= 1) {
+                    return this.statusList[0].label
+                }else{
+                    return this.statusList[0].label + ' 等' +this.statusList.length + '个'
+                }
+            },
+            headLine() {
+                return this.$parent.cardHeight - 64
+            }
+        }
+
+        onLoad(parmas) {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            this.source = parmas.source;
+            /* 选中当前自定义tabBar项 */
+            if (typeof this.$wxpage.getTabBar === 'function' &&
+            this.$wxpage.getTabBar()) {
+                this.$wxpage.getTabBar().setData({
+                    showTabBar: false
+                })
+            }
+            wx.hideTabBar();
+            this.$apply()
+        }
+
+        onShow(){
+            let self = this;
+            let postData = {
+                token:self.systemInfo.token
+            }
+            reportApi.userCenterInfo(postData).then(data=>{
+                self.userObj = data;
+                self.phone = self.userObj.mobile ? self.userObj.mobile : self.systemInfo.phone;
+                // 兴趣标签
+                let interestList = self.userObj.interestList
+                self.interestList= interestList.filter((item)=>{
+                    return item.isActive
+                })
+                // 学习目标
+                let targetList = self.userObj.targetList
+                let targetIndex = targetList.findIndex(item => item.isActive)
+                self.targetItem = targetList[targetIndex] ? targetList[targetIndex] : {}
+
+                // 职能标签
+                let statusList = self.userObj.statusList
+                self.statusList= statusList.filter((item)=>{
+                    return item.isActive
+                })
+                self.$apply()
+            })
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+    .mine-article__body {height: 100%;background-color:#EFEFF4;}
+    .ui-mine-edit{
+        view{box-sizing: border-box;}
+        .ui-mine{
+           width: 100%;height: 168rpx;padding: 0 32rpx 0 40rpx;font-size: 32rpx;color: #000;margin-top:20rpx;background-color:#fff;
+           image{height: 100rpx;width:100rpx;border-radius: 50%;}
+        }
+        .ui-row-box{
+            background-color: #fff;margin-top:20rpx;
+            .ui-row{
+                height: 128rpx;font-size: 30rpx;border-bottom:2rpx solid #EFEFF4;padding:0 24rpx 0 40rpx;
+                .cell-key{color: #000;}
+                .cell-value{
+                    color: #8F8E94;display: flex;height:100%;align-items:center;
+                    text{color:#c7c7cc;margin-left: 8rpx}
+                }
+                .cell-value.cell-name{padding-right: 12rpx}
+            }
+        }
+    }
+</style>

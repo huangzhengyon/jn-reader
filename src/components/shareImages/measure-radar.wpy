@@ -1,0 +1,384 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-button-box{
+        position: absolute;left: 184rpx;bottom: 32rpx;width:360rpx;height:88rpx;background-color:transparent;border-radius:44rpx;font-family:PingFangSC-Semibold;font-size:36rpx;color:@color-blue;letter-spacing:0.82px;
+        .icon-share{font-size: 40rpx;margin-right: 8rpx;}
+        &:hover{opacity: .9;}
+    }
+    .ui-alert-mask{width:100%;height:100%;background-color:rgba(0,0,0,.5);position:fixed;top:0;left:0;z-index:10;}
+    .ui-alert-box{width:100%;height:312rpx;position:fixed;left:0;bottom:0;z-index:11;overflow:hidden;transform:translateY(312rpx);transition:all .2s ease-in-out;}
+    .active{-webkit-transform:translateY(0);transform:translateY(0);}
+    .ui-alert-box button{width:100%;height:100rpx;background-color:rgba(255,255,255,.95);font-size:36rpx;color:#000;border-radius:0;}
+    .ui-alert-box view{width:100%;height:100rpx;background-color:rgba(255,255,255,.95);font-size:36rpx;color:#000;}
+    .ui-alert-box .cell-border{border-top:1px solid #eee;}
+    .ui-alert-box .cell-cancel{margin-top:12rpx;}
+
+    .ui-share-box{width:100%;height:667px;position:fixed;top:0;left:150%;}
+    .ui-share-canvas{width:375px;height:667px;}
+</style>
+
+<template>
+    <view class="ui-button-box main-center cross-center" @tap.stop="getShow()">
+        <text class="icon-share"></text>
+        <text>分享好友</text>
+    </view>
+
+    <view class="ui-alert-mask" wx:if="{{isShowShareBox}}" @tap.stop="getShow(1)"></view>
+    <view class="ui-alert-box" :class="{'active': isShowShareBox}">
+        <button class="main-center cross-center" open-type="share" @tap.stop="getShow(1)"><text>分享给好友</text></button>
+        <view class="cell-border main-center cross-center" @tap.stop="getShareCard"><text>生成分享图片</text></view>
+
+        <view class="cell-cancel main-center cross-center" @tap.stop="getShow(1)"><text>取消</text></view>
+    </view>
+
+    <view class="ui-share-box main-center cross-center">
+        <canvas class='ui-share-canvas' canvas-id='shareCanvas' id="shareCanvas"></canvas>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import {shareDictionary} from '../../utils'
+    import _ from 'underscore'
+
+    const shareCanvas = wx.createCanvasContext('shareCanvas')
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class measureRadar extends wepy.component {
+        props = {
+            params: {
+                type: Object
+            },
+            radarImage: {
+                type: String
+            },
+            isShow: {
+                type: Boolean,
+                default: false
+            }
+        }
+
+        computed = {
+            isShowShareBox () {
+                let self = this
+                return self.isShow
+            }
+        }
+
+        data = {
+            shareInfo: {
+                width: 375,
+                height: 667
+            },
+            shareImage: [],
+            createImage: null
+        }
+
+        onLoad() {
+            let self = this
+            self.createImage = null // 清空之前缓存的图片
+        }
+
+        /**
+         * 分享卡片
+         * @param images
+         * @private
+         */
+        __drawShareCard(images) {
+            let self = this;
+            let params = self.params
+            let windowWidth = self.shareInfo.width
+            let windowHeight = self.shareInfo.height
+            let prop = 1
+
+            wx.showLoading({
+                title: '正在加载',
+                mask: true
+            })
+            self.$emit('on-alert-visible', {isShow: false})
+
+            let backgroundImage = new Promise(function (resolve, reject) {
+                wx.getImageInfo({
+                    src: images.bg, success: function (res) {
+                        prop = windowWidth / res.width
+                        resolve(res);
+                    }
+                })
+            })
+
+            let qrcodeImage = new Promise(function (resolve, reject) {
+                wx.getImageInfo({
+                    src: images.qrcode, success: function (res) {
+                        resolve(res);
+                    }
+                })
+            })
+
+            let avatarImage = new Promise(function (resolve, reject) {
+                wx.getImageInfo({
+                    src: self.systemInfo.avatar, success: function (res) {
+                        resolve(res);
+                    }
+                })
+            })
+
+            let feedbackImage = null
+            if (images.feedbackImage) {
+                feedbackImage = new Promise(function (resolve, reject) {
+                    wx.getImageInfo({
+                        src: images.feedbackImage, success: function (res) {
+                            resolve(res);
+                        }
+                    })
+                })
+            }
+
+            Promise.all(
+                [backgroundImage, qrcodeImage, avatarImage, feedbackImage]
+            ).then(res => {
+                wx.hideLoading()
+                let shareImage = self.shareImage = res
+                let params = self.params
+                let w = Math.ceil(shareImage[0].width * prop)
+                let h = Math.ceil(shareImage[0].height * prop)
+                let y = h - windowHeight
+                w = w < windowWidth ? windowWidth : w
+
+                shareCanvas.drawImage(shareImage[0].path, 0, -y, w, h) // 背景图片
+                self.__drawShareTitle(images.subjectHeading) // 标题
+                self.__drawShareContent() // 中心内容盒子
+                shareCanvas.drawImage(self.radarImage, (windowWidth - self.params.width) >> 1, 90, self.params.width, self.params.height) // 雷达图
+                self.__drewShareAvatar() // 用户的头像
+
+                shareCanvas.draw(false, () => {
+                    self.__saveShareImage()
+                })
+            })
+        }
+
+        /**
+         * 分享卡片标题
+         * @param
+         * @private
+         */
+        __drawShareTitle(subjectHeading) {
+            let self = this
+            let title = subjectHeading || '《我的个人能力说明书》'
+            let windowWidth = self.shareInfo.width
+            shareCanvas.setTextAlign('center')
+            shareCanvas.setFillStyle('#fff')
+            shareCanvas.setFontSize(26)
+            shareCanvas.setShadow(2, 2, 1, '#FE417B') // 设置文字阴影
+
+            shareCanvas.beginPath()
+            shareCanvas.fillText(title, windowWidth >> 1, 55)
+            shareCanvas.setShadow(0, 0, 0, '#fff') // 清空阴影的信息
+            shareCanvas.closePath()
+            shareCanvas.stroke()
+        }
+
+        /**
+         * 分享卡片中心内容区域
+         * 高度是由于雷达图（有设计稿定的） + 评语高度 + 小程序二维码（84px由于设计稿定的）
+         * @private
+         */
+        __drawShareContent() {
+            let self = this
+            let params = self.params
+            let windowWidth = self.shareInfo.width
+
+            let shareImage = self.shareImage[3] // 反馈图片的
+            let feedbookWidth = Math.ceil(windowWidth * 0.8)
+            let prop = feedbookWidth / shareImage.width
+            let feedbookHeight = Math.ceil(shareImage.height * prop)
+
+            let x = (windowWidth - params.width) >> 1
+            let y = 100
+            let w = params.width
+            let h = params.height + feedbookHeight + 84 - 20
+            let r = 10
+
+            if (w < 2 * r) {
+                r = w / 2
+            }
+            if (h < 2 * r) {
+                r = h / 2
+            }
+
+            // 设置边框跟填充的颜色，上半部分的矩形
+            shareCanvas.beginPath()
+            shareCanvas.setStrokeStyle('rgba(255,255,255,0.9)')
+            shareCanvas.setFillStyle('rgba(255,255,255,0.9)')
+
+            shareCanvas.moveTo(x + r, y)
+            shareCanvas.arcTo(x + w, y, x + w, y + h, r)
+            shareCanvas.arcTo(x + w, y + h, x, y + h, r)
+            shareCanvas.arcTo(x, y + h, x, y, r)
+            shareCanvas.arcTo(x, y, x + w, y, r)
+            shareCanvas.fill()
+
+            shareCanvas.closePath()
+            shareCanvas.stroke()
+
+            self.__drawFeedbackImage(feedbookWidth, feedbookHeight)
+        }
+
+        /**
+         * 反馈评论的图片
+         * @private w 【必填】 反馈评论的高度
+         * @private h 【必填】 反馈评论的高度
+         */
+        __drawFeedbackImage(w, h) {
+            let self = this
+            let params = self.params
+            let windowWidth = self.shareInfo.width
+            let shareImage = self.shareImage[3] // 反馈图片的
+
+            shareCanvas.drawImage(shareImage.path, (windowWidth - w) >> 1, params.height + 80, w, h)
+            // 小程序二维码跟文字
+            self.__drawShareQrcode(params.height + 80 + h)
+        }
+
+        /**
+         * 小程序二维码跟文字
+         * @param y 上半部分的矩形y+矩形高度
+         * @private
+         */
+        __drawShareQrcode(y) {
+            let self = this
+            let shareImage = self.shareImage[1]
+            let windowWidth = self.shareInfo.width
+            let w = 64
+            let h = 64
+            let x = Math.ceil(windowWidth * 0.1)
+            shareCanvas.drawImage(shareImage.path, x, y + 6, w, h) // 背景图片
+            // 文字
+            shareCanvas.beginPath()
+            shareCanvas.setFillStyle('#294657')
+            shareCanvas.setFontSize(13)
+            shareCanvas.setTextAlign('left')
+            let text = '长按识别小程序，参与测试'
+            let textWidth = shareCanvas.measureText(text).width || text.length * 13
+            let textX = windowWidth - (textWidth + x)
+            shareCanvas.fillText(text, textX, y + 6 + 38)
+            shareCanvas.closePath()
+            // 绿色实线
+            shareCanvas.beginPath()
+            shareCanvas.setStrokeStyle('#2092A0')
+            shareCanvas.setLineWidth(5)
+            let lineX =  windowWidth - x
+            let lineY =  y + 6 + 52
+            shareCanvas.moveTo(lineX - 28, lineY)
+            shareCanvas.lineTo(lineX, lineY)
+            shareCanvas.closePath()
+            shareCanvas.stroke()
+        }
+
+        /**
+         * 分享卡片用户头像
+         * @private
+         */
+        __drewShareAvatar() {
+            let self = this
+            let shareImage = self.shareImage
+            let windowWidth = self.shareInfo.width
+            let x = (windowWidth) >> 1
+
+            shareCanvas.save()
+            shareCanvas.beginPath()
+            shareCanvas.setStrokeStyle('#fff')
+            shareCanvas.setLineWidth(2)
+
+            shareCanvas.arc(x, 100, 18, 0, 2 * Math.PI)
+            shareCanvas.clip()
+            shareCanvas.drawImage(shareImage[2].path, x - 18, 100 - 18, 36, 36)
+
+            shareCanvas.stroke()
+        }
+
+        /**
+         * 保存为分享图片,并预览
+         * @private
+         */
+        __saveShareImage() {
+            let self = this
+            let windowWidth = self.shareInfo.width
+            let windowHeight = self.shareInfo.height
+            wx.canvasToTempFilePath({
+                destWidth: windowWidth * 3,
+                destHeight: windowHeight * 3,
+                fileType: 'png',
+                canvasId: 'shareCanvas',
+                success(res) {
+                    // 预览
+                    self.createImage = res.tempFilePath
+                    self.__previewImage()
+                }
+            })
+        }
+
+        /**
+         * 预览图片
+         * @private
+         */
+        __previewImage() {
+            let self = this
+            self.$emit('on-alert-visible', {isShow: false})
+            self.$emit('on-card-share')
+            wx.previewImage({
+                current: self.createImage, // 当前显示图片的http链接
+                urls: [self.createImage] // 需要预览的图片http链接列表
+            })
+        }
+
+        methods = {
+            /**
+             * 显示分享按钮选择弹窗
+             * @param type
+             */
+            getShow(type) {
+                let self = this
+                self.$emit('on-alert-visible', {isShow: !self.isShow})
+                // self.$emit('on-alert-visible', {isShow: !type ? true : false})
+            },
+            /**
+             * 开始画分享图
+             * @param type
+             */
+            getShareCard() {
+                let self = this
+
+                self.shareInfo.width = self.systemInfo.windowWidth < self.shareInfo.width ? self.systemInfo.windowWidth : self.shareInfo.width
+
+                let prop = self.systemInfo.windowWidth > self.shareInfo.width ? 0.9 : 1
+                self.params.width = Math.ceil(self.params.width * prop)
+                self.params.height = Math.ceil(self.params.height * prop)
+                // 画满屏的背景图片
+                let data = {
+                    subjectHeading: self.params.subjectHeading,
+                    bg: self.params.imageBottomURL,
+                    feedbackImage: self.params.examFeedbackMsgURL,
+                    qrcode: self.params.shareCodeImage
+                }
+
+                _.mapObject(data, (val, key) => {
+                    if (-1 !== val.toString().indexOf('http://image.runwise.cn/')) {
+                        data[key] = val.replace('http://image.runwise.cn/', 'https://wx-small.runwise.cn/')
+                    }
+                })
+
+                // 是否是第二次再打开生成图片
+                !self.createImage ? self.__drawShareCard(data) : self.__previewImage()
+            }
+        }
+
+        events = {
+
+        }
+    }
+</script>

@@ -1,0 +1,63 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-community-box{
+        width:100%;height:100%;
+        image{width: 100%;}
+
+    }
+</style>
+
+<template>
+    <view class="ui-community-box">
+        <jn-header className="background-transparent" buttonAfter :isHeadHeight="isHeadHeight"></jn-header>
+        <image src="{{paramsInfo.groupImage}}" mode="widthFix" wx:if="{{'true' != paramsInfo.isShow}}"></image>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class community extends wepy.page {
+        components = {
+            'jn-header': header
+        }
+
+        data = {
+            isHeadHeight:false,
+            paramsInfo: {},
+            groupImage:''
+        }
+
+        /**
+         *
+         * @param data： groupImage 图片
+         * @param data： courseName 课程名
+         */
+        onLoad(data) {
+            let self = this
+            self.paramsInfo = data
+            console.log(data)
+            self.$apply()
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        onShow() {
+            let self = this
+            wx.onUserCaptureScreen(() => {
+                wepy.$instance.globalData.getHuilder(`专属社群/截屏`, 'click', `${self.paramsInfo.courseName}`)
+            })
+        }
+
+        methods = {}
+
+        events = {}
+    }
+</script>

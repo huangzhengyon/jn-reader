@@ -1,0 +1,480 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-container{width:100%;height:100%;background-color:#f5f5f5;}
+    .ui-banner{width:100%;height:450rpx;position:relative;}
+    .ui-banner image{width:100%;height:450rpx;}
+    .ui-banner .ui-title{font-family:PingFangSC-Semibold;font-size:72rpx;font-weigth:700;color:#fff;position:absolute;left:40rpx;top:96rpx;}
+    .ui-banner .ui-subtitle{font-family:PingFangSC-Regular;font-size:28rpx;color:#fff;position:absolute;left:40rpx;top:192rpx;}
+    .ui-banner .ui-text{display:inline-block;width:auto;height:36rpx;padding:0 16rpx;font-family:PingFangSC-Medium;font-size:24rpx;color:#fff;letter-spacing:1px;border:1px solid #fff;border-radius:8rpx;position:absolute;left:40rpx;bottom:28rpx;}
+    .ui-banner .cell-point{display:inline-block;width:8rpx;height:8rpx;margin:0 8rpx 6rpx;background-color:#fff;border-radius:50%;}
+
+    .ui-share-box{
+        box-sizing:border-box;width:100%;height:128rpx;padding:32rpx 32rpx 32rpx 48rpx;background-color:#fff;overflow:hidden;
+        .ui-avatar-list{
+            width:auto;height:auto;flex-grow:1;flex-shrink:1;
+            image{width:62rpx;height:62rpx;margin-left:-16rpx;float:left;border:1px solid #fff;border-radius:50%;}
+            .ui-text{display:block;margin-left:20rpx;float:left;font-size:26rpx;color:@color-black;line-height:64rpx;}
+        }
+        .ui-button{
+            width:64rpx;height:64rpx;
+            button{
+                padding:0;width:64rpx;height:64rpx;background-color:#fff;line-height: 64rpx;
+                &:after{border:0 !important;}
+                text{font-size:50rpx;color:@color-blue}
+            }
+        }
+    }
+
+    .ui-swiper-title{width:100%;height:98rpx;margin-top:20rpx;position:sticky;position:-webkit-sticky;left:0;top:0;backface-visibility:hidden;z-index:10;}
+    .ui-swiper-title .ui-content{width:100%;height:96rpx;background-color:rgba(255,255,255,1);clear:both;border-bottom:1px solid #e5e5e5;position:relative;}
+    .ui-swiper-title .ui-item{display:flex;flex-grow:1;flex-shrink:1;}
+    .ui-swiper-title .cell-swiper-text{font-size:32rpx;color:@color-gray;letter-spacing:1px;}
+    .ui-swiper-title .cell-item-hover text{color:@color-gray;}
+    .ui-swiper-title .cell-item-active text{color:@color-blue;}
+    .ui-swiper-title .cell-progress{width:64rpx;height:8rpx;background-color:@color-blue;position:absolute;left:0rpx;bottom:0;transition:all .2s ease-in-out;-webkit-transition:all .2s ease-in-out;}
+
+    .ui-title-box{padding:0 32rpx;background-color:#fff;height:128rpx;display:flex;align-items:center;}
+    .ui-title-box .ui-title{height:56rpx;font-size:40rpx;color:#14292C;letter-spacing:1px;}
+    .ui-title-box .ui-title text{padding-right:20rpx;font-size:72rpx;}
+    .ui-title-box .ui-title .fc-red{color:#FF3C3C;}
+    .ui-title-box .ui-title .fc-green{color:#2CC64C;}
+    .ui-title-box .ui-title .fc-yellow{color:#FFC200;}
+    .ui-title-box .ui-title+.ui-subtitle{padding-top:20rpx;}
+    .ui-title-box .ui-subtitle{font-size:30rpx;color:@color-black;line-height:50rpx;}
+
+    .ui-introduction-series{background-color:#fff;}
+    .ui-details-box{padding:0 32rpx;}
+    .ui-details-box image{width:100%;}
+
+    .ui-comments-list{
+        display:flex;white-space:nowrap;position:relative;overflow:hidden;
+        .ui-item{display:inline-block;box-sizing:border-box;width:600rpx;height:408rpx;padding:24rpx 36rpx 0;margin-left:40rpx;background-color:#F1F2F5;border-radius:16rpx;}
+        .ui-item:first-child{margin-left:0;}
+        .ui-header{height:68rpx;}
+        .cell-title{font-size:26rpx;color:@color-gray;}
+        .ui-star{
+            text{margin-right:11rpx;font-size:24rpx;color:#D8E3ED;}
+            .cell-active{color:@color-blue;}
+        }
+        .cell-portrait{width:56rpx;}
+        image{width:56rpx;height:56rpx;border:1px solid #fff;border-radius:50%;}
+        .ui-message{box-sizing:border-box;height:260rpx;padding-top:40rpx;font-size:30rpx;color:@color-black;line-height:48rpx;letter-spacing:1px;white-space:pre-wrap;word-break:break-all;}
+    }
+    .ui-comments-box{box-sizing:border-box;padding:0 32rpx 60rpx;background-color:#fff;}
+
+    .ui-introduction-box{display:none;}
+    .ui-course{display:none;}
+    .cell-clear{width:100%;height:60rpx;clear:both;}
+</style>
+
+<template>
+    <mloading wx:if="{{!isLoaded}}"></mloading>
+    <scroll-view class="ui-container"
+                 scroll-y
+                 scroll-with-animation
+                 scroll-into-view="scrollView-{{currentSwiperTitle.index}}">
+        <jn-header :title.sync="headerTitle"></jn-header>
+        <view class="ui-banner">
+            <image model="aspectFill" src="{{courseInfo.coverImageURL}}"></image>
+            <view class="ui-title">{{courseInfo.seriesName}}</view>
+            <view class="ui-subtitle">{{courseInfo.subTitle}}</view>
+            <view class="ui-text main-center cross-center">{{courseInfo.courseCount}}门课<text class="cell-point"></text>{{courseInfo.skillCount}}个技能</view>
+        </view>
+
+        <view class="ui-share-box dir-left main-justify">
+            <view class="ui-avatar-list">
+                <block wx:for="{{courseInfo.seseriesUserAvatarUrlList}}" wx:index="index" wx:key="item.id">
+                    <image mode="scaleToFill" src="{{item}}"></image>
+                </block>
+                <text class="ui-text">{{courseInfo.seseriesUserCount || 0}}人已学</text>
+            </view>
+            <view class="ui-button">
+                <button form-type="submit" open-type="share">
+                    <text class="icon-share"></text>
+                </button>
+            </view>
+        </view>
+
+        <view>
+            <view class="ui-swiper-title" id="swiperTitleBox" style="z-index:15">
+                <view class="ui-content">
+                    <view class="cross-center">
+                        <block wx:for="{{swiperTitles}}" wx:index="index" wx:key="item.id">
+                            <view class="ui-item main-center cross-center"
+                                  :class="{'cell-item-active': item.index === currentSwiperTitle.index}"
+                                  hover-class="cell-item-hover"
+                                  hover-stay-time="100"
+                                  data-params="{{item}}"
+                                  @tap.stop="getSwiperTitle">
+                                <text class="cell-swiper-text">{{item.name}}</text>
+                            </view>
+                        </block>
+                    </view>
+                    <view class="cell-progress"
+                          :class="{'is-hide': !swiperTitles.length}"
+                          style="width: {{currentSwiperTitle.width}}px; transform: translateX({{currentSwiperTitle.left}}px); -webkit-transform: translateX({{currentSwiperTitle.left}}px);"></view>
+                </view>
+            </view>
+
+            <view class="ui-introduction-box" id="scrollView-0" :class="{'is-show': currentSwiperTitle.index===0}">
+                <view class="ui-introduction-series">
+                    <view class="ui-title-box">
+                        <view class="ui-title cross-center">系列简介</view>
+                    </view>
+                    <view class="ui-details-box">
+                        <block wx:for="{{courseInfo.introductImageURL}}" wx:index="index" wx:key="item.id">
+                            <image mode="widthFix" src="{{item}}"></image>
+                        </block>
+                    </view>
+                    <view class="ui-title-box">
+                        <view class="ui-title cross-center">精选评论</view>
+                    </view>
+                </view>
+                <view class="ui-comments-box">
+                    <scroll-view class="ui-comments-list" scroll-x scroll-with-animation>
+                        <block wx:for="{{courseInfo.feedbackList}}" wx:index="index" wx:key="item.id">
+                            <view class="ui-item">
+                                <view class="ui-header dir-left">
+                                    <view class="dir-top main-justify">
+                                        <view class="cell-title">{{item.name}}</view>
+                                        <view class="ui-star">
+                                            <text :class="{'cell-active': item.star>=1}" class="icon-star" ></text>
+                                            <text :class="{'cell-active': item.star>=2}" class="icon-star" ></text>
+                                            <text :class="{'cell-active': item.star>=3}" class="icon-star" ></text>
+                                            <text :class="{'cell-active': item.star>=4}" class="icon-star" ></text>
+                                            <text :class="{'cell-active': item.star>=5}" class="icon-star" ></text>
+                                        </view>
+                                    </view>
+                                    <view class="cell-portrait">
+                                        <image class="flex" mode="scaleToFill" src="{{item.avatarUrl}}"></image>
+                                    </view>
+                                </view>
+                                <view class="ui-message wrap-nowrap">{{item.showMessage}}</view>
+                            </view>
+                        </block>
+                    </scroll-view>
+                </view>
+                <view class="cell-clear"></view>
+            </view>
+
+            <view class="ui-course"
+                  id="scrollView-1"
+                  :class="{'is-show': currentSwiperTitle.index===1}">
+                <view class="ui-title-box">
+                    <view class="ui-subtitle">本系列包括{{courseInfo.courseCount}}大课程，{{courseInfo.skillCount}}大核心技能</view>
+                </view>
+
+                <couse-list :lists.sync="courseList" @onShowCourse.user="getShowCourse" @on-click.user="getCourseClick"></couse-list>
+            </view>
+        </view>
+    </scroll-view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import {fetch} from '../../api'
+    import Loading from '../../components/common/loading'
+    import header from '../../components/common/header'
+    import couseList from '../../components/course-module/course-list'
+    import {initializationDeligate, navigateToLesson, shareDictionary} from '../../utils'
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        userName(state) {
+            return state.user.nickName
+        },
+        role(state) {
+            return state.user.role
+        },
+        entrance(state) {//全局场景值
+            return state.entrance
+        },
+    })
+
+    export default class Assortment extends wepy.page {
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+            'couse-list': couseList
+        }
+
+        data = {
+            headerTitle: '',
+            routeParams: {},
+            isLoaded: false,
+            swiperTitleTop: 0,
+            currentSwiperTitle: {},
+            swiperTitles: [
+                {name: '简介'},
+                {name: '课表'}
+            ],
+            courseInfo: {},
+            courseList: [],
+            isStatisticalCourse: false,
+            isFirstLoad: 1 // 是否第一次加载
+        }
+
+        onLoad(params) {
+            let self = this
+            self.headerTitle = ''
+            self.routeParams = params
+            self.isLoaded = false
+            self.swiperTitleTop = 0
+            self.currentSwiperTitle = {}
+            self.courseInfo = {}
+            self.courseList = []
+        }
+
+        onShow() {
+            let self = this
+            
+            initializationDeligate({initializeFunc: self.initialize.bind(self)})
+        }
+
+        initialize(AuthorizeData) {
+            let self = this
+            let postData = _.extend(self.routeParams, {token: self.systemInfo.token})
+
+            fetch.getDiscoverPageByCourseSeriesByLinkByDetailNew(postData).then(response => {
+                !_.isEmpty(self.courseInfo) ? self.updateInfo(response, AuthorizeData) :  self.initData(response)
+
+                setTimeout(() => {
+                    self.isLoaded = true
+                    self.$apply()
+                }, 300)
+
+                wx.reportAnalytics('course_series', {
+                    role: self.role,
+                    nickname: self.userName,
+                    channel: self.entrance.mappers[self.entrance.scenceID],
+                    seriesname: response.seriesName
+                })
+            }).catch(error => {
+                self.isLoaded = true
+            })
+        }
+        /**
+         * 初始化数据
+         * @param event
+         */
+        initData(response) {
+            let self = this
+            self.courseInfo = response
+            self.headerTitle = self.courseInfo.seriesName
+            self.$apply()
+
+            wepy.$instance.globalData.getLoadHuilder({pageTheme: self.courseInfo.seriesName}) // ga统计
+            self.courseList = self.restructuringData(self.courseInfo.courseList)
+            self.courseList[0].isShow = true
+
+            setTimeout(()=>{
+                self.initSwiperTitle()
+            }, 30)
+            self.$apply()
+        }
+        /**
+         * 更新信息
+         * @param event
+         */
+        updateInfo(response, AuthorizeData) {
+            let self = this
+            self.headerTitle = response.seriesName
+            wepy.$instance.globalData.getLoadHuilder({pageTheme: self.courseInfo.seriesName}) // ga统计
+            if (self.courseList.length === response.courseList.length) {
+                let newCourseList = self.restructuringData(response.courseList)
+                _.each(newCourseList, (data) => {
+                    let item = _.find(self.courseList, {courseID: data.courseID})
+                    if (item) {
+                        data.isShow = !!item.isShow
+                    }
+                    // 授权登录之后要跳转到对应的微课去
+                    if (AuthorizeData && data.courseID === AuthorizeData.courseID) {
+                        let AuthorizeItem = _.find(data.senceList, {id: AuthorizeData.item.id})
+                        AuthorizeData.item = AuthorizeItem
+                        self.__courseDetail(AuthorizeData)
+                    }
+                })
+                self.courseList = []
+                self.courseList = newCourseList
+                self.$apply()
+            } else {
+                self.courseList = self.restructuringData(response.courseList)
+                self.courseList[0].isShow = true
+            }
+            self.$apply()
+        }
+         /**
+         * 重组课程数据
+         * @param event
+         */
+        restructuringData(lists) {
+            let self = this
+
+            _.each(lists, (data) => {
+                _.each(data.senceList, (item) => {
+                    if ('defaultToken' === self.systemInfo.token) {
+                        item.statusName = '即学'
+                    } else if ('needPay' === item.buttonStatus) {
+                        item.statusName = '获取'
+                    } else {
+                        item.statusName = item.buttonStatusMsg
+                    }
+                })
+            })
+
+            return lists
+        }
+
+        /**
+         * 初始化table标签的信息
+         * @param event
+         */
+        initSwiperTitle() {
+            let self = this
+            // 获取每个导航的宽度
+            var query = wx.createSelectorQuery()
+            query.selectAll('.cell-swiper-text').boundingClientRect(function (response) {
+                _.each(response, (item, index) => {
+                    self.swiperTitles[index].index = index
+                    self.swiperTitles[index].left = item.left
+                    self.swiperTitles[index].width = item.width
+                })
+
+                self.currentSwiperTitle = self.swiperTitles[0]
+                self.$apply()
+            }).exec()
+
+            // table标签DOM节点的信息
+            query.select('#swiperTitleBox').boundingClientRect(function (response) {
+                self.swiperTitleTop = response.top
+            }).exec()
+        }
+
+        /**
+         * 前往微课详情
+         * @param data
+         */
+        __courseDetail(data) {
+            let self = this
+            let courseID = data.courseID
+            let senceID = data.item.id
+            let name = data.item.senceName
+            let buttonStatus = data.item.buttonStatus
+
+            let resume = 'continue' === buttonStatus ? 'YES' : 'NO'
+            if (data.type == 'sence') {
+                switch (buttonStatus) {
+                    case 'finish': // 回顾
+                        self.$navigate(`/pages/course-module/course-cover`, {courseID, senceID})
+                        break
+                    case 'needPay': // 付费
+                        wepy.switchTab({ url: '/pages/tabPages/course'})
+                        break
+                    default:
+                        navigateToLesson({courseID, senceID})
+                }
+                return
+            }
+
+            if ('needPay' === buttonStatus) {
+                return wepy.switchTab({ url: '/pages/tabPages/course'})
+            }
+            navigateToLesson({courseID, senceID, resumeLastRead: resume})
+        }
+
+        methods = {
+            /**
+             * table标签切换
+             * @param event
+             */
+            getSwiperTitle(event) {
+                let self = this
+                self.currentSwiperTitle = event.currentTarget.dataset.params
+
+                //系列页tab课程列表点击事件 人数统计
+                if(self.currentSwiperTitle.name === '课表') {
+                    wepy.$instance.globalData.getHuilder('课表标签','click',`${self.routeParams.seriesName}课程`)
+                    wx.reportAnalytics('assortment_click', {
+                        username: this.userName,
+                        role: this.role,
+                        channel: this.entrance.mappers[this.entrance.scenceID],
+                        seriesname:this.courseInfo.seriesName
+                    });
+                } else {
+                    wepy.$instance.globalData.getHuilder('简介标签','click',`${self.routeParams.seriesName}课程`)
+                }
+
+                // 进来第一次点击【课程】table触发统计
+                if (!self.isStatisticalCourse
+                    && 'defaultToken' !== self.systemInfo.token
+                    && self.currentSwiperTitle.index === (self.swiperTitles.length-1)) {
+
+                    let token = self.systemInfo.token
+                    let courseID = self.courseInfo.courseSeriesID
+                    self.isStatisticalCourse = true
+                    fetch.reportSharing({
+                        token,
+                        type: shareDictionary.SHARE_ASSORTMENT_COURSE.type,
+                        courseID
+                    })
+                }
+                self.$apply()
+            },
+
+            getShowCourse(data) {
+                let self = this
+                let lists = self.courseList
+
+                lists[data.index].isShow = !lists[data.index].isShow
+                lists.splice(data.index, 1, lists[data.index])
+                self.$apply()
+            },
+            /**
+             * 课程列表组件，点击某节课触发的回调事件
+             * @param data
+             */
+            getCourseClick(data) {
+                let self = this
+
+                if (data.isAuthorize) {
+                    self.initialize(data)
+                    return
+                }
+
+                self.__courseDetail(data)
+            }
+        }
+
+        onShareAppMessage() {
+            let self = this
+            wepy.$instance.globalData.getHuilder('课程微信分享','click',`${self.courseInfo.seriesName}`)
+            wepy.$instance.globalData.getReportFlow('share')
+            return {
+                title: `我在即能学习【${self.courseInfo.seriesName}】`,
+                path: `/pages/course-module/course-series?courseSeriesID=${self.courseInfo.courseSeriesID}`,
+                success(res) {
+                    let token = self.systemInfo.token
+                    let courseID = self.courseInfo.courseSeriesID
+
+                    wepy.$instance.globalData.getHuilder('系列详情页/分享', 'click', `${self.courseInfo.seriesName}`)
+                    fetch.reportSharing({
+                        token,
+                        type: shareDictionary.SHARE_ASSORTMENT.type,
+                        courseID
+                    })
+                },
+                fail(res) {
+                    console.log("转发失败");
+                }
+            }
+        }
+
+        events = {}
+    }
+</script>

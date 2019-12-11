@@ -1,0 +1,1160 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-clear-button {
+        width: 160rpx;
+        background-color: rgba(0, 0, 0, .3);
+        font-size: 24rpx;
+        color: #fff;
+        position: fixed;
+        right: 10rpx;
+        top: 20%;
+        z-index: 50;
+    }
+    .ui-container {
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        position: relative;
+        text-align: center;
+        padding-top: 136rpx;
+        box-sizing: border-box;
+        &.is-android {
+            padding-top: 156rpx;
+        }
+        &.is-iphonex {
+            padding-top: 196rpx;
+        }
+    }
+    .ui-clear {
+        width: 100%;
+        height: 120rpx;
+    }
+    /* 头部 */
+    /* .ui-course-header {
+        height: 72rpx;
+        padding: 0 32rpx;
+        box-sizing: border-box;
+        .cell-title {
+            font-size: 68rpx;
+            font-weight: 700;
+        }
+    } */
+    /* 提示语 */
+    .ui-new-tips {
+        width: 100%;
+        height: 68rpx;
+        background: #FEFCE9;
+        color: @color-red-wran;
+        font-size: 26rpx;
+        display: flex;
+        justify-content:flex-start;
+        align-items: center;
+        padding: 0 30rpx;
+        box-sizing: border-box;
+        margin-top: 28rpx;
+        position: relative;
+        .cell-close {
+            width: 18rpx;
+            height: 18rpx;
+        }
+        .font-gray {
+            color: @color-gray-97;
+        }
+    }
+    .ui-search {
+        background: #F1F1F2;
+        border-radius: 20rpx;
+        height: 72rpx;
+        width: 686rpx;
+        margin: 28rpx auto 18rpx;
+        text-align: left;
+        line-height: 72rpx;
+        padding-left: 20rpx;
+        font-size: 32rpx;
+        color: #8E8E93;
+        text {
+            font-size: 30rpx;
+            color: rgba(0, 0, 0, 0.36);
+        }
+    }
+    /* 课程系列入口 */
+    .ui-course-series {
+        .ui-tip {
+            padding: 0 30rpx;
+            margin: 0 0 20rpx;
+            display: flex;
+            justify-content: space-between;
+            .cell-all {
+                color: @color-blue;
+                font-size: 34rpx
+            }
+            .cell-title {
+                font-size: 44rpx;
+                color: @color-black;
+                font-weight: bold;
+            }
+        }
+        .ui-content {
+            .ui-item {
+                display: flex;
+                height: 100rpx;
+                align-items: center;
+                padding: 0 40rpx;
+                box-sizing: border-box;
+                background: none;
+                .ui-img {
+                    margin-right: 32rpx;
+                    display: flex;
+                    align-items: center;
+                    height: 100rpx;
+                    image {
+                        width: 60rpx;
+                        height: 60rpx;
+                        border-radius: @border-radius-8;
+                    }
+                }
+                .cell-name {
+                    font-size: 40rpx;
+                    color: @color-black;
+                    display: flex;
+                    flex: 1;
+                    height: 100rpx;
+                    align-items: center;
+                }
+            }
+            .ui-item-hover {
+                background: @background-mask-normal-2;
+            }
+        }
+        .cell-border {
+            height: 20rpx;
+            width: 674rpx;
+            border-bottom: 2rpx solid @border-gray;
+            margin: 0 30rpx;
+        }
+    }
+    /* 最新上线入口 */
+    .ui-new-course {
+        padding-top: 40rpx;
+        .cell-tip {
+            font-size: 44rpx;
+            color: @color-black;
+            text-align: left;
+            font-weight: bold;
+            padding-left: 30rpx;
+            margin-bottom: 12rpx;
+            text {
+                color: @color-red;
+            }
+        }
+        .ui-swiper-list {
+            height: 600rpx;
+            .ui-item {
+                height: 200rpx;
+                .flex-center();
+                padding: 0;
+                .cell-thumb {
+                    width: 152rpx;
+                    height: 152rpx;
+                    border-radius: @border-radius-8;
+                    margin-right: 36rpx;
+                    image {
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
+                .ui-content {
+                    width: 65%;
+                    height: 152rpx;
+                    flex: 1;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    .ui-info {
+                        flex: 1;
+                        justify-content: flex-start;
+                        width: 480rpx;
+                        .cell-title {
+                            width: 82%;
+                        }
+                        .cell-description {
+                            width: 82%;
+                        }
+                    }
+                    .cell-button {
+                        .icon-right-arrow {
+                            line-height: 152rpx;
+                            color: @color-gray-BF;
+                        }
+                    }
+                }
+            }
+            .module-course-box .ui-item .ui-content .cell-button button {
+                width: 160rpx;
+                padding: 0
+            }
+            .cell-border {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                height: 14rpx;
+                width: 674rpx;
+                border-bottom: 2rpx solid @border-gray;
+            }
+        }
+    }
+    .ui-hot-course {
+        padding-top: 40rpx;
+        .cell-tip {
+            font-size: 44rpx;
+            color: @color-black;
+            text-align: left;
+            font-weight: bold;
+            padding-left: 30rpx;
+        }
+        .ui-swiper-list {
+            height: 420rpx;
+            padding-top: 18rpx;
+            .ui-button {
+                background: none;
+                color: #000;
+                line-height: 1.5;
+                text-align: left
+            }
+            .cell-border {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                height: 14rpx;
+                width: 674rpx;
+                border-bottom: 2rpx solid @border-gray;
+            }
+            .ui-sence-image {
+                width: 152rpx;
+                height: 152rpx;
+                margin-right: 36rpx;
+                image {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: @border-radius-8;
+                    margin: 0;
+                }
+            }
+            .module-course-box {
+                
+                .ui-button {
+                    width: 100%;
+                    height: 200rpx;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+            }
+            .module-course-progress {
+                margin: 0;
+                width: 100%;
+                height: 152rpx;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                .ui-detail {
+                    width: 65%;
+                    height: 152rpx;
+                    flex: 1;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    .ui-msg {
+                        flex: 1;
+                        justify-content: flex-start;
+                        width: 480rpx;
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                        .cell-name {width: 82%;}
+                        .cell-dec {width: 82%;}
+                    }
+                    .ui-link {
+                        text {
+                            font-size: 24rpx;
+                            color: @color-gray-BF;
+                            margin-top: 58rpx;
+                            display: inline-block;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /* 最新推荐 */
+    .ui-recommend {
+        padding-top: 20rpx;
+        text-align: left;
+        .ui-swiper-list {
+            height: 312rpx;
+            .ui-item {
+                box-sizing: border-box;
+                .ui-content-box {
+                    margin-bottom: 40rpx;
+                    width: 674rpx;
+                    overflow: hidden;
+                    height: 300rpx;
+                    border-radius: @border-radius-16;
+                    position: relative;
+                    background-position: center center;
+                    background-size: 100% auto;
+                    .ui-shadow {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, .4);
+                        padding: 26rpx 0 48rpx 32rpx;
+                        box-sizing: border-box;
+                        text-align: left;
+                        .cell-tip {
+                            font-size: 30rpx;
+                            color: rgba(255, 255, 255, 0.6);
+                        }
+                        .cell-name {
+                            font-size: 48rpx;
+                            color: @color-white;
+                            font-weight: bold;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+                            margin: 178rpx 0 12rpx;
+                            line-height: 1
+                        }
+                        .cell-dec {
+                            font-size: 32rpx;
+                            color: rgba(255, 255, 255, 0.6);
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+                        }
+                    }
+                }
+                .cell-margin {
+                    height: 40rpx;
+                    border-top: 1rpx solid @border-gray;
+                    width: 674rpx;
+                }
+            }
+        }
+        .ui-border {
+            width: 674rpx;
+            height: 2rpx;
+        }
+    }
+    .ui-registed-toast {
+        position: absolute;
+        bottom: 110rpx;
+        left: 24rpx;
+        image {
+            height: 84rpx;
+            width: 452rpx;
+        }
+    }
+    .ui-shadow-search {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: rgba(0, 0, 0, .7);
+        z-index: 60;
+        .ui-item {
+            width: 720rpx;
+            background: #fff;
+            height: 140rpx;
+            border-radius: 32rpx;
+            text {
+                margin-right: 14rpx
+            }
+        }
+        .ui-content {
+            font-size: 40rpx;
+            color: #FFF;
+            height: 359rpx;
+            text {
+                font-size: 100rpx
+            }
+            view {
+                width: 400rpx;
+                text-align: left;
+                margin: 80rpx 0 0 8rpx;
+            }
+        }
+        .cell-btn {
+            width: 356rpx;
+            height: 100rpx;
+            border-radius: 20rpx;
+            background: #fff;
+            color: #007AFF;
+            font-size: 34rpx;
+            font-weight: bold;
+            line-height: 100rpx;
+            text-align: center;
+        }
+    }
+    .ui-flyback-module {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        .flex-center();
+        z-index: @z-index-slightly;
+        .ui-flyback-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: @background-mask-normal-4;
+        }
+        .ui-flyback-content {
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: @z-index-lower;
+            
+            .ui-content-image {
+                .cell-image {
+                    width: 100%;
+                }
+                .cell-close {
+                    width: 64rpx;
+                    height: 64rpx;
+                    position: absolute;
+                    top:-10rpx;
+                    right:30rpx;
+                }
+            }
+            .ui-content-button {
+                .flex-center();
+                padding: 32rpx 0;
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 134rpx;
+                button {
+                    width: 490rpx;
+                    height: 88rpx;
+                    background: transparent;
+                    color: @color-white;
+                    border-radius: @border-radius-44;
+                    font-size: 30rpx;
+                    margin: 0;
+                    padding: 0;
+                    .flex-center();
+                    font-weight: bold;
+                }
+            }
+        }
+    }
+    /* 推荐微课 */
+    .ui-sence-recommend {
+        padding: 44rpx 32rpx;
+        text-align: left;
+        .ui-recommend-title {
+            font-size: 40rpx;
+            color: @color-black-26;
+            font-weight: bold;
+        }
+        .ui-commend-subtitle {
+            height: 64rpx;
+            border: solid 1rpx #FAFAFA;
+            border-radius: @border-radius-32;
+            font-size: 24rpx;
+            color: @color-gray-8c;
+            display: inline-block;
+            line-height: 64rpx;
+            padding: 0 24rpx;
+            background: #FBFBFB;
+            box-shadow: 0 0rpx 2rpx 0 rgba(0,0,0,.15);
+            margin: 18rpx 0;
+            position: relative;
+            .cell-arrow-top {
+                display: flex;
+                position: absolute;
+                top: -14rpx;
+                left: 60rpx;
+                width: 28rpx;
+                height: 14rpx;
+                image {
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+        }
+        .ui-sence-list {
+            border-bottom: solid 1rpx @border-gray;
+            .ui-sence-item {
+                padding: 24rpx 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                .cell-sence-icon {
+                    width: 144rpx;
+                    height: 144rpx;
+                    border-radius: @border-radius-8;
+                    overflow: hidden;
+                    image {
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
+                .cell-content-box {
+                    flex: 1;
+                    height: 144rpx;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    padding-left: 24rpx;
+                    text-align: left;
+                    .cell-content {
+
+                        .cell-title {
+                            width: 418rpx;
+                            font-size: 32rpx;
+                            color: @color-black-59;
+                            font-weight: bold;
+                            margin-top: 4rpx;
+                            .cell-hot-icon {
+                                width: 40rpx;
+                                margin-left: 12rpx;
+                            }
+                        }
+                        .cell-subtitle {
+                            font-size: 24rpx;
+                            color: @color-gray-8c;
+                            line-height: 40rpx;
+                        }
+                        .cell-description {
+                            .flex-start();
+                            font-size: 20rpx;
+                            color: @color-gray-BF;
+                            margin-top: 10rpx;
+                            
+                            .cell-time {
+                                padding: 0 16rpx;
+                            }
+                            .cell-peoples {
+                                padding: 0 16rpx;
+                                position: relative;
+                                &::before {
+                                    content:'';
+                                    width: 1rpx;
+                                    height: 16rpx;
+                                    background: @background-gray-E8;
+                                    position: absolute;
+                                    top: 50%;
+                                    left: 0;
+                                    transform: translate(0,-50%);
+                                }
+                            }
+                        }
+                    }
+                    .cell-link {
+                        text {
+                            font-size: 24rpx;
+                            color: @color-gray-BF;
+                            line-height: 144rpx;
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+</style>
+
+<template>
+    <jn-loading wx:if="{{ !isLoaded }}">
+    </jn-loading>
+    <tabbar :showWhiteBackground.sync="showWhiteBackground" :selected.sync="selected"></tabbar>
+    <scroll-view wx:if="{{ isLoaded }}" class="ui-container {{isAndroid ? 'is-android' :''}} {{isIphonex ? 'is-iphonex':''}}" scroll-with-animation enable-back-to-top scroll-y="{{isScroll}}" bindscroll="getScroll">
+        <form bindsubmit="handleSavePushCode" report-submit>
+            <view class="ui-new-tips" wx:if="{{isShowCountdown}}"><text class="font-gray">全场任意体验，</text>剩余<countdown :countdownstart.sync="memberTimeLeft" color="#F64C32" :disabled.sync="isShowCountdown"></countdown>
+            </view>
+            <view class="ui-search" @tap.stop="getSearch">
+                <text class="icon-search"></text> {{hotSearchKey}}
+            </view>
+            <view wx:if="{{recommendCourseList.length}}" class="ui-recommend">
+                <swiper class="ui-swiper-list" interval="7000" duration="300" previous-margin="32rpx" next-margin="24rpx">
+                    <block wx:for="{{recommendCourseList}}" wx:index="{{ index }}" wx:key="{{ index }}">
+                        <swiper-item class="ui-item">
+                            <button class="ui-content-box" form-type="submit" hover-stay-time="100" @tap.stop="getCourseDetail" data-item="{{item}}" data-type="1" style="background-image:url('{{item.image}}')"></button>
+                            <view class="cell-margin"></view>
+                        </swiper-item>
+                    </block>
+                </swiper>
+            </view>
+            <view class="ui-sence-recommend">
+                <view class="ui-recommend-title">
+                    {{title}}
+                </view>
+                <view class="ui-commend-subtitle">
+                    {{subtitle}}
+                    <view class="cell-arrow-top">
+                        <image src="../../assets/img/arrow-top.png"></image>
+                    </view>
+                </view>
+                <view class="ui-sence-list">
+                    <repeat for="{{senceList}}" key="index">
+                        <view class="ui-sence-item" data-item="{{item}}" @tap.stop="getNewCourseCover">
+                            <view class="cell-sence-icon">
+                                <image src="{{item.iconImage}}"></image>
+                            </view>
+                            <view class="cell-content-box">
+                                <view class="cell-content">
+                                    <view class="cell-title text-overflow">{{item.title}}
+                                        <image mode="widthFix" class="cell-hot-icon" src="../../assets/img/icon-hot.svg" wx:if="{{item.isHot}}"></image>
+                                    </view>
+                                    <view class="cell-subtitle">{{item.subtitle}}</view>
+                                    <view class="cell-description">
+                                        <view class="cell-cards-num">{{item.cardCount}}张卡片</view>
+                                        <view class="cell-time">{{item.learningTime}}</view>
+                                        <view class="cell-peoples">{{item.learningCount}}人在学</view>
+                                    </view>
+                                </view>
+                                <view class="cell-link">
+                                    <text class="icon-right-arrow"></text>
+                                </view>
+                            </view>
+                        </view>
+                    </repeat>
+                </view>
+            </view>
+            <view class="ui-course-series">
+                <view class="ui-tip">
+                    <view class="cell-title">热门系列</view>
+                    <view class="cell-all" @tap.stop="getAllSeries" data-item="{{courseSeriesList}}">查看全部</view>
+                </view>
+                <view class="ui-content">
+                    <repeat for="{{courseSeriesList}}" key="index" index="index" item="item">
+                        <button class="ui-item" hover-class="ui-item-hover" hover-stay-time="100" data-index="{{index}}" data-item="{{item}}" form-type="submit" @tap.stop="getCategory" wx:if="{{index <= 4}}">
+                            <view class="ui-img">
+                                <image lazy-load="{{true}}" src="{{item.icon}}" mode="scaleToFill"></image>
+                            </view>
+                            <view class="cell-name">{{item.seriesName}}</view>
+                        </button>
+                    </repeat>
+                </view>
+                <view class="cell-border"></view>
+            </view>
+            <view class="ui-hot-course">
+                <view class="cell-tip">热门课程</view>
+                <swiper class="ui-swiper-list" previous-margin="32rpx" next-margin="32rpx">
+                    <repeat for="{{hotCourseList}}" key="index" index="index" item="data">
+                        <swiper-item class="module-course-box">
+                            <repeat for="{{data}}" key="number" index="number" item="item">
+                                <button class="ui-button" hover-stay-time="100" form-type="submit" data-item="{{item}}" data-type="3" @tap.stop="getCourseDetail">
+                                            <view class="module-course-progress">
+                                                <view class="ui-sence-image">
+                                                    <image src="{{item.iconImage}}" />
+                                                </view>
+                                                <view class="ui-detail">
+                                                    <view class="ui-msg">
+                                                        <view class="cell-name">{{item.name}}</view>
+                                                        <view class="cell-dec {{item.name.length > 12 ? 'text-overflow' : ''}}">{{item.showPoint}}</view>
+                                                    </view>
+                                                    <view class="ui-link">
+                                                        <text class="icon-right-arrow"></text>
+                                                    </view>
+                                                </view>
+                                            </view>
+                                        </button>
+                            </repeat>
+                            <view class="cell-border"></view>
+                        </swiper-item>
+                    </repeat>
+                </swiper>
+            </view>
+            <jn-course-series :isShowCourseSeries.sync="isShowCourseSeries" :CourseSeriesList.sync="courseSeriesModalList" @onClickBack.user="OnClickBack" @on-all-series.user="getCategory"></jn-course-series>
+            <view class="ui-new-course">
+                <view class="cell-tip">最新上线</view>
+                <swiper class="ui-swiper-list" previous-margin="32rpx" next-margin="32rpx">
+                    <repeat for="{{newCourseList}}" key="index" index="index" item="data">
+                        <swiper-item class="module-course-box">
+                            <repeat for="{{data}}" key="number" index="number" item="item">
+                                <button class="ui-item flex" hover-stay-time="100" data-item="{{item}}" data-type="2" form-type="submit" @tap.stop="getCourseDetail">
+                                    <view class="cell-thumb flex-box-0">
+                                        <image lazy-load="{{true}}" mode="aspectFit" src="{{item.iconImage}}"></image>
+                                    </view>
+                                    <view class="ui-content flex cross-center">
+                                        <view class="ui-info">
+                                            <view class="cell-title ">{{item.name}}</view>
+                                            <view class="cell-description {{item.name.length > 12 ? 'text-overflow' : ''}}">{{item.showPoint}}</view>
+                                        </view>
+                                        <view class="cell-button flex-box-0">
+                                            <text class="icon-right-arrow"></text>
+                                        </view>
+                                    </view>
+                                </button>
+                            </repeat>
+                        </swiper-item>
+                    </repeat>
+                </swiper>
+            </view>
+        </form>
+        <view class="ui-clear"></view>
+        <!-- 搜索框提示层 -->
+        <view class="ui-shadow-search cross-center dir-top" style="padding-top:calc(40px + {{headerHeigth}}px)" wx:if="{{isShowSearch}}">
+            <view class="ui-item cross-center">
+                <view class="ui-search">
+                    <text class="icon-search"></text>搜索
+                </view>
+            </view>
+            <view class="ui-content main-center">
+                <text class="icon-upward"></text>
+                <view>即能新增搜索功能啦，马上尝试一下~</view>
+            </view>
+            <view class="cell-btn" @tap.stop="getHideSearch">我知道了</view>
+        </view>
+        
+    </scroll-view>
+    <!-- 即能初体验悬浮窗 -->
+    <view class="ui-registed-toast courseFadeOut" wx:if="{{isShowToast}}" @tap.stop="getCloseToast">
+        <image src="http://wx-small.runwise.cn/image/imageID7618264dab0493be413342508fae.png" />
+    </view>
+    <!-- 老用户回归弹窗 -->
+    <view class="ui-flyback-module" wx:if="{{isShowFlyBackAlert}}">
+        <view class="ui-flyback-mask"></view>
+        <view class="ui-flyback-content">
+            <view class="ui-content-image">
+                <image mode="widthFix" class="cell-image" src="http://wx-small.runwise.cn/image/flyback.svg"></image>
+                <image mode="widthFix" data-type="1" @tap.stop="closeFlyBack" class="cell-close" src="../../assets/img/alert-close.svg"></image>
+            </view>
+            <view class="ui-content-button">
+                <button  data-type="2" @tap.stop="closeFlyBack"></button>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import { getStore, connect } from 'wepy-redux'
+    import PushMixin from '../../mixins/push'
+    import header from '../../components/common/header'
+    import Loading from '../../components/common/loading'
+    import CourseSeries from '../../components/course-module/course-series'
+    import { auth as authApi, fetch, report as reportApi } from '../../api'
+    import { shareDictionary, getStorageAsync, setStorageAsync, initializationDeligate } from '../../utils'
+    import { getLoginInfo, renewUserGiftBox, refreshUserInformations } from '../../redux/models/user'
+    import _ from 'underscore'
+    import { openLimitMember } from '../../redux/models/limit';
+    import countdown from '../../components/common/countdown';
+    import tabbar from '../../components/common/tabbar';
+    const store = getStore()
+    @connect({
+        token(state) {
+            return state.user.token
+        },
+        systemInfo(state) {
+            return state.user
+        },
+        hasGift(state) {
+            return state.user.hasGift
+        }
+    })
+    export default class SpecialCourse extends wepy.page {
+        mixins = [PushMixin]
+        components = {
+            'jn-header': header,
+            'jn-loading': Loading,
+            'jn-course-series': CourseSeries,
+            'countdown':countdown,//倒计时
+            'tabbar':tabbar,//自定义导航
+        }
+        config = {
+            usingComponents: {}
+        }
+        data = {
+            isAndroid: /android/i.test(wx.getSystemInfoSync().system),
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isLoaded: false,
+            courseType: ['recommend', 'newcourse', 'hotcourse'],
+            courseName: ['为你推荐', '最新上线', '热门课程'],
+            isScroll: true, // 是否能滚动
+            scrollTop: 0,
+            paramsInfo: {},
+            courseSeriesList: [],
+            limitedTimeGiftCourseList: [],
+            newCourseList: [],
+            hotCourseList: [],
+            recommendCourseList: [],
+            isShowCourseSeries: false,
+            courseSeriesModalList: [],
+            isShowToast: false,
+            shareImg: '',
+            shareTitle: '',
+            headerHeigth: 68,
+            isShowSearch: false,
+            timeLimitedDate: null, //会员限时优惠倒计时时间
+            isLimitedOn: null, //是否显示会员优惠倒计时
+            isShowNewTips: true, //是否展示顶部课程任选提示
+            showFlyBackToast:false,//是否展示老用户免费弹窗
+            hotSearchKey:'',//搜索热词
+            memberTimeLeft:0,//会员体验剩余时间
+            isShowCountdown:false,//是否显示体验会员倒计时
+            senceList:[],//新版微课封面页列表
+            title:'',//新版微课列表title
+            subtitle:'',//新版微课列表副标题
+            selected:null,//导航栏选中项
+            showWhiteBackground:null,//导航栏背景色
+        }
+        watch = {
+            
+        }
+        computed = {
+            
+            /* *
+            *  展示老用户回归弹窗
+            * */
+            isShowFlyBackAlert() {
+                return this.showFlyBackToast && this.giveAlertWindow
+            }
+        }
+        onLoad(params) {
+            let self = this
+            wx.hideTabBar();
+            self.paramsInfo = params
+            self.isShowToast = self.paramsInfo.isShowToast ? true : false;
+            self.showFlyBackToast = self.paramsInfo.showFlyBackToast == 'true' ? true : false;
+            let s = setTimeout(() => {
+                self.selected = 1;
+                self.showWhiteBackground = true;
+                self.$apply()
+                clearTimeout(s)
+            }, 0);
+            self.$apply();
+            
+
+            let t = setTimeout(() => {
+                getStorageAsync({
+                    key: 'tabShare'
+                }).then((response) => {
+                    self.shareImg = response.img;
+                    self.shareTitle = response.title;
+                    self.$apply()
+                }).catch(error => {
+                    console.log(error)
+                });
+                clearTimeout(t)
+
+            }, 300)
+            
+        }
+        onShow() {
+            let self = this
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            initializationDeligate({
+                initializeFunc: self.initialize.bind(self)
+            })
+        }
+        onHide() {
+            let t = setTimeout(() => {
+                this.giveAlertWindow = false;
+                this.memberTimeLeft = 0;
+                clearTimeout(t);
+                this.$apply()
+            }, 300);
+            
+        }
+        
+        onUnload() {
+            let t = setTimeout(() => {
+                this.giveAlertWindow = false;
+                this.memberTimeLeft = 0;
+                clearTimeout(t);
+                this.$apply()
+            }, 300);
+        }
+
+        initialize() {
+            let self = this
+            self.__fetchCourses()
+        }
+        /**
+         * 服务通知数据上报
+         */
+        __report(practiceID) {
+            let self = this
+            let postData = {
+                token: self.token,
+                body: {
+                    pageType: 'courseDetails',
+                    EventType: 'clickSearchNotice',
+                    ComponentName: '',
+                    senceID: '',
+                    CpnPresentName: ''
+                }
+            }
+            reportApi.doUserBehaviourLog(postData)
+        }
+        __fetchCourses() {
+            let self = this
+            let postData = {
+                token: self.token,
+            }
+            if (self.paramsInfo.wxPushType) {
+                postData.wxPushType = self.paramsInfo.wxPushType
+            }
+            fetch.coursePageList(postData).then((response) => {
+                self.isLoaded = true
+                // 是否显示 我的 tab 红点
+                if (response.isShowMyTips) {
+                    wx.showTabBarRedDot({
+                        index: 3
+                    })
+                }
+                let number = 0
+                _.each(response.limitedTimeGiftCourseList, (item, index) => {
+                    if (0 !== (index + 1) % 4) {
+                        if (!self.limitedTimeGiftCourseList[number]) {
+                            self.limitedTimeGiftCourseList[number] = []
+                        }
+                        self.limitedTimeGiftCourseList[number].push(item)
+                    } else {
+                        number++
+                    }
+                })
+                self.isShowSearch = response.isShowSearchNotice ?  true :  false;
+                self.hotCourseList = response.hotCourseList
+                self.courseSeriesList = response.courseSeriesList
+                self.newCourseList = response.newCourseList
+                self.recommendCourseList = response.recommendCourseList;
+                self.isShowNewTips = response.isShowGiveBar;
+                self.hotSearchKey = response.hotSearchKey || '搜索';
+                self.giveAlertWindow = response.giveAlertWindow;
+                self.senceList = response.senceList;
+                self.title = response.title;
+                self.subtitle = response.subtitle;
+                
+                self.memberTimeLeft = response.member.memberCountDown;
+                self.isShowCountdown = response.member.memberCountDown > 0 ? true:false;
+                self.$apply()
+            }).catch(error => {
+                console.log('home fetch courses error', error)
+                throw error
+            })
+        }
+        methods = {
+            /* 
+            ** 去新微课封面页
+            */
+            getNewCourseCover(event) {
+                let self = this
+                let {currentTarget:{dataset:{item}}} = event
+                 
+                if(item.isFinish) {
+                    wepy.$instance.globalData.getHuilder('课程页/微课专题/回顾页','click', item.title)
+                    self.$navigate(`/pages/course-module/course-cover`, {
+                        courseID:item.courseId,
+                        senceID:item.senceId
+                    })
+                } else {
+                    wepy.$instance.globalData.getHuilder('课程页/微课专题/封面页','click', item.title)
+                    self.$navigate(`/pages/course-module/course-cover`, {
+                        courseID:item.courseId,
+                        senceID:item.senceId
+                    })
+                }
+            },
+            /* 
+              关闭老用户回归弹窗
+            */
+            closeFlyBack(event) {
+                let self = this
+                let {currentTarget:{dataset:{type}}} = event
+                let postData = {
+                    token:self.token,
+                    closeType:'giveAlertWindow'
+                }
+                type == '2' ? wepy.$instance.globalData.getHuilder('课程页/老用户回归/免费领取', 'click', '') : wepy.$instance.globalData.getHuilder('课程页/老用户回归/关闭', 'click', '');
+                fetch.closeGiveBar(postData).then(() => {
+                    self.showFlyBackToast = false
+                    self.$apply()
+                })
+            },
+            /* 
+              关闭顶部课程任选提示
+            */
+            doCloseTopTips() {
+                let self = this
+                let postData = {
+                    token:self.token,
+                    closeType:'showGiveBar'
+                }
+                fetch.closeGiveBar(postData).then(() => {
+                    self.isShowNewTips = false
+                    self.$apply()
+                })
+            },
+            /* 
+              搜索页
+            */
+            getSearch() {
+                wepy.$instance.globalData.getHuilder('课程页/去搜索页', 'click', '')
+                wepy.navigateTo({
+                    url: '/pages/course-module/course-search'
+                })
+            },
+            /* 
+              隐藏搜索引导
+            */
+            getHideSearch() {
+                let self = this;
+                self.isShowSearch = false;
+                self.$apply();
+                self.__report()
+            },
+            // 隐藏 toast
+            getCloseToast() {
+                let self = this;
+                self.isShowToast = false;
+            },
+            // 系列 组件 的返回按钮
+            OnClickBack() {
+                let self = this
+                self.isShowCourseSeries = false
+                self.$apply()
+            },
+            // 点击全部系列 触发组件
+            getAllSeries({
+                currentTarget: {
+                    dataset: {
+                        item
+                    }
+                }
+            }) {
+                let self = this
+                wepy.$instance.globalData.getHuilder(`课程页/热门系列/查看全部`, 'click', '')
+                wepy.navigateTo({
+                    url: `/pages/course-module/course-series-list`
+                })
+                self.$apply()
+            },
+            /**
+             * 监听滚动条的位置
+             * @param
+             */
+            getScroll({
+                detail: {
+                    scrollTop
+                }
+            }) {
+                let self = this
+                self.scrollTop = scrollTop
+            },
+            // 跳去 课程详情页
+            getCourseDetail({
+                currentTarget: {
+                    dataset: {
+                        item,
+                        type
+                    }
+                }
+            }) {
+                let self = this
+                let courseID = item.courseID;
+                let courseType = item.courseType;
+                let name = item.name;
+                let resume = item.resume ? item.resume : ''
+                let courseName = item.courseName ? item.courseName : item.name
+                let typeSrc = ''
+                switch (type) {
+                    case '1':
+                        typeSrc = '推荐课程'
+                        break
+                    case '2':
+                        typeSrc = '最新上线'
+                        break
+                    case '3':
+                        typeSrc = '热门课程'
+                        break
+                }
+                wepy.$instance.globalData.getHuilder(`课程页/${typeSrc}`, 'click', `${courseName}`)
+                wepy.navigateTo({
+                    url: `/pages/course-module/course-details?id=${courseID}&source=${courseType}`
+                })
+            },
+            /**
+             * 课程系列入口
+             * @param event
+             */
+            getCategory(event) {
+                let self = this
+                let dataset = event.currentTarget.dataset
+                let data = {
+                    courseSeriesID: dataset.item.courseSeriesID,
+                    seriesName: dataset.item.seriesName
+                }
+                wepy.$instance.globalData.getHuilder('课程页/热门系列/进入系列详情页', 'click', `${dataset.item.seriesName}`)
+                self.$navigate('/pages/course-module/course-series', data)
+            }
+        }
+        events = {
+            attendClass(courseID, resume, courseType, name, courseName, $event) {
+                let self = this
+                wepy.$instance.globalData.getHuilder(`课程页/${courseName}`, 'click', `${name}`)
+                try {
+                    wepy.navigateTo({
+                        url: `/pages/course-module/course-details?id=${courseID}&source=${courseType}`
+                    })
+                } catch (err) {
+                    console.log('handle attend classes err', err)
+                }
+            },
+            review(courseID, $event) {
+                let self = this
+                try {
+                    wepy.navigateTo({
+                        url: `/pages/course-module/course-cover?senceID=${senceID}`
+                    })
+                } catch (err) {
+                    console.log('err', err)
+                }
+            },
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            },
+            /* ga埋点区分tab页 */
+            'on-click-float': () => {
+                wepy.$instance.globalData.getHuilder('课程页/新人礼包浮窗', 'click', '')
+            }
+        }
+        /**
+         * 分享
+         * @param options
+         * @returns {{title: string, path: string, success: success, fail: fail}}
+         */
+        onShareAppMessage(options) {
+            let self = this
+            wepy.$instance.globalData.getHuilder('课程页/分享', 'click', '')
+            wepy.$instance.globalData.getReportFlow('share')
+            return {
+                title: self.shareTitle,
+                imageUrl: self.shareImg,
+                path: '/pages/tabPages/course?source=CourseTabShare',
+                success(res) {
+                    console.log('转发成功')
+                    fetch.reportSharing({
+                        token: self.token,
+                        type: shareDictionary.SHARE_WE_APP.type
+                    }) // 向后台上报分享行为
+                },
+                fail(res) {
+                    console.log('转发失败')
+                }
+            }
+        }
+    }
+</script>

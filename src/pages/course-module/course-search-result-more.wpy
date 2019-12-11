@@ -1,0 +1,149 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-team-announce {
+        background: @background-gray-FB;
+        min-height: 100%;
+    }
+    .ui-search-results-title {
+        .flex-center();
+        justify-content: flex-start;
+        font-size: 24rpx;
+        color: @color-gray-BF;
+        padding: 24rpx 32rpx;
+    }
+    .ui-had-result {
+        /* 微课模块 */
+        .ui-sence-box {
+            background: @background-white;
+            border-bottom: solid 1rpx @border-gray;
+            .ui-sencelist-title {
+                padding: 32rpx;
+                .flex-between();
+                background: @background-white;
+                border-bottom: solid 1rpx @border-gray;
+            }
+        }
+        .cell-main-title {
+            height: 112rpx;
+            margin-left: 40rpx;
+            line-height: 112rpx;
+            font-size: 44rpx;
+            font-weight: bold;
+        }
+        /* 专题模块 */
+        .ui-skills-box {
+            margin: 32rpx 0;
+            background: @background-white;
+            border-bottom: solid 1rpx @border-gray;
+            .ui-skills-title {
+                padding: 32rpx;
+                .flex-between();
+                background: @background-white;
+                border-bottom: solid 1rpx @border-gray;
+            }
+        }
+        .module-course-progress {
+            .ui-detail .ui-msg {
+                .cell-name {
+                    width: 480rpx;
+                }
+                .cell-dec {
+                    width: 480rpx;
+                }
+            }
+            &:last-of-type {
+                border-bottom: 2rpx solid #EFEFF4;
+            }
+        }
+        .module-cover-progress {
+            .ui-item {
+                margin: 10rpx 0 50rpx;
+                box-shadow: 0 20px 46px 0 rgba(0, 0, 0, 0.10);
+            }
+        }
+        .cell-not-more {
+            font-size: 24rpx;
+            color: @color-gray-BF;
+            text-align: center;
+            margin: 28rpx 0;
+        }
+    }
+    .cell-margin {
+        height: 148rpx;
+        width: 100%;
+    }
+</style>
+
+<template>
+    <mloading wx:if="{{ !isLoaded  }}" />
+    <view class="ui-team-announce">
+        <jn-header buttonColor="#007AFF"></jn-header>
+        <view class="ui-search-results-title">
+            以下是搜索“{{content}}”的全部微课结果,共{{type == 'sence' ? senceList.length : learningSenceList.length}}个
+        </view>
+        <!-- 搜索后 结果 -->
+        <view class="ui-had-result">
+            <view class="ui-sence-box" wx:if="{{learningSenceList.length}}">
+                <ss-learned-list :sence.sync="learningSenceList" :max.sync="learnedMax" hasLearned></ss-learned-list>
+            </view>
+            <view class="ui-sence-box" wx:if="{{senceList.length}}">
+                <ss-sence-list :sence.sync="senceList" :max.sync="senceMax"></ss-sence-list>
+            </view>
+            
+            <view class="cell-not-more">没有更多内容了</view>
+        </view>
+        <view class="cell-margin"></view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header'
+    import { fetch } from "../../api";
+    import { getStore, connect } from "wepy-redux";
+    import Loading from '../../components/common/loading'
+    import { initializationDeligate, getStorageAsync, setStorageAsync} from '../../utils'
+    import _ from 'underscore'
+    import senceSearchList from '../../components/course-module/search-sence-list' ;
+
+    const store = getStore();
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class searchResultList extends wepy.page {
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+            'ss-sence-list':senceSearchList,//微课搜索结果列表
+            'ss-learned-list':senceSearchList,//微课搜索结果列表
+        }
+        data = {
+            isLoaded: false,
+            senceList: [],//微课列表
+            learningSenceList:[],//学过的微课列表
+            content:'',//搜索的关键字
+            type:'',//展开列表的类型
+        };
+        onShow() {
+            let self = this;
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            getStorageAsync({key:'searchObj'}).then(response => {
+                self.isLoaded = true
+                response.type == 'sence' ? self.senceList = response.list : self.learningSenceList = response.list;
+                self.content = response.content;
+                self.type = response.type;
+                self.$apply();
+            })
+        }
+        
+        methods = {
+            
+        };
+        
+        
+    }
+</script>
+

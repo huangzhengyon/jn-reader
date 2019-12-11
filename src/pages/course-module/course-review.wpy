@@ -1,0 +1,299 @@
+<style lang="less" scoped>
+@import "../../assets/style/theme";
+.ui-review{
+    .ui-lesson{
+        padding:32rpx 0;display: flex;align-items: center;margin:0 40rpx;border-bottom:2rpx solid @border-gray;
+        .ui-item{
+            display: flex;width:100%;align-items: center;
+            .ui-img{
+                display: flex;align-items: center;
+                image{width: 112rpx;height: 112rpx;border-radius:28rpx;}
+            }
+            .ui-content{
+                margin-left: 24rpx;height: 96rpx;
+                .cell-name{width: 368rpx;font-size: 34rpx;color:@color-black;font-weight: 700;overflow: hidden;white-space: nowrap;text-overflow:ellipsis}
+                .cell-dec{width: 520rpx;margin-top:12rpx;font-size: 30rpx;color:@color-gray;overflow: hidden;white-space: nowrap;text-overflow:ellipsis}
+            }
+        }
+        .cell-btn{width: 220rpx;height: 60rpx;border-radius: 200rpx;background: @background-gray-F4;color:@color-blue;font-size: 30rpx;text-align: center;line-height: 60rpx;font-weight: 700}
+    }
+    .cell-poin-title{font-size: 44rpx;color:@color-black;margin: 36rpx 30rpx;font-weight: 700;}
+    .ui-swiper-box{
+        margin-bottom: 138rpx;
+        .ui-swiper-list{
+            height: 1038rpx;
+            .ui-item{
+                width: 670rpx;
+                .ui-content{
+                    border:2rpx solid @border-gray;border-radius: 20rpx;display: flex;justify-content: center;align-items: center;width:670rpx;min-height:958rpx;
+                    image{width: 100%;border-radius: 20rpx;}
+                    .ui-share{
+                        color:@color-blue;position:absolute;top:28rpx;right:36rpx;
+                        text{font-size: 50rpx;}
+                        .icon-collected {
+                            color: @color-yellow;
+                        }
+                        .icon-collection2 {
+                            color:@color-gray;
+                        }
+                    }
+                    .ui-share.ui-dack {color:@color-white;}
+                }
+
+            }
+        }
+    }
+    .ui-empty-list{
+        width: 670rpx;height: 894rpx;border-radius: @border-radius-32;border:2rpx solid @border-gray;margin: 0 auto 172rpx;color:@color-gray;display: flex;flex-direction: column;align-items: center;justify-content: center;font-size:34rpx;
+        text{color: @color-gray-c7;font-size: 110rpx;margin-bottom: 50rpx;}
+    }
+    .ui-bottom-button {
+        padding: 0 40rpx 40rpx 40rpx;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        &.is-phonex {bottom: 68rpx;}
+        button {
+            color: @color-white;
+            background: @background-blue;
+            border-radius: @border-radius-12;
+        }
+    }
+}
+
+</style>
+<template>
+    <mloading wx:if="{{ !isLoaded }}"/>
+    <view wx:if="{{ isLoaded }}">
+        <jn-header title="课程回顾"></jn-header>
+        <view class="ui-review">
+            <view class="ui-lesson">
+                <view class="ui-item">
+                    <view class="ui-img">
+                        <image src="{{imageUrl}}" />
+                    </view>
+                    <view class="ui-content">
+                        <view class="cell-name">{{senceName}}</view>
+                        <view class="cell-dec">{{description}}</view>
+                    </view>
+                </view>
+            </view>
+            <view class="cell-poin-title">重点卡</view>
+            <view class="ui-empty-list" wx:if="{{hasPointCard && hashBigImage}}">
+                <text class="icon-empty-list"></text>
+                <view>你还没有标为重点的卡片哦</view>
+            </view>
+            <view class="ui-swiper-box" wx:else>
+                <swiper class="ui-swiper-list"
+                        previous-margin="40rpx"
+                        current="{{currentCard}}"
+                        bindchange="getChangCard"
+                        next-margin="20rpx"  indicator-dots>
+                    <repeat for="{{pointCardList}}" key="index" index="index" item="item">
+                        <swiper-item class="ui-item"  data-item="{{item}}">
+                            <view class="ui-content" style="background:{{item.fullImageBgColor ? item.fullImageBgColor : ''}}">
+                                <image mode="widthFix" src="{{item.url}}"/>
+                                <view class="ui-share" :class="{'ui-dack' : item.fullImageColorIsDark}" data-item="{{item}}" data-index="{{index}}" @tap.stop="getShare">
+                                    <!-- <text class="icon-collection2" wx:if="{{!item.isCollection}}"></text>
+                                    <text class="icon-collected" wx:else></text> -->
+                                </view>
+                            </view>
+                        </swiper-item>
+                    </repeat>
+                </swiper>
+            </view>
+            <view class="ui-bottom-button" :class="{'is-phonex': isIphonex}">
+                <button @tap.stop="handleStudyAgain">再学一次</button>
+            </view>
+        </view>
+
+    </view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import {fetch} from "../../api/index";
+    import {getStore, connect} from "wepy-redux";
+    import Loading from "../../components/common/loading";
+    import header from '../../components/common/header'
+    import {navigateToLesson,trim} from "../../utils/index";
+    import _ from 'underscore'
+
+    @connect({
+        avatar(state) {
+            return state.user.avatarUrl
+        },
+        token(state) {
+            // return 'userID26b17a206c9e4009bc44335001587b50-1545877886464-2ecc7ec4f965f0d9ffef2a2a6ee1917e'
+            return state.user.token
+        },
+        userName(state) {
+            return state.user.nickName
+        },
+        role(state) {
+            return state.user.role
+        },
+        entrance(state) {
+            return state.entrance
+        },
+
+    })
+    export default class Review extends wepy.page {
+        components = {
+            mloading: Loading,
+            'jn-header': header
+        }
+
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            courseID: "",
+            senceID: "",
+            isLoaded: false,
+            isSubmit: false, // 是否提交了收藏或生成分享图
+            senceName: "",
+            description: "",
+            imageUrl: null,
+            currentCardID: null,
+            hasPointCard: false,
+            hashBigImage: false,
+            pointCardList: [],
+            currentCard:0,
+            isShow:false,
+            isFocus:false,
+            isShowDel:false,
+            reviewName:'',
+            messageValue:'',
+            viewsList:[],
+            viewID:null,
+            keyboardHeight: -240,
+        }
+
+        onLoad(data) {
+            let self = this
+            self.courseID = data.courseID;
+            self.senceID = data.senceID;
+            self.$apply();
+            self.initialize()
+        }
+
+        onShow() {
+            let self = this;
+        }
+
+        __getReview() {
+            let self = this;
+            fetch.getReview({
+                token: self.token,
+                courseID:self.courseID,
+                senceID:self.senceID})
+            .then(res => {
+                self.isLoaded = true
+                self.senceName = res.senceName
+                self.viewsList = res.viewsList
+                let tempList = res.pointCardList
+                tempList = _.each(tempList, (item)=>{
+                    if(item.content){
+                        item.content = JSON.parse(item.content);
+                        item.url = item.content.bigimage;
+                        item.name = item.content.title;
+
+                        if(item.content.fullImageColorIsDark){
+                            item.fullImageColorIsDark = item.content.fullImageColorIsDark
+                            item.fullImageBgColor = item.content.fullImageBgColor
+                        }
+                    }
+                });
+                self.pointCardList = tempList
+
+                // 取消最后一张收藏  bug
+                if(self.pointCardList.length === self.currentCard) {
+                    self.currentCard = self.pointCardList.length - 1
+                }
+
+                self.imageUrl = res.imageUrl
+                self.description = res.description
+                self.$apply()
+            })
+            .catch(error => {
+                console.log('get review error', error)
+            })
+        }
+        
+
+        initialize() {
+            let self = this;
+            self.__getReview();
+            wepy.$instance.globalData.getLoadHuilder({pageTheme: self.senceName}) // ga统计
+            wx.reportAnalytics('review', {
+                role: self.role,
+                nickname: self.userName,
+                coursename: self.senceName,
+                sencename: self.title,
+                channel: self.entrance.mappers[self.entrance.scenceID]
+            })
+        }
+
+        methods = {
+            // swiper改变触发
+            getChangCard(evt){
+                let self = this;
+                self.currentCard = evt.detail.current;
+            },
+            // 再学一次
+            handleStudyAgain(event) {
+                let self = this;
+                wepy.$instance.globalData.getHuilder('课程回顾/再学一次', 'click', self.senceName)
+                navigateToLesson({courseID:self.courseID, senceID:self.senceID,isReview:true})
+            },
+            getStudyLesson(event) {
+                let self = this;
+                let {currentTarget: {dataset: {item}}} = event
+                wepy.$instance.globalData.getHuilder('课程回顾/点击重点卡片', 'click', self.senceName)
+                if(item.viewID && item.xuhao>0) {
+                    item.xuhao = item.xuhao + 1
+                }
+                let resumeLastRead = item.xuhao ? item.xuhao : 'NO'
+                navigateToLesson({courseID:self.courseID, senceID:self.senceID, resumeLastRead: resumeLastRead,isReview:true})
+            },
+            /**
+             * 全图卡热点卡生成分享图片
+             * @returns {boolean}
+             */
+            getShare(event) {
+                let self = this
+                let {currentTarget: {dataset: {item,index}}} = event
+                if (self.isSubmit) {
+                    return
+                }
+                wepy.$instance.globalData.getHuilder('课程回顾/收藏', 'click', self.senceName)
+                self.isSubmit = true
+                self.$apply()
+
+                self.currentCardID = item.id
+                let postData = {
+                    token: self.token,
+                    courseID: self.courseID,
+                    senceID: self.senceID,
+                    cardID: item.uid,
+                    flag: item.isCollection ? 0 : 1
+                }
+
+                fetch.collectionRecord(postData).then(response => {
+                    self.isSubmit = false
+                    wx.showToast({
+                        title: response.message
+                    })
+                    self.pointCardList[index].isCollection = !self.pointCardList[index].isCollection;
+                    self.$apply()
+                }).catch(error => {
+                    self.isSubmit = false
+                    self.$apply()
+                })
+            }
+        }
+
+        events = {}
+
+    }
+</script>

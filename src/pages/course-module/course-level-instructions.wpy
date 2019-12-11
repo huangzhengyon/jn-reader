@@ -1,0 +1,63 @@
+<style lang="less" scoped>
+.ui-instructions-box{
+    padding:72rpx;
+    .cell-paragraph{padding-bottom:20rpx;font-size:32rpx;color:#000;line-height:48rpx;}
+
+    .cell-tr{
+        height:48rpx;padding-top:22rpx;
+        text{display:block;line-height:48rpx;font-size:32rpx;color:#000;}
+        text:nth-of-type(1){}
+        text:nth-of-type(2){width:220rpx;text-align:left;}
+
+        &.cell-th{
+            padding:72rpx 0 16rpx;border-bottom:1px solid #A1A9AB;
+            text{font-size:28rpx;color:#5A696B;line-height:48rpx;}
+        }
+    }
+}
+</style>
+
+<template>
+    <view class="ui-instructions-box">
+        <jn-header title="技能等级说明"></jn-header>
+
+        <view class="cell-paragraph"><text>【即能】使用技能水平系数衡量学习者的技能掌握程度。</text></view>
+        <view class="cell-paragraph"><text>技能水平系数范围从 0 到 10，基于答题正确率，课程和练习的难度计算得出。</text></view>
+        <view class="cell-paragraph"><text>在【即能】中，技能掌握程度分为 5 个等级，与技能水平系数对应：</text></view>
+
+        <view class="cell-tr cell-th main-justify"><text>技能水平系数</text><text>技能掌握程度</text></view>
+        <view class="cell-tr main-justify"><text>0-2</text><text>新手</text></view>
+        <view class="cell-tr main-justify"><text>2-4</text><text>基本理解</text></view>
+        <view class="cell-tr main-justify"><text>4-6</text><text>初步掌握</text></view>
+        <view class="cell-tr main-justify"><text>6-8</text><text>熟练</text></view>
+        <view class="cell-tr main-justify"><text>8-10</text><text>精通</text></view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class courseLearning extends wepy.page {
+        components = {
+            'jn-header': header
+        }
+
+        data = {}
+
+        onLoad() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        methods = {}
+
+        events = {}
+    }
+</script>

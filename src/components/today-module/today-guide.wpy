@@ -1,0 +1,315 @@
+<style lang="less" scoped>
+    .ui-today-guide{
+        position: fixed;top: 0;left: 0;bottom: 0;right: 0;background: #fff;z-index: 40;
+        .cell-shadow{position: absolute;background: rgba(0, 0, 0, .7);width: 100%;top: 0;left: 0;height: 100%;}
+        .ui-skill-item{
+            position: absolute;
+            .ui-bg{width: 718rpx;height: 822rpx;background: #fff;border-radius: 32rpx;}
+            .ui-font{
+                color:#fff;width: 530rpx;margin:14rpx auto 0;height: 116rpx;
+                text{margin-right: 10rpx;font-size: 78rpx;}
+                view{margin-top: 20rpx}
+            }
+            
+        }
+        .cell-next{width: 320rpx;height: 96rpx;border-radius: 20rpx;background: #fff;text-align: center;color:#007AFF;font-size: 34rpx;font-weight: bold;line-height: 96rpx;margin: 20rpx auto 0}
+        .ui-studying-item{
+            .module-cover-progress .ui-item {
+                height:450rpx;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom-left-radius:32rpx;border-bottom-right-radius: 32rpx;
+                .ui-mask .cell-title{margin-bottom:0;}
+            }
+            .ui-top{
+                height: auto;box-sizing: border-box;width:706rpx;
+                .cell-title{font-size: 44rpx;font-weight: bold;color:#000;}
+                .cell-all{
+                    font-size: 34rpx;color:#007AFF;background:none;line-height:1;
+                    .cell-icon{font-size: 44rpx;margin-left: 4rpx;}
+                }
+            }
+            
+            .ui-study-content{
+                position: relative;z-index: 1;width: 100%;
+                .ui-course{
+                    height: auto;background:#fff;width:718rpx;margin:30rpx auto 0;border-radius:32rpx;padding-top:8rpx;
+                    .ui-course-list{
+                        margin-top: 20rpx;
+                        .module-course-progress{margin:0;}
+                    }
+                }
+                .ui-font{
+                    color:#fff;width: 570rpx;margin:14rpx auto 0;
+                    text{margin-right: 10rpx;font-size: 78rpx;}
+                    view{margin-top: 30rpx}
+                }
+                
+                &.ui-hidden-study{position: static;z-index:-1}
+                
+            }
+            .ui-bar-item{
+                position:absolute;z-index:1;width:100%;bottom:12rpx;
+                .ui-bar-box{
+                    width:718rpx;height:140rpx;margin:auto;background:#fff;border-radius:32rpx;
+                    .ui-bar{
+                        background: rgba(239,239,244,0.90);border-radius: 20rpx;height: 100rpx;width: 702rpx;margin: auto;
+                        .ui-continu{
+                            width:150rpx;font-size: 12px;color: #007AFF;
+                            text{font-size: 25rpx;margin-left:4px;}
+                        }
+                        .ui-icon{
+                            width: 72rpx;height: 72rpx;background: #fff;border-radius: 20rpx;margin: 0 12rpx 0 20rpx;
+                            text{color: #007AFF;}
+                        }
+                        .cell-text{font-size: 22rpx;color: #8E8E93;}
+                        .cell-name{font-size: 16px;color: #000;}
+                    }
+                }
+                
+                .ui-font{
+                    color:#fff;width: 570rpx;margin:14rpx auto;height:158rpx;
+                    text{margin-right: 10rpx;font-size: 78rpx;display: flex;align-items: flex-end}
+                    view{margin-top: 30rpx}
+                }
+            }
+        }
+       
+    }
+
+</style>
+
+<template>
+    <view class="ui-today-guide" hidden="{{ !isShow }}">
+        <jn-header hiddenButton  class="ui-today-header" className="background-transparent">
+            <view slot="cursor-button" class="cell-header-date">{{todayDate}}</view>
+        </jn-header>
+        <view class="cell-shadow" @tap.stop="getData"></view>
+        <view class="ui-skill-item cross-center dir-top" wx:if="{{0 == step}}">
+            <view class="ui-bg main-center">
+                <view class="module-cover-progress">
+                    <view class="cell-recomend cross-center">{{skillItem.recomText}}</view>
+                    <view class="ui-item" style="background-image: url('{{skillItem.coverImageURL}}');">
+                        <view class="ui-mask">
+                            <view class="ui-top">
+                                <view class="cell-tips">{{skillItem.sceneTypeText}}</view>
+                                <view class="ui-count">
+                                    <text class="icon-eyes"></text>
+                                    {{skillItem.userCount}}
+                                </view>
+                            </view>
+                            <view class="cell-title">{{skillItem.name}}</view>
+                            <view class="ui-bottom">
+                                <view class="ui-progress-box">
+                                    <view class="ui-skill main-justify">
+                                        <view># {{skillItem.senceTarget}}</view>
+                                        <view class="cell-num">{{skillItem.skillScore}}</view>
+                                    </view>
+                                    <view class="ui-progress">
+                                        <view class="cell-line box-mean">
+                                            <view></view><view></view><view></view><view></view><view></view>
+                                        </view>
+                                        <view class="cell-percent" style="width: {{skillItem.progress}}%;"></view>
+                                    </view>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+            <view class="ui-font main-center">
+                <text class="icon-upward"></text>
+                <view>根据你的选择和学习，为你推荐专属技能</view>
+            </view>
+            <view class="cell-next" @tap.stop="getGuideNext" data-index="0">下一步(1/3)</view>
+        </view>
+        <view class="ui-studying-item cross-center dir-top" wx:if="{{1 == step || 2 == step}}">
+            <view class="module-cover-progress">
+                <view class="ui-item" style="background-image: url('{{skillItem.coverImageURL}}');">
+                    <view class="ui-mask">
+                        <view class="cell-title"></view>
+                        <view class="ui-bottom">
+                            <view class="ui-progress-box">
+                                <view class="ui-skill main-justify">
+                                    <view># {{skillItem.senceTarget}}</view>
+                                    <view class="cell-num">{{skillItem.skillScore}}</view>
+                                </view>
+                                <view class="ui-progress">
+                                    <view class="cell-line box-mean">
+                                        <view></view><view></view><view></view><view></view><view></view>
+                                    </view>
+                                    <view class="cell-percent" style="width: {{skillItem.progress}}%;"></view>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+            <view class="ui-study-content" :class="{'ui-hidden-study' : 1 != step}">
+                <view class="ui-course dir-top cross-center">
+                    <view class="ui-top cross-center main-justify">
+                        <view class="cell-title">在学课程</view>
+                        <view class="cell-all">查看更多<text class="icon-details"></text></view>
+                    </view>
+                    <view class="ui-course-list">
+                        <view class="module-course-progress">
+                            <view>
+                                <image src="{{courseItem.bgImg}}" />
+                            </view>
+                            <view class="ui-detail">
+                                <view class="ui-msg">
+                                    <view class="cell-name text-overflow">{{courseItem.courseName}}</view>
+                                    <view class="cell-dec text-overflow">{{courseItem.dateTips}}</view>
+                                    <view class="cell-btn">{{courseItem.btnMsg}}</view>
+                                </view>
+                                <view class="ui-status">
+                                    <view class="ui-circular-progress">
+                                        <view class="cell-progress-number">{{courseItem.finishLesson}}/{{courseItem.allLesson}}</view>
+                                        <view class="ui-wrapper ui-right">
+                                            <view class="cell-circle-right" style="transform:rotate({{courseItem.percent <= 50 ? (-135 + 3.6 * courseItem.percent) : 45}}deg);"></view>
+                                        </view>
+                                        <view class="ui-wrapper ui-left">
+                                            <view class="cell-circle-left" style="transform:rotate({{courseItem.percent > 50 ? (-135 + 3.6 * (courseItem.percent - 50)) : -135}}deg);"></view>
+                                        </view>
+                                    </view>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+                <view  wx:if="{{1 == step}}">
+                    <view class="cell-bg"></view>
+                    <view class="ui-font main-center">
+                        <text class="icon-upward"></text>
+                        <view>这是你领取的课程，你可在有效时间内免费学习</view>
+                    </view>
+                    <view class="cell-next" @tap.stop="getGuideNext" data-index="1">下一步(2/3)</view>
+                </view>
+            </view>
+            <view class="ui-bar-item" wx:if="{{2 == step}}">
+                <view class="cell-next" @tap.stop="getGuideNext" data-index="2">我知道了</view>
+                <view class="ui-font main-center">
+                    <text class="icon-downward"></text>
+                    <view>这是你领取的课程，你可在有效时间内免费学习</view>
+                </view>
+                <view class="ui-bar-box main-center">
+                    <view class="ui-bar cross-center main-justify" style="background:linear-gradient(to right, rgba(201, 218, 245, 0.95) {{progress ? progress : 0}}% , rgba(239, 239, 244, 0.95) 0);" >
+                        <view class="cross-center flex-width-1">
+                            <view class="ui-icon cross-center main-center">
+                                <text class="icon-list"></text>
+                            </view>
+                            <view>
+                                <view class="cell-text">正在学的微课</view>
+                                <view class="cell-name">{{name}}</view>
+                            </view>
+                        </view>
+                        <view class="ui-continu cross-center">
+                            继续学<text class="icon-right-arrow"></text>
+                        </view>
+                    </view>
+                </view>
+                
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import {fetch} from '../../api'
+    import _ from 'underscore'
+    import header from '../../components/common/header'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class TodayGuide extends wepy.component {
+
+        props = {
+            isTrueShowGuide:{
+                type: Boolean
+            },
+            todayDate:{
+                type: String
+            },
+            skillList:{
+                type: Array,
+                default: []
+            },
+            recommendCourseList:{
+                type: Array,
+                default: []
+            },
+        }
+        components = {
+            'jn-header': header,
+        }
+
+        computed = {
+            isShow () {
+                return this.isTrueShowGuide;
+            },
+            skillItem() {
+                return  _.first(this.skillList);
+            },
+            courseItem() {
+                return  _.first(this.recommendCourseList);
+            }
+
+        }
+
+        data = {
+            headerHeigth: 68,
+            step:0,
+            name:'',
+            progress:0,
+            isLoaded:false
+        }
+
+        __getBarDetail() {
+            let self = this;
+            fetch.getMyLearningSenceList({token: self.systemInfo.token}).then(response => {
+                self.name = response.continueSence.senceName;
+                self.progress = response.continueSence.progress;
+                self.$apply()
+            }).catch((err) => {
+                console.log(err)
+            })
+        }
+
+        methods = {
+            getData() {
+               let self = this;
+                console.log(self.skillList,1) 
+            },
+            getGuideNext(event){
+                let self = this;
+                let {currentTarget: {dataset: {index}}} = event
+                switch (index) {
+                    case '0':
+                        self.step = 1;
+                        self.__getBarDetail();
+                        self.$apply();
+                        break;
+                    case '1':
+                        self.step = 2;
+                        self.$apply();
+                        break;
+                    case '2':
+                        self.$emit('onCloseGuide')
+                        self.$apply();
+                        break;
+                }
+            },
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>

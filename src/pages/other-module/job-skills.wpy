@@ -1,0 +1,59 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-job-skills-box{
+        box-sizing:border-box;width:100%;padding:0 32rpx 144rpx;
+        .ui-item{
+            padding-top:36rpx;
+            .ui-title{
+                font-size:44rpx;font-weight:700;color:@color-black;
+                text{margin-right:8rpx;font-size:40rpx;font-weight:400}
+            }
+            .ui-introduction{padding-top:18rpx;font-size:32rpx;color:@color-gray;}
+            .cell-image{display:flex;justify-content:center;}
+        }
+    }
+</style>
+
+<template>
+    <view class="ui-job-skills-box">
+        <jn-header title="工作技能"></jn-header>
+        <repeat for="{{skillList}}" key="index" index="index" item="item">
+            <view class="ui-item">
+                <view class="ui-title">
+                    <text class="icon-study-bar"></text>{{item.skill}}
+                </view>
+                <text class="ui-introduction" wx:if="{{item.description}}">{{item.description}}</text>
+                <view class="cell-image">
+                    <image mode="widthFix" src="{{item.image}}" wx:if="{{item.image}}"/>
+                </view>
+            </view>
+        </repeat>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class jobSkills extends wepy.page {
+        components = {
+            'jn-header': header
+        }
+        data = {
+            skillList: []
+        }
+        onLoad() {
+            let self = this;
+            self.skillList = wepy.$instance.globalData.newCourseDetailTempele && wepy.$instance.globalData.newCourseDetailTempele.skillList;
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            self.$apply()
+        }
+    }
+</script>

@@ -1,0 +1,143 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-header-button text{color:@color-blue}
+    .ui-camp-practice{
+        .ui-practice{
+            padding-top: 16rpx;border-top:1rpx solid @border-gray; margin-top: 20rpx;
+            .ui-item{
+                padding:24rpx 32rpx 0;display: flex;
+                text{font-size:52rpx;color:@color-blue;margin-right: 32rpx;}
+                .cell-title{display: flex;flex:1;border-bottom:1rpx solid @border-gray;padding-bottom: 40rpx;}
+            }
+        }
+    }
+</style>
+<template>
+    <view class="ui-camp-discuss-component router-translate  {{isShow ? 'router-enter' : 'router-leave'}}">
+        <jn-header hiddenButton title="题目选择">
+            <button slot="cursor-button" class="cell-back ui-header-button" @tap.stop="getClosePage">
+                <text class="icon-back-close"></text>
+            </button>
+        </jn-header>
+        <scroll-view  scroll-y class="ui-camp-practice" style="height: calc(100% - {{headerHeigth}}px)">
+            <view class="ui-search">
+                <view class="ui-input">
+                    <text class="iconfont icon-search"></text>
+                    <input value="{{searchName}}"
+                        bindinput="getSearchName"
+                        placeholder-class="cell-placeholder"
+                        placeholder="请输入题目名称关键词"/>
+                </view>
+                <view class="cell-search" @tap.stop="getStartSearch">搜索</view>
+            </view>
+            <view wx:if="{{practiceList.length}}" class="ui-practice">
+                <repeat for="{{practiceList}}" key="index" index="index" item="item">
+                    <view class="ui-item" @tap.stop="getItem" data-index="{{index}}" >
+                         <text class="{{item.isSelected ? 'icon-correctly' : 'icon-selectable'}}"></text>
+                        <view class="cell-title">{{item.title}}</view>
+                    </view>
+                </repeat>
+                <view class="cell-height"></view>
+            </view>
+        </scroll-view>
+        <view class="ui-btn-box">
+            <view class="cell-btn" :class="{'is-iphonex': isIphonex}" @tap.stop="getSure">确定</view>
+        </view>
+    </view>
+</template>
+<script>
+    import wepy from "wepy"
+    import {getStore, connect} from "wepy-redux"
+    import header from '../../components/common/header'
+    import {fetch} from "../../api";
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        token(state) {
+            return state.user.token;
+        },
+    })
+    export default class addPractice extends wepy.component {
+        components = {
+            'jn-header': header,
+        }
+        props = {
+            isShow:{
+                type: Boolean,
+                default: false
+            }
+        }
+
+        data = {
+            headerHeigth:68,
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            searchName:'',
+            practiceList:[],
+            seleteList:[],
+        };
+        methods = {
+            getSearchName(e) {
+                let self = this;
+                self.searchName = e.detail.value;
+                self.$apply();
+            },
+            getClosePage(){
+                let self = this;
+                self.$emit('on-add-practice', {})
+            },
+            getStartSearch(){
+                let self = this;
+                let postData = {
+                    token : self.token,
+                    queryText : self.searchName
+                }
+
+                fetch.queryPracticeList(postData).then(res => {
+                    if(res && res.practiceList.length) {
+                        self.practiceList = res.practiceList;
+                        self.$apply();
+                    }else{
+                        wx.showToast({icon:'none',title: '暂无您要查找的题目',duration: 2000})
+                    }
+
+                })
+            },
+            getItem(event) {
+                let self = this;
+                let {currentTarget: {dataset:{index}}} = event
+                let practiceList = self.practiceList;
+                practiceList[index].isSelected = !practiceList[index].isSelected
+                self.practiceList = practiceList;
+                self.$apply();
+            },
+            getSure(){
+                let self = this;
+                let practiceList = self.practiceList;
+                _.each(practiceList,(item)=>{
+                    if(item.isSelected) {
+                        self.seleteList.push(item)
+                        self.$apply();
+                    }
+                })
+                // 清空数据
+                self.practiceList = [];
+                self.searchName = ''
+                self.$apply();
+                self.$emit('on-add-practice',self.seleteList)
+                self.seleteList = []
+
+            }
+        };
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+
+    }
+</script>
+
+

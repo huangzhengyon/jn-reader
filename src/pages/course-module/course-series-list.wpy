@@ -1,0 +1,99 @@
+<template>
+    <mloading wx:if="{{ !isLoaded }}"/>
+    <view class="ui-course-series-box">
+        <jn-header className="background-transparent" buttonAfter></jn-header>
+        <jn-course-series :isShowCourseSeries.sync="isShowCourseSeries" :CourseSeriesList.sync="courseSeriesList" @onClickBack.user="OnClickBack" @on-all-series.user="getCategory"></jn-course-series>
+    </view>
+</template>
+<script>
+import wepy from 'wepy';
+import PushMixin from '../../mixins/push'
+import { getStore, connect } from 'wepy-redux'
+import Loading from '../../components/common/loading';
+import header from '../../components/common/header';
+import { fetch, report as reportApi } from '../../api'
+import CourseSeries from '../../components/course-module/course-series'
+
+const store = getStore()
+@connect({
+    token(state) {
+        return state.user.token
+    },
+    phone(state) {
+        return state.user.phone;
+    },
+})
+export default class courseSeriesList extends wepy.page{
+    mixins = [PushMixin]
+    components = {
+        'mloading': Loading,
+        'jn-header': header,
+        'jn-course-series': CourseSeries,
+    }
+
+    data = {
+        isLoaded:false,
+        paramsInfo:'',//参数
+        courseSeriesList:[],//课程列表
+        isShowCourseSeries:false
+    }
+
+    onLoad(params) {
+        let self = this
+        self.paramsInfo = params
+        self.__getCourseSeriesList()
+    }
+
+    onShow() {
+        wepy.$instance.globalData.getLoadHuilder() // ga统计
+    }
+
+    __getCourseSeriesList() {
+        let self = this
+            let postData = {
+                token: self.token,
+            }
+            if (self.paramsInfo.wxPushType) {
+                postData.wxPushType = self.paramsInfo.wxPushType
+            }
+            fetch.coursePageList(postData).then((response) => {
+                self.isLoaded = true
+                self.isShowCourseSeries = true
+                self.courseSeriesList = response.courseSeriesList
+
+                self.$apply()
+            }).catch(error => {
+                console.log('home fetch courses error', error)
+                throw error
+            })
+    }
+
+    methods = {
+        /* 返回 */
+        OnClickBack() {
+            wx.navigateBack({delta: 1})
+        },
+        /* 查看课程系列 */
+        getCategory(event) {
+            let self = this
+            let dataset = event.currentTarget.dataset
+            let data = {
+                courseSeriesID: dataset.item.courseSeriesID,
+                seriesName: dataset.item.seriesName
+            }
+            wepy.$instance.globalData.getHuilder('课程页/热门系列/进入系列详情页', 'click', `${dataset.item.seriesName}`)
+            self.$navigate('/pages/course-module/course-series', data)
+        }
+    }
+}
+</script>
+<style lang="less" scoped>
+@import '../../assets/style/theme.less';
+.ui-course-series-box {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    position: relative;
+    text-align: center;
+}
+</style>

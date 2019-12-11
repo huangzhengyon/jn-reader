@@ -1,0 +1,213 @@
+<template>
+        <view class="team-result-body">
+            <jn-header title="学习成果"></jn-header>
+            <view class="flex-space-between-column team-result-top">
+                    <canvas class="cir" style="width:130px; height: 130px;" canvas-id="canvasArc">
+                        <view class="flex-space-between-column team-result-top__inner-block">
+                            <view class="team-result-top__inner-block__score">
+                                <text class="team-result-top__inner-block__span-red">{{ myScore }}</text>
+                                <text class="team-result-top__inner-block__span">/{{ allScore }}</text>
+                            </view>
+                            <view class="team-result-top__inner-block__title">总得分</view>
+                        </view>
+                    </canvas>
+                    <view class="flex-space-between-row team-result-top__status">
+                        <view class="team-result-top__status__block">
+                            <text class="team-result-top__status__block__number">{{ myIndex }}</text>
+                        </view>
+                        <view class="team-result-top__status__block">
+                            <text class="team-result-top__status__block__number">{{ likeUserCount }}</text>
+                        </view>
+                        <view class="team-result-top__status__block">
+                            <text class="team-result-top__status__block__number">{{ postUserCount }}</text>
+                        </view>
+                        <view class="team-result-top__status__block flex-center-row">
+                            <image class="team-result-top__status__block__inner-wrapper__icon" src="http://wx-small.runwise.cn/image/imageID28fed13d0354038fc87a6ac804c4.png" mode="scaleToFill"></image>
+                            <text class="team-result-top__status__block__inner-wrapper__span">排名</text>
+                        </view>
+                        <view class="team-result-top__status__block flex-center-row">
+                            <image class="team-result-top__status__block__inner-wrapper__icon" src="http://wx-small.runwise.cn/image/imageID93c7e86b213429a94d4bc5b13b8b.png" mode="scaleToFill"></image>
+                            <text class="team-result-top__status__block__inner-wrapper__span">点赞</text>
+                        </view>
+                        <view class="team-result-top__status__block flex-center-row">
+                            <image class="team-result-top__status__block__inner-wrapper__icon" src="http://wx-small.runwise.cn/image/imageID246d90c45364e5991b732de21dfd.png" mode="scaleToFill"></image>
+                            <text class="team-result-top__status__block__inner-wrapper__span">评论</text>
+                        </view>
+                    </view>
+            </view>
+            <view style="width:100%;background-color:#f1f2f5;">
+                <view class="team-result-body__tasks">
+                    <view class="team-result-body__tasks__title">任务明细</view>
+                    <view wx:for="{{ taskContentList }}" wx:key="{{ index }}" class="team-result-body__tasks__cell">
+                        <view class="team-result-body__tasks__cell__date">{{ item.time }}</view>
+                        <image class="team-result-body__tasks__cell__left-icon" src="{{ item.imageUrl }}" mode="aspectFill"></image>
+                        <view class="team-result-body__tasks__cell__middle">
+                            <text class="team-result-body__tasks__cell__middle-title">{{ item.senceName }}</text>
+                            <text class="team-result-body__tasks__cell__middle-subtitle">{{ item.skillGroup }}</text>
+                        </view>
+                        <view class="flex-center-column team-result-body__tasks__cell-right">
+                            <text class="team-result-body__tasks__cell-right__score"><text class="team-result-body__tasks__cell-right__score__red">{{ item.mySenceScore }}</text>/{{ item.allSenceScore }}</text>
+                            <text class="team-result-body__tasks__cell-right__span">score</text>
+                        </view>
+                    </view>
+                </view>
+
+                <view class="ui-btn">
+                    <view class="cell-item team-result-body__tasks__share-btn" data-target="source" catchtap="handleShareMyReport">
+                        <text class="icon-share"></text> 分享</view>
+                </view>
+            </view>
+        </view>
+</template>
+
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .team-result-body {width: 100%;height: 100%;align-items: center;background-color: #f1f2f5;}
+    .team-result-top {width: 100%;height: 562rpx;align-items: center;background-color: #FFF;}
+    .team-result-top-data-row {display: flex;justify-content: space-around;width: 100%;height: 240rpx;}
+    .font-size-medium {font-size: 44rpx !important;}
+    .cir {display: inline-block;margin-top: 28rpx;margin-bottom: 0;position: relative;}
+    .team-result-top__inner-block {width: 152rpx;height: 84rpx;position: absolute;left: 0;right: 0;top: 0;bottom: 0;margin: auto;text-align: center;}
+    .team-result-top__inner-block__span {margin-bottom: 12rpx;font-family: PingFangSC-Regular;font-size: 28rpx;color: @color-gray;text-align: center;line-height: 32rpx;}
+    .team-result-top__inner-block__span-red {font-family: PingFangSC-Medium;font-size: 48rpx;color: #FE417B;text-align: center;line-height: 48px;}
+    .team-result-top__inner-block__title {font-family: PingFangSC-Regular;font-size: 24rpx;line-height: 100%;color: @color-black;}
+    .team-result-top__ranking {width: 100%;height: auto;margin-top: 0;margin-bottom: 48rpx;}
+    .team-result-body__tasks {padding: 72rpx 32rpx 96rpx;box-sizing: border-box;}
+    .team-result-body__tasks__title {display: block;font-family: PingFangSC-Regular;font-size: 32rpx;color: @color-black;line-height: 32rpx;margin-bottom: 0;}
+    .team-result-body__tasks__cell {display: flex;flex-direction: row;flex-wrap: wrap;justify-content: space-between;align-content: center;margin-top: 48rpx;background-color: #FFF;border-radius: 24rpx;}
+    .team-result-body__tasks__cell__date {width: 100%;margin-top: 20rpx;display: block;text-indent: 30rpx;font-family: PingFangSC-Regular;font-size: 24rpx;color: @color-gray;line-height: 100%;}
+    .team-result-body__tasks__cell__left-icon {display: block;margin: 4rpx 16rpx 30rpx 24rpx;width: 120rpx;height: 120rpx;}
+    .team-result-body__tasks__cell__middle {max-width: 324rpx;margin-left: 0;margin-right: auto;}
+    .team-result-body__tasks__cell__middle-title {width: 100%;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;display: block;margin-top: 24rpx;margin-bottom: 0;font-family: PingFangSC-Semibold;font-size: 32rpx;color: @color-black;letter-spacing: 0.02rpx;line-height: 100%;}
+    .team-result-body__tasks__cell__middle-subtitle {display: block;margin-top: 27.6rpx;margin-bottom: 38rpx;font-family: PingFangSC-Regular;font-size: 24rpx;color: @color-gray;line-height: 100%;}
+    .team-result-body__tasks__cell-right {width: 96rpx;height: auto;margin-left: 0;margin-right: 24rpx;align-items: center;}
+    .team-result-body__tasks__cell-right__span {width: 100%;margin-top: 8rpx;display: block;font-family: PingFangSC-Regular;font-size: 26rpx;color: @color-gray;letter-spacing: 1.18px;line-height: 100%;text-align: center;}
+    .team-result-body__tasks__cell-right__score {font-family: PingFangSC-Regular;font-size: 26rpx;color: @color-gray;letter-spacing: 1.18rpx;text-align: center;line-height: 100%;}
+    .team-result-body__tasks__cell-right__score__red {font-family: PingFangSC-Semibold;font-size: 52rpx;color: @color-black;letter-spacing: 2.36rpx;text-align: center;line-height: 20px;}
+    .ui-btn {
+        padding-bottom: 120rpx;
+        .cell-item{width: 400rpx;height: 88rpx;margin: 0 auto;border-radius:@border-radius-20;position: static;line-height: 88rpx;background-color: @background-white;font-family: PingFangSC-Semibold;font-size: 32rpx;color: @color-blue;text-align: center;}
+        text{font-size: 40rpx;}
+    }
+    .team-result-top__status {flex-wrap: wrap;align-content: space-between;}
+    .team-result-top__status__block {width: 250rpx;height: 100rpx;line-height: 100rpx;text-align: center;}
+    .team-result-top__status__block.flex-center-row {align-items: flex-end;box-sizing: border-box;padding-bottom: 46rpx;}
+    .team-result-top__status__block__number {font-size: 72rpx;color: @color-black;text-align: center;}
+    .team-result-top__status__block__inner-wrapper__icon {width: 32rpx;height: 32rpx;display: block;margin-right: 14rpx;}
+    .team-result-top__status__block__inner-wrapper__span {font-family: PingFangSC-Regular;font-size: 28rpx;color: @color-gray;text-align: center;line-height: 32rpx;}
+</style>
+
+<script>
+    import wepy from "wepy"
+    import loadingMixin from "../../mixins/loading"
+    import header from '../../components/common/header'
+    import {team as teamApi} from '../../api'
+    import {getStore, connect} from "wepy-redux"
+    const store = getStore()
+    const state = store.getState()
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        }, // mapState 即getters
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            // return 'userID67eaa3af1eca4c5e99d90ef07c8b0353-1529130257419-29071e22805ed65d7aba43ad3fc07aad'
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        }
+    })
+    export default class TeamLearningManager extends wepy.page {
+        mixins = [loadingMixin] // end mixins
+
+        components = {
+            'jn-header': header
+        } // end components
+
+        data = {
+            teamID: 'defaultTeamID',
+            percent: 0,
+            myIndex: 0, // 排名
+            likeUserCount: 0, // 点赞人数
+            postUserCount: 0, // 点赞人数
+            myScore: 0, // 得分
+            allScore: 0, // 所有得分
+            taskContentList: [{
+                allSenceScore: 0,
+                imageUrl: "http://wx-small.runwise.cn/image/imageID891e5fcf63e4968cd447a0dad4bd.png",
+                lessonType: "lesson",
+                mySenceScore: 0,
+                score: 0,
+                senceName: "忙中有序：先做什么，后做什么",
+                skillGroup: "2×2 模型",
+                time: "2018-06-13"
+            }]
+        } // end data
+
+        onLoad({
+            teamID = 'defaultTeamID'
+        }) {
+            this.teamID = teamID
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        } // end onLoad
+
+        onShow() {
+            this.initialize(this.teamID)
+                .then(() => {
+                    this.drawProgress(this.percent)
+                })
+        } // end onShow
+
+        events = {} // end events
+
+        methods = {
+            handleShareMyReport({currentTarget: { dataset: { target } }}) {
+                console.log('____tap', target)
+                this.$navigate(`/pages/training-camp-module/transcript`, { teamID: this.teamID, ranking: this.myIndex, myTeamScore: this.myScore })
+            } // end handleShareMyReport
+        } // end methods
+
+        initialize(teamID) {
+            return teamApi.getMyTeamResult({
+                token: this.token,
+                teamID
+            })
+                .then(({ percent, myIndex, myScore, allScore, likeUserCount, postUserCount, taskContentList }) => {
+                    this.percent = percent
+                    this.myIndex = myIndex
+                    this.myScore = myScore
+                    this.allScore = allScore
+                    this.likeUserCount = likeUserCount
+                    this.postUserCount = postUserCount
+                    this.taskContentList = taskContentList
+                    this.$apply()
+                })
+                .catch(error => {
+                    throw new Error(`fail to load teamLearning Result`, error)
+                })
+        } // end initialize
+
+        drawProgress(pPercent) {
+            let mStep = pPercent / 100 * 2
+            // 页面渲染完成
+            var cxt_arc = wx.createCanvasContext('canvasArc'); //创建并返回绘图上下文context对象。
+            cxt_arc.setLineWidth(15);
+            cxt_arc.setStrokeStyle('#FDF1F5');
+            cxt_arc.setLineCap('round')
+            cxt_arc.beginPath(); //开始一个新的路径
+            cxt_arc.arc(65, 65, 54, 0, 2 * Math.PI, false); //设置一个原点(106,106)，半径为100的圆的路径到当前路径
+            cxt_arc.stroke(); //对当前路径进行描边
+            cxt_arc.setLineWidth(15);
+            cxt_arc.setStrokeStyle('#FE417B');
+            cxt_arc.setLineCap('square')
+            cxt_arc.beginPath(); //开始一个新的路径
+            cxt_arc.arc(65, 65, 54, -Math.PI / 2, mStep * Math.PI - Math.PI / 2, false); //0~10
+            cxt_arc.stroke(); //对当前路径进行描边
+            cxt_arc.draw();
+            console.log('draw')
+        }
+    }
+</script>

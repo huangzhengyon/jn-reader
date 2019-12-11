@@ -1,0 +1,170 @@
+<style lang="less" scoped>
+    .module-single-choice-box{
+        padding-bottom:40rpx;
+        .ui-content{padding:0 32rpx;}
+    }
+</style>
+
+<template>
+    <view class="module-single-choice-box">
+        <view class="ui-content">
+            <view class="ui-subtitle" wx:if="{{parentList[parentIndex][parentKey][cardIndex].abilitySkill}}"># {{parentList[parentIndex][parentKey][cardIndex].abilitySkill}}</view>
+            <view class="ui-title">{{parentList[parentIndex][parentKey][cardIndex].title}}</view>
+
+
+            <view class="ui-description" wx:if="{{parentList[parentIndex][parentKey][cardIndex].description}}">{{parentList[parentIndex][parentKey][cardIndex].description}}</view>
+            <view class="ui-thumb" wx:if="{{parentList[parentIndex][parentKey][cardIndex].bigimage}}">
+                <image mode="widthFix" src="{{parentList[parentIndex][parentKey][cardIndex].bigimage}}"></image>
+            </view>
+
+            <view class="ui-answer-list">
+                <repeat for="{{parentList[parentIndex][parentKey][cardIndex].select}}" key="singleIndex" index="singleIndex" item="item">
+                    <view class="ui-item main-justify cross-center"
+                          :class="{'is-selected': item.selected || item.isSelected, 'is-success': parentList[parentIndex][parentKey][cardIndex].allowToNext && item.isanswer, 'is-error': parentList[parentIndex][parentKey][cardIndex].allowToNext && !item.isanswer && item.selected}"
+                          hover-class="{{!isAnswerOver && !parentList[parentIndex][parentKey][cardIndex].allowToNext ? 'ui-item-hover' : ''}}"
+                          data-parentlist="{{parentList}}"
+                          data-parentkey="{{parentKey}}"
+                          data-parentindex="{{parentIndex}}"
+                          data-cardindex="{{cardIndex}}"
+                          data-item="{{item}}"
+                          @tap.stop="getSelected">
+                        <view class="cell-title" :class="{'is-full': isExercises}">
+                            <text>{{labelDictionary[singleIndex+1]}}. </text>
+                            <text>{{item.option}}</text>
+                        </view>
+                        <view class="cell-icon" wx:if="{{!isExercises}}"><text class="icon-correctly"></text></view>
+                    </view>
+                </repeat>
+            </view>
+
+            <view class="module-exercises-result" :class="{'is-show': isExercises && parentList[parentIndex][parentKey][cardIndex].answerDescription}">
+                <view class="main-justify">
+                    <view class="cell-exercises-title">题目解释</view>
+                </view>
+                <view class="ui-description">{{parentList[parentIndex][parentKey][cardIndex].answerDescription}}</view>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    /**
+     * <jn-single-choice></jn-single-choice>
+     * @module components/team-module/single-choice
+     * @desc 团队学习quiz
+     * @param {parentList} [Array] - 最外层的数组----【】
+     * @param {parentKey} [String] - 需要遍历的测练的key名称，value肯定是Array----【】
+     * @param {parentIndex} [Number] - 遍历的这个在隶属于最外层数组的索引键值----【】
+     * @param {cardsList} [Array] - 测练的key的value数组- ----【】
+     * @param {cardIndex} [Number] - 当前循环的测练数组索引键值- ----【】
+     * @param {isExercises} [Number] - option是否占整行，需要给option文本后面留出一定的空间，显示正确错误的图标- ----【0】
+     */
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class teamSingleChoice extends wepy.component {
+        props = {
+            parentIndex: {
+                type: Number
+            },
+            parentKey: {
+                type: String
+            },
+            parentList: {
+                type: Array,
+                default: []
+            },
+            cardIndex: {
+                type: Number
+            },
+            cardsList: {
+                type: Array,
+                default: []
+            },
+            isExercises: {
+                type: Number,
+                default: 0
+            }
+        }
+
+        data = {
+            selectedId: 0, // 当前选中的那个选项
+            labelDictionary: {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F'}
+        }
+
+        methods = {
+            /**
+             * 选中某个选项
+             * @param event
+             * @returns {boolean}
+             */
+            getSelected(event) {
+                let self = this
+                let {currentTarget: {dataset: {item, parentlist, parentindex, parentkey, cardindex}}} = event
+                let cardData = !parentkey ? self.cardsList[self.cardIndex] : parentlist[parentindex][parentkey][cardindex]
+
+                if (cardData.answerDescription || 'member' !== cardData.role) {
+                    return false
+                }
+                _.each(cardData.select, (option) => {
+                    option.selected = option.id == item.id ? true : false
+                })
+                self.selectedId = item.id
+                self.$apply()
+
+                let data = {
+                    parentindex: parentindex,
+                    parentkey: parentkey,
+                    parentlist: parentlist,
+                    cardindex: cardindex,
+                    select: cardData.select,
+                    isFinish: true,
+                    isAnswerOver: false,
+                    id: cardData.id,
+                    selectedId: item.id,
+                    selectedItem: item,
+                    fullImageBottomtText: '我已选好',
+                    json: item.sId,
+                    answerStatus: item.isanswer ? 1 : 2, // 1回答正确, 2回答错误
+                    answerTitle: item.feedback && item.feedback.title,
+                    answerDescription: item.feedback && item.feedback.description
+                }
+
+                self.$emit('on-interaction', data)
+            },
+        }
+
+        events = {
+            /**
+             * 监听父级页面触发提交答案
+             * @param data
+             */
+            'broadcast-single-choive': (data) => {
+                console.log(data)
+                let self = this
+                let cardData = !data.parentkey ? self.cardsList[self.cardIndex] : data.parentlist[data.parentindex][data.parentkey][data.cardindex]
+                let item = !self.isExercises
+                    ? _.find(cardData.select, {isanswer: true})
+                    : _.find(cardData.select, {id: data.selectedId})
+
+                self.$apply()
+            },
+            /**
+             * 监听父级，重置初始化数据
+             * @param data
+             */
+            'broadcast-reset-status': (data) => {
+                let self = this
+                self.selectedId = 0 // 当前选中的那个选项
+                self.$apply()
+            }
+        }
+    }
+</script>

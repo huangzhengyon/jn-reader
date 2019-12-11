@@ -1,0 +1,290 @@
+<style lang="less" scoped>
+
+</style>
+
+<template>
+<view class="module-association-box">
+    <view class="ui-title">{{cardItem.title}}</view>
+
+    <movable-area class="ui-thumb-box">
+        <view class="ui-thumb-list">
+            <view class="cell-button main-center cross-center" wx:if="{{!isStart}}"><text @tap.stop="getStart">我准备好了</text></view>
+            <repeat for="{{cardItem.thumnbList}}" key="index" index="index" item="item">
+                <movable-view  class="cell-queue"
+                               :class="{'cell-drag': selectedInfo[item.uid].isDrag}"
+                               inertia
+                               x="{{selectedInfo[item.uid].x || 113}}"
+                               y="{{selectedInfo[item.uid].y || 0}}"
+                               direction="all"
+                               disabled="{{selectedInfo[item.uid].isDisabled}}"
+                               data-uid="{{item.uid}}"
+                               bindtouchstart="getTouchStart"
+                               bindtouchend="getTouchEnd">
+                    <image model="aspectFit" src="{{item.url}}" :class="{'cell-over': selectedInfo[item.uid].isOver}"></image>
+                </movable-view>
+            </repeat>
+        </view>
+
+        <view class="ui-slot-box main-justify">
+            <view class="ui-left">
+                <view class="cell-title">{{cardItem.matching[0].option}}</view>
+                <view class="ui-container" id="containerLeft"></view>
+            </view>
+
+            <view class="ui-right">
+                <view class="cell-title">{{cardItem.matching[1].option}}</view>
+                <view class="ui-container" id="containerRight"></view>
+            </view>
+        </view>
+    </movable-area>
+</view>
+</template>
+
+<script>
+    /**
+     * <jn-association></jn-association>
+     * @module components/cards-type/poll
+     * @desc 分类卡
+     * @param {cardsList} [Array] - 交互卡的数组- ----【】
+     * @param {cardIndex} [Number] - 当前循环的交互卡的数组索引键值- ----【】
+     * @param {cardItem} [Object] - 当前分类卡的数据- ----【】
+     */
+    import wepy from 'wepy'
+    import _ from 'underscore'
+
+    export default class associationCard extends wepy.component {
+        props = {
+            cardIndex: {
+                type: Number
+            },
+            cardItem: {
+                type: Object,
+                default: {}
+            },
+            cardsList: {
+                type: Array,
+                default: []
+            }
+        }
+
+        data = {
+            selectedId: null,
+            isStart: false,
+            isDragOver: false,
+            selectedInfo: {},
+            touchCoordinates: {
+                x: 0,
+                y: 0
+            },
+            soltInfo: {
+                isComplate: 0,
+                width: 0,
+                height: 0,
+                cleft:0,
+                ctop:0, // 中间图片集坐标
+                lleft: 0,
+                ltop: 0, // 左边插槽坐标
+                rleft: 0,
+                rtop: 0 // 右边插槽坐标
+            }
+        }
+
+        water
+
+        onLoad() {
+            let self = this
+        }
+
+        /**
+         * 初始化页面元素的各个坐标
+         * */
+        __initLocation() {
+            let self = this
+
+            _.each(self.cardItem.thumnbList, (item) => {
+                self.selectedInfo[item.uid] = {
+                    x: 113,
+                    y: 0,
+                    isDrag: false,
+                    isDisabled: true
+                }
+            })
+            self.selectedInfo[self.cardItem.thumnbList[0].uid].isDisabled = false
+
+            // 中间图片集
+            wx.createSelectorQuery().select('.ui-thumb-list').boundingClientRect(function(rect){
+                self.soltInfo.isComplate += 1
+                self.soltInfo.cleft = rect.left || 113
+                self.soltInfo.ctop = rect.top
+                self.soltInfo.width = rect.width
+                self.soltInfo.height = rect.height
+                if (3 === self.soltInfo.isComplate) {
+                    setTimeout(() => {
+                        self.isStart = true
+                        self.$apply()
+                    }, 300)
+                }
+                self.$apply()
+            }).exec()
+
+            // 左边的插槽容器
+            wx.createSelectorQuery().select('#containerLeft').boundingClientRect(function(rect){
+                self.soltInfo.isComplate += 1
+                self.soltInfo.lleft = rect.left
+                self.soltInfo.ltop = rect.top
+                if (3 === self.soltInfo.isComplate) {
+                    setTimeout(() => {
+                        self.isStart = true
+                        self.$apply()
+                    }, 300)
+                }
+                self.$apply()
+            }).exec()
+
+            // 右边的插槽容器
+            wx.createSelectorQuery().select('#containerRight').boundingClientRect(function(rect){
+                self.soltInfo.isComplate += 1
+                self.soltInfo.rleft = rect.left
+                self.soltInfo.rtop = rect.top
+                if (3 === self.soltInfo.isComplate) {
+                    setTimeout(() => {
+                        self.isStart = true
+                        self.$apply()
+                    }, 300)
+                }
+                self.$apply()
+            }).exec()
+        }
+
+        /**
+         * 拖拽卡片的的x，y判断
+         * 113是初始化的卡片中心x坐标
+         * 112， 114，是因为拖拽的位置不对，需要让其弹回去，这个原生组件如果跟上一次的值一样是不生效的，所以做点偏差
+         * @param uid 当前移动的卡片
+         * @param x 当前拖拽的x坐标
+         * @param y 当前拖拽的y坐标
+         * @private
+         */
+        __AnimationBounds(uid, x, y) {
+            let self = this
+            self.isAnimation = true
+
+            let X = x - self.touchCoordinates.x
+            let XL = self.soltInfo.lleft + 50 // 左边
+            let XR = self.soltInfo.rleft - 100 // 右边
+            let Y = y - self.touchCoordinates.y
+            let TT = self.soltInfo.rtop - 100  // 顶部距离
+            let top = self.soltInfo.rtop - self.soltInfo.ctop // 卡槽的相对于拖拽区域的y坐标
+
+            if (X < XL && Y > TT) { // 左边插槽
+                self.__sucessAttr(0, uid, self.soltInfo.lleft, top)
+            } else if (X > XR && Y > TT){ //右边插槽
+                self.__sucessAttr(1, uid, self.soltInfo.rleft, top)
+            } else {
+                self.__errorAttr(uid)
+            }
+        }
+
+        /**
+         * 成功进入卡槽
+         * @param type {0: 左边, 1: 右边}
+         * @param uid 当前移动的卡片
+         * @param x
+         * @param top
+         * @private
+         */
+        __sucessAttr(type, uid, x, top) {
+            let self = this
+            let isFlag = _.find(self.cardItem.matching[type].imgList, {uid: uid})
+            if (isFlag) {
+                self.selectedInfo[uid].x = x
+                self.selectedInfo[uid].y = top
+                self.selectedInfo[uid].isDisabled = true
+                self.selectedInfo[uid].isOver = true
+
+                let nextIndex = _.findIndex(self.cardItem.thumnbList, {uid: uid})
+                let next = self.cardItem.thumnbList[nextIndex+1]
+
+                if (next) {
+                    self.selectedInfo[next.uid].isDisabled = false
+                }
+
+                self.__isSucess()
+            } else {
+                self.__errorAttr(uid)
+            }
+        }
+        /**
+         * 不能进入卡槽，回到初始位置
+         * @param uid 当前移动的卡片
+         * @private
+         */
+        __errorAttr(uid) {
+            let self = this
+            self.selectedInfo[uid].x = self.selectedInfo[uid].x !== 112 ? 112 : 114
+            self.selectedInfo[uid].y = 0
+            self.selectedInfo[uid].isDisabled = false
+        }
+        /**
+         * 是否全部卡片拖拽结束
+         * @private
+         */
+        __isSucess() {
+            let self = this
+            let compeletNumber = 0
+
+            _.mapObject(self.selectedInfo, function(value, key) {
+                if (value.isDisabled) {
+                    compeletNumber++
+                }
+            })
+            if (compeletNumber !== self.cardItem.thumnbList.length || self.isDragOver) {
+                return
+            }
+
+            self.isDragOver = true
+            setTimeout(() => {
+                let data = {
+                    isFinish: true,
+                    isAnswerOver: true,
+                    id: self.cardItem.id,
+                    selectedId: 1,
+                    fullImageBottomtText: '继续学习',
+                    answerStatus: 3, // 3 不提示正确还是错误
+                    answerTitle: self.cardItem.feedback.title,
+                    answerDescription: self.cardItem.feedback.description
+                }
+
+                self.$emit('on-interaction', data)
+            }, 300)
+        }
+
+        methods = {
+            getStart() {
+                let self = this
+                self.__initLocation()
+            },
+
+            getTouchStart(event) {
+                let self = this
+                let {currentTarget:{dataset: {uid}}, changedTouches:[{clientX, clientY}]} = event
+
+                if (!self.selectedInfo[uid].isDisabled) {
+                    self.touchCoordinates.x = clientX - self.soltInfo.cleft
+                    self.touchCoordinates.y = clientY - self.soltInfo.ctop
+                    self.selectedInfo[uid].isDisabled = false
+                    self.selectedInfo[uid].isDrag = true
+                }
+            },
+
+            getTouchEnd(event) {
+                let self = this
+                let {currentTarget:{dataset: {uid}}, changedTouches:[{clientX, clientY}]} = event
+                self.selectedInfo[uid].isDisabled = true
+                self.__AnimationBounds(uid, clientX, clientY)
+            }
+        }
+
+        events = {}
+    }
+</script>

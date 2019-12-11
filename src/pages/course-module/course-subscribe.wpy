@@ -1,0 +1,654 @@
+<style lang="less" scoped>
+    @import '../../assets/style/theme.less';
+    .ui-course-subscribe {
+        width: 100%;
+        height: 100%;
+    }
+    image{width: 750rpx;display: flex;}
+    .ui-content-box{
+        position: relative;
+        .ui-btn-box{
+            position: absolute;
+            .cell-btn{
+                height: 112rpx;
+                width: 690rpx;
+                border-radius: 20rpx;
+                background: rgba(255,255,255,0.3);
+                font-size: 32rpx;
+                color:#fff;
+                margin: auto;
+                text-align: center;
+                line-height: 112rpx;
+                font-weight: bold;
+                margin-bottom: 40rpx;
+                image{
+                    width:136rpx;
+                    height: 82rpx;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                }
+                .cell-limit-icon{
+                    width: 108rpx;
+                    height: 40rpx;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    position: relative;
+                    background-image: linear-gradient(90deg, #FA9757 0%, #F33951 100%);
+                    border-radius: 4rpx;
+                    font-size: 24rpx;
+                    color:@color-white;
+                    position: absolute;
+                    right: 16rpx;
+                    &::before{
+                        content:'';
+                        width: 0;
+                        height: 0;
+                        border-width: 10rpx;
+                        border-style: solid;
+                        border-color: transparent #FA9757 transparent transparent;
+                        position: absolute;
+                        top: 10rpx;
+                        left: -15rpx;
+                    }
+                }
+                &:first-of-type{
+                    color:@color-white;
+                    background: @background-blue;
+                    line-height: 1;
+                    text{
+                        &:last-of-type{
+                            font-size: 22rpx;
+                            color: @color-white;
+                            margin-top: 16rpx;
+                            font-weight: normal
+                        }
+                    }
+                }
+                &:last-of-type{
+                    color:@color-black;
+                    background: @background-gray-F0;
+                }
+            }
+        }
+        .ui-first{
+            top:780rpx;
+            left: 50%;
+            transform: translate(-50%,0);
+        }
+        .ui-last{
+            // position: fixed;
+            bottom:0;
+            left: 50%;
+            transform: translate(-50%,0);
+            background: @background-white;
+        }
+        .is-iphonex{
+            bottom: 68rpx;
+        }
+        .ui-member-cards{
+            width: 686rpx;
+            height: 360rpx;
+            background-image: linear-gradient(173deg, #F2DEA6 0%, #DBB669 100%);
+            border-radius: @border-radius-24;
+            position: absolute;
+            top: 160rpx;
+            left: 30rpx;
+            padding: 50rpx;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            .cell-cards-top{
+                .cell-cards-title{
+                    color:@color-black;
+                    font-size:44rpx;
+                    font-weight: bold;
+                }
+                .cell-cards-subtitle{
+                    color:@color-white;
+                    font-size: 36rpx;
+                    font-weight: bold;
+                    line-height: 2.5;
+                }
+            }
+            .cell-cards-bottom{
+                .cell-bottom-tips{
+                    font-size: 24rpx;
+                    color: @color-unique;
+                }
+            }
+            .cell-image-bg{
+                width: 160rpx;
+                height: 178rpx;
+                position: absolute;
+                right: 50rpx;
+                bottom: 50rpx;
+                image{
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+    .ui-author-box{
+        text{color:#007AFF;font-size: 194rpx;}
+        .cell-title{margin: 40rpx 0 30rpx;font-size: 56rpx;font-weight: bold}
+        .cell-dec{font-size: 36rpx;color: rgba(0, 0, 0, 0.6);line-height: 1.7}
+        .cell-authorisation-button{
+            width: 100%;
+            .flex-around();
+            .cell-btn{
+                margin-top: 80rpx;
+                width: 324rpx;
+                background: @background-blue;
+                height: 96rpx;
+                color: @color-white;
+                line-height: 96rpx;
+                text-align: center;
+                border-radius: @border-radius-20;
+                font-size: 34rpx;
+                &.cell-hover{background: #0062CD}
+            }
+            .cell-cancle-btn{
+                background: @background-gray-F1;
+                color: @color-blue;
+            }
+        }
+    }
+    .ui-shadow{
+        width:100%;height:100%;background-color:rgba(0,0,0,0.3);position:fixed;top:0;z-index:9;left:0;
+        .ui-jn-coin{
+            background: #fff;width: 100%;height: 700rpx;;position: fixed;bottom: 0;left: 0;border-radius: 32rpx 32rpx 0 0;padding-top:32rpx;box-sizing:border-box;
+            view{box-sizing: border-box}
+            .ui-header{
+                color: #E3AC00;font-weight:bold;text-align: center;
+                .cell-title{font-size: 40rpx;}
+                .cell-money{font-size: 88rpx;}
+            }
+            .ui-pay-content{
+                height: 200rpx;border-top:2rpx solid #EFEFF4;border-bottom:2rpx solid #EFEFF4;
+                .ui-config{
+                    height: 88rpx;padding: 0 20rpx;
+                    .ui-tip{
+                        font-size: 36rpx;color: #000;
+                        text{font-size: 28rpx;color: #8E8E93;}
+                    }
+                    
+                }
+                .ui-has{
+                    height: 50rpx;padding: 0 40rpx 0 20rpx;
+                    .cell-has{
+                        font-size: 28rpx;color: #8E8E93;
+                        text{color:#007AFF}
+                    }
+                    .cell-reduce{font-size: 36rpx;color: #000;}
+                }
+            }
+            .ui-bottom{
+                .ui-pay-num{
+                    padding:44rpx 40rpx 0;
+                    .cell-pay-tip{font-size: 28rpx;color: #8E8E93;}
+                    .cell-yuan{font-size: 24px;color: #000;font-weight: bold;}
+                }
+                .cell-btn{margin: 40rpx auto 0;width: 686rpx;height: 100rpx;background: #007AFF;color:#fff;line-height: 100rpx;text-align: center;font-weight: bold;border-radius: 20rpx;}
+            }
+        }
+
+    }
+
+</style>
+<template>
+    <mloading wx:if="{{ !isLoaded  }}"/>
+    <view class="ui-course-subscribe">
+        <jn-header title="" buttonAfter :className.sync="headerBackground" :isHeadHeight="isHeadHeight"></jn-header>
+        <view class="ui-content-box" id="uiContentBox" wx:if="{{!isInspect}}">
+            <image mode="widthFix" src="http://wx-small.runwise.cn/image/subscribebg.png"></image>
+            <view class="ui-member-cards">
+                <view class="cell-cards-top">
+                    <view class="cell-cards-title">UpSkill Plus 会员</view>
+                    <view class="cell-cards-subtitle">无限制学全场课程</view>
+                </view>
+                <view class="cell-cards-bottom">
+                    <view class="cell-bottom-tips">
+                        <view wx:if="{{!memberInfo.isMember}}">开通会员，立享upskill超值优惠</view>
+                        <view>{{memberInfo.expiredTips}}</view>
+                    </view>
+                </view>
+                <view class="cell-image-bg">
+                    <image src="http://wx-small.runwise.cn/image/member-logo.png"></image>
+                </view>
+            </view>
+            <view class="ui-btn-box ui-first">
+                <view wx:if="{{isLimitedOn}}">
+                    <button class="cell-btn main-center dir-top cell-primary-btn"
+                        hover-stay-time="100"
+                        form-type="submit"
+                        data-subscription-type="monthlySubscriptionDiscount"
+                        @tap.stop="getShowPay">
+                        <image src="../../assets/img/limit-icon.png"></image>
+                        <text>Plus会员月订阅：￥50/月</text>
+                        <text>每天仅需1.3元，通学全场200+门课程</text>
+                        <view class="cell-limit-icon">+10天</view>
+                    </button>
+                    <button class="cell-btn main-center dir-top cell-default-btn"
+                            hover-stay-time="100"
+                            form-type="submit"
+                            data-subscription-type="annualSubscriptionDisCount"
+                            @tap.stop="getShowPay">
+                            <image src="../../assets/img/limit-icon.png"></image>
+                            Plus会员年订阅：￥300/年
+                            <view class="cell-limit-icon">+2个月</view>
+                    </button>
+                </view>
+                <view wx:else>
+                    <button class="cell-btn main-center dir-top cell-primary-btn"
+                        hover-stay-time="100"
+                        form-type="submit"
+                        data-subscription-type="monthlySubscription"
+                        @tap.stop="getShowPay">
+                        <image wx:if="{{memberInfo.isMember}}" src="../../assets/img/renew-icon.png"></image>
+                        <text>Plus会员月订阅：￥50/月</text>
+                        <text>每天仅需1.6元，通学全场200+门课程</text>
+                    </button>
+                    <button class="cell-btn main-center dir-top cell-default-btn"
+                            hover-stay-time="100"
+                            form-type="submit"
+                            data-subscription-type="annualSubscription"
+                            @tap.stop="getShowPay">
+                            <image wx:if="{{memberInfo.isMember}}" src="../../assets/img/renew-icon.png"></image>
+                        Plus会员年订阅：￥300/年
+                    </button>
+                </view>
+            </view>
+            <view class="ui-btn-box ui-last" :class="{'is-iphonex':isIphonex}">
+                <view wx:if="{{isLimitedOn}}">
+                    <button class="cell-btn main-center dir-top cell-primary-btn"
+                        hover-stay-time="100"
+                        form-type="submit"
+                        data-subscription-type="monthlySubscriptionDiscount"
+                        @tap.stop="getShowPay">
+                        <image src="../../assets/img/limit-icon.png"></image>
+                        <text>Plus会员月订阅：￥50/月</text>
+                        <text>每天仅需1.3元，通学全场200+门课程</text>
+                        <view class="cell-limit-icon">+10天</view>
+                    </button>
+                    <button class="cell-btn main-center dir-top cell-default-btn"
+                            hover-stay-time="100"
+                            form-type="submit"
+                            data-subscription-type="annualSubscriptionDisCount"
+                            @tap.stop="getShowPay">
+                            <image src="../../assets/img/limit-icon.png"></image>
+                            Plus会员年订阅：￥300/年
+                            <view class="cell-limit-icon">+2个月</view>
+                    </button>
+                </view>
+                <view wx:else>
+                    <button class="cell-btn main-center dir-top cell-primary-btn"
+                        hover-stay-time="100"
+                        form-type="submit"
+                        data-subscription-type="monthlySubscription"
+                        @tap.stop="getShowPay">
+                        <image wx:if="{{memberInfo.isMember}}" src="../../assets/img/renew-icon.png"></image>
+                        <text>Plus会员月订阅：￥50/月</text>
+                        <text>每天仅需1.6元，通学全场200+门课程</text>
+                    </button>
+                    <button class="cell-btn main-center dir-top cell-default-btn"
+                            hover-stay-time="100"
+                            form-type="submit"
+                            data-subscription-type="annualSubscription"
+                            @tap.stop="getShowPay">
+                            <image wx:if="{{memberInfo.isMember}}" src="../../assets/img/renew-icon.png"></image>
+                        Plus会员年订阅：￥300/年
+                    </button>
+                </view>
+            </view>
+        </view>
+        <view class="ui-author-box dir-top main-center cross-center" wx:else>
+            <view class="dir-top main-center cross-center">
+                <text class="icon-logo"></text>
+                <view class="cell-title">UpSkill</view>
+                <view class="cell-dec">不贩卖焦虑，不兜售鸡汤</view>
+                <view class="cell-dec">即能，只提供新职场技能</view>
+            </view>
+        </view>
+        
+    </view>
+    <view class="ui-shadow"  @tap.stop="getCoinType" data-type="{{false}}" wx:if="{{isBuyCoin}}"> 
+        <view class="ui-jn-coin" 
+              :class="{'fadeInUpBig' : isBuyCoin}" 
+              @tap.stop="getCoinType" data-type="{{true}}">
+                <view class="ui-header">
+                    <view class="cell-title">
+                        UpSkill Plus会员{{'monthlySubscription'==subscriptionType ? '月' : '年'}}订阅
+                    </view>
+                    <view class="cell-money">¥ {{PayDetail.price}}</view>
+                </view>
+                <view class="ui-pay-content dir-top main-center">
+                    <view class="ui-config main-justify cross-center">
+                        <view class="ui-tip">
+                            {{PayDetail.discountMsg}}
+                            <text>（10个币 = 1元 ）</text>
+                        </view>
+                        <view wx:if="{{PayDetail.isDiscount}}">
+                            <switch checked="{{needDiscount}}" color="#007AFF" bindchange="getUseCoin"/>
+                        </view>
+                    </view>
+                    <view class="ui-has cross-center main-justify">
+                        <view class="cell-has">
+                            现有即能币：{{PayDetail.balance}} 
+                            <text class="icon-question" @tap.stop="getShowCoinQue"></text>
+                        </view>
+                        <view class="cell-reduce" wx:if="{{PayDetail.isDiscount}}">- ¥ {{needDiscount ? PayDetail.discountPrice : 0}}</view>
+                    </view>
+                </view>
+                <view class="ui-bottom">
+                    <view class="ui-pay-num cross-center main-justify">
+                        <view class="cell-pay-tip">共需支付：</view>
+                        <view class="cell-yuan">¥{{needDiscount ? PayDetail.actualPrice : PayDetail.price}}</view>
+                    </view>
+                    <view class="cell-btn" @tap.stop="getToPay">确定</view>
+                </view>
+        </view>
+    </view>
+    <view></view>
+   
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header'
+    import {fetch} from "../../api";
+    import {getStore,connect} from "wepy-redux";
+    import {initializationDeligate} from '../../utils'
+    import Loading from '../../components/common/loading'
+    import {getUserPhone,refreshUserInformations} from '../../redux/models/user';
+    import _ from 'underscore';
+    import { hideLimitMember } from '../../redux/models/limit';
+
+    const store = getStore();
+    
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        platform(state) {
+            return state.user.platform
+        }
+    })
+    export default class TeamLearningAnnounce extends wepy.page {
+
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+        } 
+
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isLoaded:false,
+            headerBackground: 'background-transparent',
+            isHeadHeight:false,
+            subscriptionType:'',
+            uesrInfo:{},
+            isBuyCoin:false,
+            balance:80,
+            coinNum:1,
+            logoImg:'',
+            needDiscount:true,
+            PayDetail:{},
+            isShowLastButton:false,//是否显示浮动的button
+            memberInfo:{},//会员信息
+            isLimitedOn:'',//是否有会员优惠
+            isInspect:false,//是否为审核需要隐藏状态,true为需要隐藏
+            courseID:'',//课程id
+            senceID:'',//微课id
+            viewResult:null,//是否去查看练习答案
+        };
+
+        onLoad(params) {
+            this.courseID = params.courseID;
+            this.senceID = params.senceID;
+            this.viewResult = params.viewResult;
+            this.$apply();
+        }
+
+        onShow() {
+            let self = this;
+            initializationDeligate({initializeFunc: self.initialize.bind(self)})
+            // self.__getRemainingTime();
+        }
+
+        /* 更新登录状态 */
+        __updateLogin() {
+            let self = this;
+            let postData = {
+                token: self.systemInfo.token,
+                platform: self.systemInfo.platform
+            }
+            fetch.updateLogin(postData).then(response => {
+                self.isInspect = response.isIOSClosed ? true : false ;
+
+                self.__myDetails();
+                self.__fetUserList();
+
+                self.$apply();
+            }).catch((err) => {})
+        }
+
+        /* 会员优惠倒计时
+        @params token */
+        __getRemainingTime(){
+            let self = this
+            let postData = {
+                token: self.token,
+                userID: self.systemInfo.userid
+            }
+            fetch.getRemainingTime(postData).then(response => {
+                self.isLimitedOn = response.remainingTime ? true : false;
+            }).catch(error => {
+                throw error
+            })
+        }
+
+        initialize() {
+            let self = this
+            self.__updateLogin();
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        methods = {
+            getToPay() {
+                let self = this;
+                let postData = {
+                    token: self.systemInfo.token,
+                    subscriptionType:self.subscriptionType,
+                    needDiscount:self.needDiscount
+                }
+                fetch.mixedPayment(postData).then(response => {
+                    let rounter = getCurrentPages();
+                    if(_.isUndefined(response)) {
+                        wx.showToast({
+                            title: '支付成功！',
+                            success() {
+                                self.isBuyCoin = false;
+                                let paramsData = {
+                                    token: self.systemInfo.token,
+                                    userID: self.systemInfo.userid
+                                }
+                                fetch.cancleRemainingTime(paramsData).then(res => {
+                                    store.dispatch(hideLimitMember())
+                                })
+                                self.$apply()
+                                setTimeout(() => {
+                                    if(self.viewResult){
+                                        return wepy.redirectTo({url: `/pages/course-module/course-exercises?courseID=${self.courseID}&senceID=${self.senceID}&viewResult=true`})
+                                    }
+                                    if(rounter.length>1) {
+                                        wepy.navigateBack({delta: 1})  
+                                    }else {
+                                        wepy.switchTab({ url: '/pages/tabPages/course'})
+                                    }
+                                }, 800);
+                            }
+                        })
+                        
+                        
+                    }else {
+                        wx.requestPayment({
+                            timeStamp: response.timeStamp,
+                            nonceStr: response.nonceStr,
+                            package: response.package,
+                            paySign: response.paySign,
+                            signType: 'MD5',
+                            success(res) {
+                                wx.showToast({
+                                    title: '支付成功！',
+                                    success() {
+                                        self.isBuyCoin = false;
+                                        let paramsData = {
+                                            token: self.systemInfo.token,
+                                            userID: self.systemInfo.userid
+                                        }
+                                        fetch.cancleRemainingTime(paramsData).then(res => {
+                                            console.log(res.data)
+                                        })
+                                        self.$apply()
+                                        setTimeout(() => {
+                                            if(rounter.length>1) {
+                                                wepy.navigateBack({delta: 1})  
+                                            }else {
+                                                wepy.switchTab({ url: '/pages/tabPages/course'})
+                                            }
+                                        }, 800);
+                                    }
+                                })
+                            },
+                            fail(error) {
+                                wx.showModal({
+                                    title: "提示",
+                                    content: "支付失败",
+                                    showCancel: false,
+                                    confirmText: "知道了"
+                                })
+                                self.isBuyCoin = false;
+                                self.$apply()
+                            }
+                        })
+                    }
+                }).catch(error => {
+                    return Promise.reject("fail in payment", error)
+                })
+
+            },
+            getUseCoin(e) {
+                this.needDiscount = e.detail.value;
+                this.$apply()
+            },
+            /* 
+            即能币 疑问
+             */
+            getShowCoinQue() {
+                this.$navigate('/pages/user-module/score-rules')
+            },
+            /* 
+            更改 兑换天 的弹窗状态
+            */
+            getCoinType(event) {
+                let self = this;
+                let {currentTarget: {dataset:{type}}} = event
+                this.isBuyCoin = type
+                self.$apply()
+            },
+            /**
+             * 授权手机号 并且购买
+             * @param event
+             */
+            getShowPay(event) {
+                let {currentTarget: {dataset:{subscriptionType}}} = event
+                let self = this;
+                if(self.systemInfo.phone) {
+                    self.subscriptionType = subscriptionType;
+                    if('monthlySubscription'===self.subscriptionType) {
+                        wepy.$instance.globalData.getHuilder('订阅页/月订阅', 'click', '')
+                    }else {
+                        wepy.$instance.globalData.getHuilder('订阅页/年订阅', 'click', '')
+                    }
+                    self.__getShow(subscriptionType);
+                }else {
+                    wepy.navigateTo({url: `/pages/registered-module/author`})
+                }
+            }
+        };
+
+
+        /**
+         * 监听滚动条的位置
+         * @param
+         */
+        onPageScroll(res) {
+            let self = this
+            let bottomBox = wx.createSelectorQuery().select('#uiContentBox');
+            bottomBox.boundingClientRect((response) => {
+                if(!response) return;
+                self.isShowLastButton = response.top < -440 ? true : false
+                self.$apply()
+            }).exec()
+        }
+
+        /* 普通购买 */
+        __getShow(subscriptionType) {
+            let self = this;
+            let postData = {
+                token : self.systemInfo.token,
+                subscriptionType:subscriptionType
+            }
+            fetch.mixedPaymentInfo(postData).then(res => {
+                self.PayDetail = res;
+                self.isBuyCoin = true;
+                self.$apply()
+            })
+        }
+
+        __fetUserList() {
+            let self = this;
+            let postData = {
+                token : self.systemInfo.token
+            }
+            fetch.myDataCenter(postData).then(res => {
+                self.memberInfo = res.member;
+                self.$apply();
+            }).catch((err)=> {
+                console.log(err)
+            })
+
+        }
+
+        __myDetails() {
+            let self = this;
+            let postData = {
+                token : self.systemInfo.token,
+            }
+            fetch.myDetails(postData).then(res => {
+                self.uesrInfo = res.data
+                self.isLoaded = true;
+                self.$apply()
+            }).catch((err)=> {
+                
+            })
+        }
+
+        onShareAppMessage() {
+            let self = this
+            wepy.$instance.globalData.getHuilder('课程订阅页/分享', 'click', '')
+            return {
+                title: '课程订阅页/分享',
+                path: '/pages/course-module/course-subscribe',
+            }
+        }
+
+    }
+</script>
+
+

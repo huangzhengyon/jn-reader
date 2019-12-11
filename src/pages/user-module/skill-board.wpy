@@ -1,0 +1,302 @@
+<template >
+    <jn-header title="技能看板"></jn-header>
+    <view catchtouchmove="{{isCatchtouchmove}}">
+        <view class="skill-board-popBox-wrapper" wx:if="{{popBoxShow}}" @tap.stop="handleClosePop">
+            <view class="skill-board-popBox-skill-box" style="height:{{popBoxHeight}}rpx;" @tap.stop="handleEmptyTap">
+                <view class="skill-board-popBox-title-row">
+                    <view class="ui-top" @tap.stop="handleClosePop">
+                        <text class="icon-down-arrow"></text>
+                    </view>
+                    <view class="flex-start-row ui-content">
+                        <text class="cell-name">{{popBoxTitle}}</text>
+                        <view class="ui-tips flex-start-row">
+                            <view class="cell-angle"></view>
+                            <text>平均水平</text>
+                        </view>
+                    </view>
+                </view>
+                <scroll-view class="skill-board-popBox-scroll" scroll-y="{{true}}" catchtouchmove="handleCatchScroll">
+                    <skillSetBoard></skillSetBoard>
+                </scroll-view>
+            </view>
+        </view>
+        <view class="skillboard-body" :class="{uiShadeBox: isCatchtouchmove}">
+            <view class="flex-center">
+                <view class="skillboard-top-bg flex-center" style="flex-direction:column;">
+                    <view class="flex-row-end">
+                        <text class="num">{{skillCount}}</text>
+                        <text>个</text>
+                    </view>
+                    <view class="tip">获得技能</view>
+                </view>
+            </view>
+            <view class="skillboard-digit-wrapper">
+                <view class="skillboard-digit-block flex-center">
+                    <view class="flex-row-end">
+                        <text class="num">{{myLearnTime}}</text>
+                        <text>min</text>
+                    </view>
+                    <view class="tip">学习时长</view>
+                </view>
+                <view class="skillboard-digit-block flex-center">
+                    <view class="flex-row-end">
+                        <text class="num">{{avgSkillScore}}</text>
+                        <text>/{{scoreBase}}</text>
+                    </view>
+                    <view class="tip">技能水平</view>
+                </view>
+                <view class="skillboard-digit-block flex-center">
+                    <view class="flex-row-end">
+                        <text class="num">{{allFinishSenceCount}}</text>
+                        <text>个</text>
+                    </view>
+                    <view class="tip">完成微课</view>
+                </view>
+            </view>
+            <view class="skillboard-achievement flex-center">技能成就</view>
+            <view class="skillboard-achievement-skill" wx:for="{{skillAbilityList}}" wx:key="{{index}}">
+                <view class="cell-name">{{item.skillAbilityName}}</view>
+                <view>
+                    <view class="skillboard-achievement-skill-block" wx:for="{{item.skillSetList}}" wx:key="{{index}}"
+                          wx:for-item="sitem">
+                        <image class="{{sitem.isLock==='lock'?'image-lock':''}}" mode="aspectFill"
+                               src="{{sitem.skillSetImage}}"
+                               @tap.stop="handleSkillTap" data-skill-set="{{sitem.skillList}}"
+                               data-pop-box-title="{{sitem.skillSetName}}"/>
+                        <image wx:if="{{sitem.isLock==='lock'}}" style="background-color:rgba(0,0,0,.3)">
+                            <image src="http://wx-small.runwise.cn/image/imageIDb5ab0c7d9a04c29136940492cdfb.png"
+                                   mode="scaleToFill"/>
+                        </image>
+                        <view class="progress">
+                            <view class="percent" style="width:{{sitem.percent}}%"/>
+                            <view class="text">{{sitem.skillCountTip}}</view>
+                        </view>
+                        <view class="skillname">{{sitem.skillSetName}}</view>
+                    </view>
+                </view>
+            </view>
+
+            <SkillsBoardShareImage :dataInfo.sync="shareImageParams"></SkillsBoardShareImage>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import loadingMixin from "../../mixins/loading";
+    import header from '../../components/common/header'
+    import SkillsBoardShareImage from '../../components/shareImages/skills-board' // 分享图片
+    import Toast from "wepy-com-toast";
+    import {fetch} from "../../api";
+    import {getStore, connect} from "wepy-redux";
+    import SkillSet from '../../components/SkillSet/index'
+
+    const store = getStore();
+    const state = store.getState();
+
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        }, // mapState 即getters
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        },
+        phone(state) {
+            return state.user.phone;
+        },
+        isPhoneSet(state) {
+            return !("" === state.user.phone || null == state.user.phone || 'deadNumber' === state.user.phone)
+        },
+        entrance(state) { //全局场景值
+            return state.entrance
+        },
+        role(state) {
+            return state.user.role
+        },
+    })
+    export default class MySkillBoard extends wepy.page {
+        mixins = [loadingMixin]; // end mixins
+
+        computed = {} // end computed
+
+        data = {
+            isCatchtouchmove: false,
+            allFinishSenceCount: 0,
+            skillCount: 0,
+            avgSkillScore: 0,
+            myLearnTime: 0,
+            scoreBase: 10,
+            skillAbilityList: [],
+            popBoxHeight: 0,
+            popBoxShow: false,
+            popBoxTitle: '',
+            shareImageParams: {}
+        }
+
+        components = {
+            toast: Toast,
+            'jn-header': header,
+            SkillsBoardShareImage,
+            'skillSetBoard': SkillSet,
+        }
+
+        onLoad(option) {
+            this.shareBackgroundImage = option.shareBackgroundImage
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            wx.reportAnalytics('my_skillboard', {
+                        role: this.role,
+                        username: this.userName,
+                        channel: this.entrance.mappers[this.entrance.scenceID]
+                    })
+        }
+
+        onShow() {
+            return this.initialize()
+        }
+
+        initialize() {
+            return fetch.getMyLearningPageBySkillgetDetail({token: this.token})
+                .then(({avgSkillScore, myLearnTime, scoreBase, skillAbilityList, shareBackgroundImage, shareCodeImage,allFinishSenceCount ,skillCount}) => {
+                    this.avgSkillScore = avgSkillScore
+                    this.myLearnTime = myLearnTime
+                    this.scoreBase = scoreBase
+                    this.skillAbilityList = skillAbilityList
+                    this.allFinishSenceCount = allFinishSenceCount
+                    this.skillCount = skillCount
+                    console.log()
+                    // 生成分享图片所需的参数
+                    this.shareImageParams = {
+                        myLearnTime: this.myLearnTime,
+                        scoreBase: this.scoreBase,
+                        skillCount: this.skillCount,
+                        avgSkillScore: this.avgSkillScore,
+                        shareBackgroundImage: shareBackgroundImage,
+                        shareCodeImage: shareCodeImage
+                    }
+                    this.$apply()
+                })
+        }
+
+        methods = {
+            handleEmptyTap() {
+                return
+            },
+            handleCatchScroll() {
+                return false
+            },
+            handleClosePop() {
+                this.popBoxHeight = 0;
+                this.isCatchtouchmove = false;
+                setTimeout(() => {
+                    this.popBoxShow = false;
+                    this.$apply()
+                }, 100);
+                this.popBoxTitle = '';
+            },
+            /**
+             * 查看解锁的技能的进度详情
+             * @param skillSet
+             * @param popBoxTitle
+             */
+            handleSkillTap({currentTarget: {dataset: {skillSet, popBoxTitle}}}) {
+                // console.log('pop---------------------->skillSet', skillSet, popBoxTitle)
+                this.$invoke('skillSetBoard', 'refreshData', {
+                    skillSet: skillSet,
+                    skillGroupList: [],
+                    title: '',
+                    extendAble: false
+                })
+                this.popBoxTitle = popBoxTitle
+                this.popBoxShow = true
+                setTimeout(() => {
+                    this.popBoxHeight = 700;
+                    this.isCatchtouchmove = true;
+                    this.$apply()
+                }, 100);
+
+            }
+        }; // end methods
+
+        events = {
+            handleShareImage(){
+                console.log('handleShareImage --->>> events')
+                wx.reportAnalytics('my_skillboard_share', {
+                        role: this.role,
+                        username: this.userName,
+                        channel: this.entrance.mappers[this.entrance.scenceID]
+                    })
+            },
+        }; // end events
+    }
+</script>
+
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .skillboard-top-bg{
+        width:320rpx;height:320rpx;background-image:url('http://wx-small.runwise.cn/image/imageIDe59bca3193e4099c81e82cd2d56f.png');background-position:center;background-size:100% 100%;position:relative;font-size:32rpx;color:@color-gray;
+        .num{font-family:PingFangSC-Medium;font-size:96rpx;color:@color-blue;line-height:96rpx;margin-right:8rpx}
+        .tip{font-size:26rpx;color:@color-gray;margin-top:20rpx}
+    }
+    .skillboard-digit-wrapper{
+        width:100%;height:240rpx;display:flex;
+        .skillboard-digit-block{
+            width:33.3%;height:100%;font-size:14px;color:@color-gray;
+            .num{font-family:PingFangSC-Semibold;font-size:60rpx;line-height:60rpx;color:@color-black;margin-right:8rpx}
+            .tip{opacity:.8;font-size:24rpx;line-height:24rpx;color:@color-gray;margin-top:28rpx}
+        }
+    }
+    .skillboard-achievement{border-top:20rpx solid @border-gray;font-family:PingFangSC-Medium;font-size:36rpx;color:@color-black;width:100%;height:96rpx;}
+    .skillboard-achievement-skill{
+        width:100%;border-top:2rpx solid @border-gray;
+        .cell-name{height:104rpx;width:100%;box-sizing:border-box;padding-left:48rpx;display:flex;align-items:center;font-family:PingFangSC-Medium;font-size:16px;color:@color-black;}
+        .skillboard-achievement-skill-block{
+            display:inline-block;margin-left:48rpx;position:relative;overflow:hidden;border-radius:@border-radius-16;width:180rpx;height:320rpx;
+            image{width:100%;height:184rpx;z-index:1;position:absolute;top:0}
+            .image-lock{filter:grayscale(100%)}
+            .progress{
+                width:100%;height:32rpx;border-radius:@border-radius-16;overflow:hidden;z-index:2;position:absolute;top:168rpx;background-color:@background-gray;
+                .percent{width:50%;height:100%;border-radius:@border-radius-16;z-index:3;position:absolute;left:0;background-color:@background-blue;}
+                .text{width:100%;height:100%;z-index:4;position:absolute;left:0;background-color:transparent;text-align:center;line-height:32rpx;font-family:PingFangSC-Semibold;font-size:28rpx;color:@color-white}
+            }
+            .skillname{position:absolute;top:224rpx;font-family:PingFangSC-Medium;font-size:28rpx;color:@color-gray;text-align:center;line-height:40rpx;width:100%}
+        }
+    }
+    .skill-board-popBox-wrapper{
+        width:100%;height:100vh;z-index:9;position:fixed;
+        &::before{content:'';top:0;bottom:0;right:0;left:0;background-color:@background-mask-normal-2;position:absolute;filter: blur(2px);}
+        .skill-board-popBox-skill-box{
+            width:686rpx;height:0rpx;background-color:@background-white;position:fixed;bottom:0;transition:all .3s ease;box-sizing:border-box;padding:0 48rpx;left:50%;transform:translate(-50%,0);border-top-left-radius:@border-radius-20;border-top-right-radius:@border-radius-20;
+            .skill-board-popBox-title-row{
+                width:100%;height:178rpx;display:flex;align-items:center;justify-content:space-between;flex-direction: column;font-family:PingFangSC-Medium;font-size:48rpx;color:@color-black;
+                .ui-content{
+                    width: 100%;
+                    .cell-name{max-width: 282rpx;}
+                    .ui-tips{
+                        padding-left:24rpx;align-items:center;
+                        text{padding-left:10rpx;font-size:26rpx;color:@color-gray;}
+                        .cell-angle{border-bottom:20rpx solid @color-blue;border-left:10rpx solid transparent;border-right:10rpx solid transparent;width:0;height:0;}
+                    }
+                }
+
+                .ui-top{
+                    margin-bottom:50rpx;width:100%;display:flex;justify-content:center;align-items:center;padding-top:38rpx;
+                    text{color:#d1d1d6;font-size:24rpx;}
+                }
+            }
+            .skill-board-popBox-scroll{width:100%;height:560rpx}
+        }
+    }
+
+    .is-hidden{height:100%;overflow:hidden}
+    ::-webkit-scrollbar{height:0!important;width:0!important;background:transparent!important}
+    .skillboard-body{width:100%}
+    .skillboard-body.uiShadeBox{filter: blur(4rpx);pointer-events: none;-webkit-touch-callout:none;overflow: hidden;}
+    .flex-center{display:flex;align-items:center;justify-content:center;flex-direction:column}
+    .flex-row-end{display:flex;align-items:flex-end;justify-content:center}
+</style>

@@ -1,0 +1,80 @@
+<template>
+    <jn-header title="即能" className="background-blue"></jn-header>
+    <view class="mistake-article">
+        <image class="mistake-article-bg" src="http://wx-small.runwise.cn/image/error.png" mode="widthFix"></image>
+        <button class="mistake-article__btn" plain="{{true}}" @tap.stop="handleBack"> 返回</button>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import header from '../../components/common/header'
+
+    export default class Mistake extends wepy.page {
+        components = {
+            'jn-header': header
+        }
+
+        data = {}
+
+        onLoad() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        methods = {
+            handleBack() {
+                let pages = getCurrentPages()
+                if (1 === pages.length) return wx.reLaunch({
+                    url: '/pages/tabPages/course'
+                })
+                let lastPageRoute = pages[pages.length - 2] ? pages[pages.length - 2]['route'] : 1000
+                let index = pages.length - pages.findIndex(item => item.route === lastPageRoute)
+                wepy.navigateBack({
+                    delta: index
+                })
+            }
+        }
+    }
+</script>
+
+<style lang="less">
+  .mistake-article__btn {
+    width: 240rpx;
+    height: 72rpx;
+    line-height: 72rpx;
+    position: absolute;
+    left: 50%;
+    bottom: 240rpx;
+    margin-left: -120rpx;
+    background-color: #E3F2FA !important;
+    border: 2rpx solid #CBE5F4 !important;
+    border-radius: 14rpx;
+    color: #8AB9D4 !important;
+    font-family: PingFangSC-Mediu;
+    font-size: 28rpx;
+    z-index: 9;
+  }
+
+  .mistake-article {
+    height: 100%;
+    width: 750rpx;
+    position: relative;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+    background-color: #F3FAFD;
+    overflow: hidden;
+  }
+
+  .mistake-article-bg{
+    height: 100%;
+    width: 750rpx;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+    background-color: #F3FAFD;
+    z-index: 1;
+
+  }
+</style>

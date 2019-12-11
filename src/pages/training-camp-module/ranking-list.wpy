@@ -1,0 +1,195 @@
+<template>
+    <mloading wx:if="{{ !isLoaded }}"/>
+    <jn-header title=""></jn-header>
+    <view class="rank-scroll">
+        <view class="rank-top">
+            <image src="http://wx-small.runwise.cn/image/imageID664545ed3cf4079128720a8c29c2.png" mode="widthFix"/>
+            <view class="text">总分：
+                <text>{{teamAllScore}}</text>分
+            </view>
+        </view>
+        <view class="ui-rank-row ui-myself" wx:if="{{isShowMyMap}}">
+            <view class="ui-left">
+                <view class="cell-rank">{{myMap.index}}</view>
+                <view class="ui-avator">
+                    <image class="cell-avator" src="{{myMap.avatarUrl}}"/>
+                </view>
+                <view class="cell-name">{{myMap.nickName}}</view>
+                
+            </view>
+            <view class="ui-right">
+                <view class="cell-score" style="{{myMap.skillScore!=='-'?'color:#007AFF;':''}}">{{myMap.skillScore}}</view>
+                <image wx:if="{{myMap.likeCount}}" class="cell-img"
+                       src="http://wx-small.runwise.cn/image/imageIDa754e4b25b54cebbb67f489859db.png"></image>
+                <image wx:else class="cell-img"
+                       src="http://wx-small.runwise.cn/image/imageID34fdf37a9be49399ad680bb2080e.png"></image>
+                <view class="cell-num">{{myMap.likeCount}}</view>
+            </view>
+        </view>
+
+        <view class="ui-rank-row" wx:for="{{teamRankList}}" wx:key="{{index}}">
+            <view class="ui-left">
+                <view class="{{index<3?'cell-three':'cell-rank'}}">{{item.index}}</view>
+                <view class="ui-avator">
+                    <image class="cell-icon" wx:if="{{index===2}}"
+                           src="http://wx-small.runwise.cn/image/imageIDaf72b9ca3d648db9e311b0708e75.png"/>
+                    <image class="cell-icon" wx:if="{{index===1}}"
+                           src="http://wx-small.runwise.cn/image/imageID14590b732ad4d8a3cee85c4de23a.png"/>
+                    <image class="cell-icon" wx:if="{{index===0}}"
+                           src="http://wx-small.runwise.cn/image/imageID7717a3edb534089f5f668a55766e.png"/>
+                    <image class="cell-avator" src="{{item.avatarUrl}}"/>
+                    
+                </view>
+
+                <view class="cell-name">{{item.nickName}}</view>
+            </view>
+            <view class="ui-right">
+                <view class="score {{index<3?'cell-three':''}}">{{item.skillScore}}</view>
+                <image wx:if="{{item.myLike}}" class="cell-img"
+                       src="http://wx-small.runwise.cn/image/imageIDa754e4b25b54cebbb67f489859db.png"
+                       @tap.stop="handleTickTeamLike" data-user-i-d="{{item.userID}}"></image>
+                <image wx:else class="cell-img"
+                       src="http://wx-small.runwise.cn/image/imageID34fdf37a9be49399ad680bb2080e.png"
+                       @tap.stop="handleTickTeamLike" data-user-i-d="{{item.userID}}"></image>
+                <view class="cell-num">{{item.likeCount}}</view>
+            </view>
+        </view>
+        <view class="nodata-view" wx:if="{{!teamRankList.length}}">
+            <image class="icon" src="http://wx-small.runwise.cn/image/imageID9523129034a4baa91d85b9511cf6.png"/>
+            <text class="text">暂无排行</text>
+        </view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header'
+    import {fetch} from "../../api";
+    import {getStore, connect} from "wepy-redux";
+    import Loading from '../../components/common/loading'
+    const store = getStore();
+    const state = store.getState();
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        },
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        userId(state) {
+            return state.user.userid
+        },
+        role(state) {
+            return state.user.role;
+        },
+        token(state) {
+            return state.user.token;
+        },
+        entrance(state) {
+            return state.entrance
+        }
+    })
+    export default class TeamLearningRank extends wepy.page {
+        data = {
+            teamID:'',
+            isLoaded:false,
+            teamAllScore:0,
+            myMap:{},
+            teamRankList:[],
+            teamName:'',
+            isShowMyMap:false,
+            canUseOpenData:wx.canIUse('open-data'),//是否支持open-data组件
+        };
+        components = {
+            'mloading': Loading,
+            'jn-header': header
+        };
+        onLoad(params) {
+            let self = this;
+            self.teamName = params.teamName
+            self.teamID = params.teamID
+
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+
+            wx.reportAnalytics('team_learning_rank', {
+                nickname: this.userName,
+                channel: this.entrance.mappers[this.entrance.scenceID],
+                role: this.role,
+                teamname: this.teamName,
+            });
+
+            self.initPage()
+        }
+        initPage(){
+            let self = this;
+            let postData = {
+                token: self.token,
+                teamID: self.teamID
+            }
+            fetch.getTeamRankList(postData).then(data => {
+                self.isLoaded = true
+                self.myMap = data.myMap
+                self.teamAllScore = data.teamAllScore
+                self.teamRankList = data.teamRankList
+                self.isShowMyMap = data.isShowMyMap
+                self.$apply()
+            })
+        }
+        methods = {
+            handleTickTeamLike(event){
+                let self = this;
+                let {currentTarget: {dataset:{userID}}} = event
+                fetch.tickTeamRankLike({
+                    token:self.token,
+                    teamID:self.teamID,
+                    rankUserID:userID
+                }).then(data=>{
+                    this.initPage()
+                })
+            },
+        };
+    }
+</script>
+
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .rank-scroll{width: 100%;height: 100%;background-color: @background-gray-F4;}
+    .rank-top{
+        width: 100%;display: flex;align-items: center;flex-direction: column;background-image: url('http://wx-small.runwise.cn/image/imageID3f867638ac6409a3609344dea042.png');
+        image{width: 360rpx;}
+        .text{font-family: PingFangSC-Medium;font-size: 36rpx;color: #fff;margin-bottom: 22rpx;}
+    }
+    .ui-rank-row{
+        width: 100%;height: 140rpx;display: flex;align-items: center;justify-content: space-between;border-bottom: 2rpx solid @border-gray;background-color: #fff;
+        .ui-left{
+            display: flex;align-items: center;height: 100%;
+            .cell-three{font-family: PingFangSC-Medium;font-size: 48rpx;color: @color-red;width: 90rpx;text-align: center;margin-left: 8rpx;}
+            .cell-rank{font-family: PingFangSC-Regular;font-size: 40rpx;color: @color-black;width: 90rpx;text-align: center;margin-left: 8rpx;}
+            .ui-avator{
+                width: 84rpx;position: relative;margin-left: 8rpx;display: flex;align-items: center;height: 100%;
+                .cell-open-data {
+                    width: 80rpx;height: 80rpx;border-radius: 50%;border: 2rpx solid #fff;z-index: 9;position: absolute;top:30rpx;overflow: hidden;
+                }
+                .cell-avator{width: 80rpx;height: 80rpx;border-radius: 50%;border: 2rpx solid #fff;z-index: 9;position: absolute;top:30rpx;}
+                .cell-icon{position: absolute;width: 80rpx;height: 80rpx;left: 2rpx;top:0rpx;z-index: 1;}
+            }
+            .cell-name{font-family: PingFangSC-Regular;font-size: 32rpx;color: @color-black;margin-left: 20rpx;max-width: 272rpx;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+        }
+        .ui-right{
+            display: flex;align-items: center;
+            .cell-three{font-family: PingFangSC-Medium;color: @color-red;}
+            .cell-score{text-align: right;font-family: PingFangSC-Medium;font-size: 48rpx;color: @color-black;}
+            .cell-img{width: 56rpx;height: 56rpx;margin-left: 38rpx;}
+            .cell-num{width: 60rpx;text-align: center;font-family: PingFangSC-Regular;font-size: 32rpx;color: #A1A9AB;}
+        }
+    }
+    .ui-rank-row.ui-myself{border-top:20rpx solid #f1f2f5;border-bottom:20rpx solid #f1f2f5;}
+    .nodata-view{
+        display: flex;align-items: center;flex-direction: column;
+        .icon{width: 300rpx;height: 300rpx;margin-top: 110rpx;}
+        .text{font-family: PingFangSC-Regular;font-size: 32rpx;color: @color-gray;margin-top: 38rpx;}
+    }
+
+</style>
+

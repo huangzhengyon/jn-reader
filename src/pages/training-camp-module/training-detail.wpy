@@ -1,0 +1,1515 @@
+<style lang="less" scoped>
+    @import '../../assets/style/theme.less';
+    .ui-training-detail {
+        .ui-bg {
+            width: 100%;
+            height: 480rpx;
+            background-size: cover;
+            position: relative;
+            &.is-iphonex {
+                height: 520rpx;
+            }
+            &:before {
+                content: ' ';
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, .4);
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+            .ui-content {
+                box-sizing: border-box;
+                padding: 0 26rpx 0 40rpx;
+                color: #fff;
+                position: relative;
+                z-index: 1;
+                .ui-date {
+                    height: 72rpx;
+                    margin-bottom: 24rpx;
+                    .cell-time {
+                        opacity: 0.7;
+                        font-size: 26rpx;
+                        height: 110rpx;
+                        display: flex;
+                        align-items: center;
+                    }
+                    .cell-manage {
+                        font-size: 26rpx;
+                        display: flex;
+                        align-items: center;
+                        text {
+                            font-size: 52rpx;
+                            margin-left: 16rpx;
+                        }
+                        image {
+                            width: 44rpx;
+                            height: 44rpx;
+                            margin-left: 16rpx;
+                        }
+                    }
+                }
+                .ui-team-title {
+                    height: 140rpx;
+                    .cell-title {
+                        font-size: 48rpx;
+                        font-weight: 700;
+                        line-height: 70rpx;
+                        text {
+                            margin-left: 16rpx;
+                            position: relative;
+                            top: -6rpx;
+                        }
+                    }
+                    button {
+                        height: 70rpx;
+                        margin-left: 44rpx;
+                        background: none;
+                        line-height: 70rpx;
+                        text {
+                            font-size: 52rpx;
+                            color: #fff;
+                        }
+                    }
+                }
+                .ui-team-msg {
+                    display: flex;
+                    justify-content: space-between;
+                    padding-right: 26rpx;
+                    margin-top: 28rpx;
+                    font-size: 26rpx;
+                    color: rgba(255, 255, 255, 0.60);
+                    text {
+                        font-size: 28rpx;
+                        margin-right: 11rpx;
+                    }
+                    view {
+                        &:nth-of-type(2) {
+                            text {
+                                font-size: 32rpx;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .ui-rank {
+            height: 248rpx;
+            display: flex;
+            align-items: center;
+            padding-left: 58rpx;
+            border-bottom: 1rpx solid #EFEFF4;
+            .ui-schedule {
+                .ui-circular-progress {
+                    width: 136rpx;
+                    height: 136rpx;
+                    view {
+                        box-sizing: border-box
+                    }
+                    &::before {
+                        border: 12rpx solid #d1d1d6;
+                    }
+                    .ui-wrapper {
+                        >view {
+                            width: 136rpx;
+                            border: 12rpx solid transparent;
+                            &.cell-circle-right {
+                                border-top: 12rpx solid @background-gray-d6;
+                                border-right: 12rpx solid @background-gray-d6;
+                            }
+                            &.cell-circle-left {
+                                border-bottom: 12rpx solid @background-gray-d6;
+                                border-left: 12rpx solid @background-gray-d6;
+                            }
+                            &.cell-circle-bluebg {
+                                border-color: @background-blue;
+                            }
+                        }
+                    }
+                    .cell-progress-number {
+                        color: #007AFF;
+                        font-size: 36rpx;
+                        font-weight: 900;
+                        text-shadow: 0 4rpx 8rpx rgba(88, 86, 214, 0.3)
+                    }
+                }
+            }
+            .ui-participat {
+                margin: 0 130rpx 0 116rpx;
+                .ui-progress-graph {
+                    box-sizing: border-box;
+                    width: 128rpx;
+                    height: 128rpx;
+                    background: @background-gray-d6;
+                    border-radius: 50%;
+                    display: flex;
+                    position: relative;
+                    view {
+                        box-sizing: border-box
+                    }
+                    .ui-graph {
+                        width: 64rpx;
+                        height: 100%;
+                        position: absolute;
+                        top: 0;
+                    }
+                    .ui-left {
+                        background: #007AFF;
+                        border-radius: 126rpx 0 0 126rpx;
+                        z-index: 1;
+                        left: 0rpx;
+                        transform-origin: 0 center;
+                        transform-origin: 64rpx center;
+                        &.is-hidden {
+                            background: @background-gray-d6;
+                        }
+                    }
+                    .ui-right {
+                        background: @background-gray-d6;
+                        border-radius: 0 126rpx 126rpx 0;
+                        right: 0rpx;
+                        transform-origin: 0 center;
+                    }
+                    .cell-num {
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        z-index: 2;
+                        color: #fff;
+                        font-size: 36rpx;
+                        font-weight: 900;
+                        text-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.35)
+                    }
+                }
+                .ui-progress-bluebg {
+                    background: @background-blue;
+                }
+            }
+            .ui-oneself {
+                .ui-avatar {
+                    position: relative;
+                    width: 132rpx;
+                    height: 132rpx;
+                    text-align: center;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    image {
+                        width: 120rpx;
+                        height: 120rpx;
+                        border-radius: 50%;
+                    }
+                    .cell-rank {
+                        position: absolute;
+                        background-image: url('http://wx-small.runwise.cn/image/imageID3800623400a420b9922bf7e0830e.png');
+                        width: 52rpx;
+                        background-size: 100% 100%;
+                        height: 60rpx;
+                        bottom: -7rpx;
+                        left: 50%;
+                        transform: translate(-50%, 0);
+                        text-align: center;
+                        color: #Fff;
+                        font-size: 24rpx;
+                        line-height: 48rpx;
+                        text-shadow: 0 2px 4px rgba(88, 86, 214, 0.22);
+                        font-weight: bold;
+                    }
+                }
+                .ui-manager {
+                    width: 112rpx;
+                    height: 120rpx;
+                    margin: auto;
+                    view {
+                        &:nth-of-type(1) {
+                            width: 28rpx;
+                            height: 46rpx;
+                            background: #5AC8FA;
+                        }
+                        &:nth-of-type(2) {
+                            width: 28rpx;
+                            height: 112rpx;
+                            background: #007AFF;
+                            margin: 0 6rpx;
+                        }
+                        &:nth-of-type(3) {
+                            width: 28rpx;
+                            height: 64rpx;
+                            background: #007AFF;
+                        }
+                    }
+                }
+            }
+        }
+        .cell-tips-font {
+            font-size: 26rpx;
+            color: #8E8E93;
+            margin-top: 20rpx;
+            text-align: center;
+            text {
+                font-size: 28rpx;
+                color: #c7c7cc
+            }
+        }
+        .ui-today-task {
+            .ui-title {
+                display: flex;
+                height: 88rpx;
+                justify-content: space-between;
+                align-items: center;
+                box-sizing: border-box;
+                padding: 0 28rpx 0 32rpx;
+                .cell-tip {
+                    font-size: 44rpx;
+                    font-weight: bold;
+                }
+                .cell-plan {
+                    color: #007AFF;
+                    font-size: 34rpx;
+                }
+            }
+            .ui-offline-image {
+                margin-top: 16rpx;
+                text-align: center;
+                image {
+                    width: 622rpx;
+                }
+            }
+            .ui-offline-detail {
+                display: flex;
+                margin-top: 16rpx;
+                .ui-portrait {
+                    margin-right: 22rpx;
+                    image {
+                        width: 160rpx;
+                        height: 192rpx;
+                        border-radius: 20rpx
+                    }
+                }
+                .ui-message {
+                    color: #8F8E94;
+                    font-size: 26rpx;
+                    .ui-name {
+                        font-size: 40rpx;
+                        color: #000
+                    }
+                    .ui-teacher {
+                        display: flex;
+                        margin-top: 12rpx;
+                        .cell-key {
+                            width: 142rpx;
+                            text-align: left
+                        }
+                        .cell-value {
+                            color: #000
+                        }
+                    }
+                    .ui-time {
+                        display: flex;
+                        margin-top: 12rpx;
+                        .cell-key {
+                            width: 142rpx;
+                            text-align: left
+                        }
+                        .cell-value {
+                            color: #000
+                        }
+                    }
+                    .ui-address {
+                        display: flex;
+                        margin-top: 12rpx;
+                        .cell-key {
+                            width: 142rpx;
+                            text-align: left
+                        }
+                        .cell-value {
+                            color: #000
+                        }
+                    }
+                }
+            }
+            .ui-item-false {
+                margin: 0 32rpx;
+                font-size: 30rpx;
+                color: #8F8E94;
+                text-align: center;
+                border-bottom: 2rpx solid #EFEFF4;
+                padding: 84rpx 0;
+            }
+        }
+        .ui-interact-item {
+            background: #E5E5EA;
+            padding-top: 24rpx;
+            .ui-content {
+                background: #fff;
+                padding-bottom: 20rpx;
+            }
+            .ui-user {
+                background: #fff;
+                padding: 0 32rpx;
+                height: 144rpx;
+                border-bottom: 1rpx solid #EFEFF4;
+                box-sizing: border-box;
+                image {
+                    width: 88rpx;
+                    height: 88rpx;
+                    border-radius: 50%;
+                    margin-right: 16rpx;
+                }
+                .ui-user-content {
+                    height: 84rpx;
+                }
+                .ui-stand {
+                    height: 50rpx;
+                    width: 276rpx;
+                    .cell-name {
+                        font-size: 32rpx;
+                        font-weight: bold;
+                        max-width: 218rpx;
+                    }
+                    .cell-role {
+                        border: 1rpx solid #c7c7cc;
+                        border-radius: 8rpx;
+                        padding: 0 6rpx;
+                        color: #8F8E94;
+                        margin-left: 8rpx;
+                        font-size: 24rpx;
+                        height: 32rpx;
+                        line-height: 32rpx;
+                        width: 56rpx;
+                    }
+                }
+                .cell-date {
+                    color: #c7c7cc;
+                    font-size: 24rpx;
+                }
+                .ui-stick {
+                    padding: 20rpx 0;
+                    margin-left: 32rpx;
+                    color: #8F8E94;
+                    font-size: 24rpx;
+                    &.ui-stick-top {
+                        width: 110rpx;
+                    }
+                    &.is-sticked {
+                        color: #007AFF;
+                        text {
+                            color: #007AFF;
+                        }
+                    }
+                    text {
+                        color: #c7c7cc;
+                        margin-right: 10rpx;
+                    }
+                }
+            }
+            .ui-type {
+                line-height: 52rpx;
+                padding: 18rpx 32rpx;
+                box-sizing: border-box;
+                text {
+                    &:nth-of-type(1) {
+                        font-size: 48rpx;
+                        font-weight: 700;
+                        color: #E5E5EA;
+                        margin-right: 14rpx;
+                        position: relative;
+                        top: 6rpx;
+                    }
+                    &:nth-of-type(2) {
+                        font-size: 34rpx;
+                        font-weight: 700;
+                        color: #000;
+                    }
+                }
+                .cell-status {
+                    margin-left: 20rpx;
+                    background: #ffeae8;
+                    color: #FF3B30;
+                    font-size: 24rpx;
+                    width: 96rpx;
+                    height: 40rpx;
+                    text-align: center;
+                    &.cell-completed {
+                        background: #f4fdf7;
+                        color: #07AD23;
+                    }
+                }
+            }
+            .module-single-choice-box {
+                padding-bottom: 40rpx;
+                .ui-answer-list .cell-title {
+                    width: 600rpx;
+                }
+                .ui-content {
+                    padding: 0 32rpx;
+                    .cell-type {
+                        font-size: 26rpx;
+                        color: #007AFF
+                    }
+                    .cell-sumbit {
+                        width: 264rpx;
+                        height: 64rpx;
+                        margin: 44rpx auto 0;
+                        font-size: 30rpx;
+                        color: #8F8E94;
+                        line-height: 64rpx;
+                        border-radius: 64rpx;
+                        background-color: #EFEFF4;
+                        color: #8F8E94;
+                        &.is-selected {
+                            background-color: #007AFF;
+                            color: #FFF;
+                        }
+                    }
+                }
+            }
+            .cell-content-title {
+                padding: 16rpx 32rpx;
+                font-size: 32rpx
+            }
+            .cell-image {
+                padding: 16rpx 32rpx 32rpx;
+                image {
+                    width: 100%;
+                }
+            }
+            .cell-link {
+                padding: 16rpx 32rpx;
+                font-size: 32rpx;
+                color: #007AFF;
+                text-decoration: underline;
+            }
+            .cell-poll-btn {
+                width: 266rpx;
+                height: 56rpx;
+                background: #EFEFF4;
+                border-radius: 32rpx;
+                color: #007AFF;
+                text-align: center;
+                line-height: 56rpx;
+                margin: 52rpx auto 62rpx;
+                font-size: 30rpx;
+                &.is-selected {
+                    color: #8F8E94
+                }
+            }
+        }
+        .cell-more {
+            font-size: 26rpx;
+            color: #8F8E94;
+            text-align: center;
+            padding: 108rpx 0 218rpx;
+        }
+        .module-poll-box {
+            box-sizing: border-box;
+            padding: 0 32rpx;
+        }
+        /* 互动消息提醒S */
+        .ui-warn-box {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100rpx;
+            border-bottom: solid 24rpx @background-color-E5;
+            padding: 0 40rpx;
+            .cell-horn {
+                width: 62rpx;
+                height: 44rpx;
+            }
+            .cell-text {
+                font-size: 32rpx;
+                color: @color-red-wran;
+                padding: 0 10rpx 0 20rpx;
+            }
+            .cell-arrow {
+                width: 20rpx;
+                height: 20rpx;
+            }
+        }
+        /* 互动消息提醒E */
+    }
+    .ui-box {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        transition: all .3s ease-in;
+        background: #fff;
+        z-index: 40;
+        transform: translateY(100%);
+        &.active {
+            transform: translateY(0);
+        }
+        .ui-top {
+            width: 100%;
+            text {
+                width: 24px;
+                height: 24px;
+                display: block;
+                margin: 0 10px 0 auto;
+                padding: 8px 0;
+                color: #8F8E94;
+            }
+        }
+        .ui-scroll {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 30rpx;
+            overflow-y: scroll;
+            height: 463px;
+            color: #000;
+            background: #fff;
+            .cell-title {
+                padding: 36rpx 0 46rpx;
+                font-size: 48rpx;
+                font-weight: bold;
+                border-top: 2rpx solid #EFEFF4
+            }
+            .cell-li {
+                width: 598rpx;
+                margin-bottom: 32rpx;
+                font-size: 32rpx;
+                color: #8F8E94;
+            }
+            .cell-poster {
+                width: 686rpx;
+                margin-bottom: 43rpx;
+            }
+            .cell-teacher-image {
+                width: 100%;
+                padding-bottom: 136rpx;
+            }
+        }
+    }
+    .ui-float {
+        position: fixed;
+        right: 30rpx;
+        z-index: 3;
+        bottom: 80rpx;
+        .ui-float-btn {
+            width: 88rpx;
+            height: 88rpx;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 88rpx;
+            margin-top: 26rpx;
+            box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.16);
+            &.ui-add {
+                background: #007AFF;
+                color: #fff;
+            }
+            &.ui-item {
+                background: #fff;
+                color: #007AFF;
+                text {
+                    font-size: 48rpx
+                }
+            }
+        }
+        &>view {
+            width: 108rpx;
+        }
+    }
+    .cell-mask {
+        background: rgba(0, 0, 0, .3);
+        z-index: 35;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+    }
+    /* 二维码查看 */
+    .ui-fixed-box {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: @z-index-mask-header;
+        .ui-fixed-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: @background-mask-normal;
+            z-index: @z-index-mask-header;
+        }
+        .ui-fixed-main {
+            width: 400rpx;
+            height: 400rpx;
+            z-index: @z-index-lower-header;
+            image {
+                width: 100%;
+                height: 100%;
+            }
+        }
+    }
+    /* 新互动 */
+    .ui-new-tips {
+        width: 144rpx;
+        height: 84rpx;
+        position: fixed;
+        bottom: 60rpx;
+        left: 32rpx;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        image {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .cell-tips-text {
+            color: @color-white;
+            font-size: 28rpx;
+            position: absolute;
+            z-index: @z-index-slightly;
+            padding-bottom: 20rpx;
+        }
+    }
+</style>
+
+<template>
+    <jn-loading wx:if="{{ !isLoaded }}">
+    </jn-loading>
+    <view class="ui-training-detail">
+        <view class="ui-bg" id="bgBox" :class="{'is-iphonex': isIphonex}" style="background-image: url('{{imageUrl}}');">
+            <jn-header :className.sync="headerBackground" buttonAfter></jn-header>
+            <view class="ui-content">
+                <view class="ui-date main-justify cross-center">
+                    <view class="cell-time">{{teamTime}}</view>
+                    <view class="cell-manage" wx:if="{{role != 'member'}}" @tap.stop="getManageTeam">
+                        管理 <text class="icon-setting"></text>
+                        <image @tap.stop="showImgCode" src="../../assets/img/ewmIcon.svg" wx:if="{{imgCode!=''}}"></image>
+                    </view>
+                </view>
+                <view class="ui-team-title main-justify">
+                    <view class="cell-title">{{teamName}}<text class="icon-question" @tap.stop="getToggleQuestion"></text></view>
+                    <button class="flex-box-0" open-type="share"><text class="icon-share"></text></button>
+                </view>
+                <view class="ui-team-msg">
+                    <view>
+                        <text class="icon-lesson"></text>{{taskCount}}节微课
+                    </view>
+                    <view>
+                        <text class="icon-discuss"></text>{{pollOrQuizCount}}个互动
+                    </view>
+                    <view>
+                        <text class="icon-member"></text>{{signUpUserCount}}人参与
+                    </view>
+                </view>
+            </view>
+        </view>
+        <view class="ui-rank" @tap.stop="getRankList">
+            <view class="ui-schedule">
+                <view class="ui-circular-progress flex-box-0">
+                    <view class="cell-progress-number main-center cross-center">{{taskRate || 0}}%</view>
+                    <view class="ui-wrapper ui-right">
+                        <view class="cell-circle-right" :class="{'cell-circle-bluebg':taskRate > 0}" style="transform:rotate({{taskRate <= 50 ? (-135 + 3.6 * taskRate) : 45}}deg);"></view>
+                    </view>
+                    <view class="ui-wrapper ui-left">
+                        <view class="cell-circle-left" :class="{'cell-circle-bluebg':taskRate > 50}" style="transform:rotate({{taskRate > 50 ? (-135 + 3.6 * (taskRate - 50)) : -135}}deg);"></view>
+                    </view>
+                </view>
+                <view class="cell-tips-font">个人进度</view>
+            </view>
+            <view class="ui-participat">
+                <view class="ui-progress-graph" :class="{'ui-progress-bluebg':pollOrQuizRate > 0}">
+                    <view class="ui-left ui-graph" :class="{'is-hidden' : pollOrQuizRate <= 50}" style="transform:rotate({{pollOrQuizRate  > 50 ?  (3.6 *  pollOrQuizRate)  :  360}}deg);"></view>
+                    <view class="ui-right ui-graph" style="transform:rotate({{pollOrQuizRate  <= 50 ?  (3.6 * pollOrQuizRate)  :  180}}deg);"></view>
+                    <view class="cell-num">{{pollOrQuizRate}}%</view>
+                </view>
+                <view class="cell-tips-font">个人参与率</view>
+            </view>
+            <view class="ui-oneself">
+                <view class="ui-avatar" wx:if="{{role === 'member'}}">
+                    <image src="{{teamDetail.myTeamRank.avatarUrl}}"></image>
+                    <view class="cell-rank">{{teamDetail.myTeamRank.index}}</view>
+                </view>
+                <view class="ui-manager cross-end" wx:else>
+                    <view></view>
+                    <view></view>
+                    <view></view>
+                </view>
+                <view class="cell-tips-font">排行榜<text class="icon-details"></text></view>
+            </view>
+        </view>
+        <!-- 消息提醒--您有2个未参与S -->
+        <view class="ui-warn-box" @tap.stop="scrollToLastOne" wx:if="{{role == 'member' && notDoneCount > 0}}">
+            <image class="cell-horn" src="../../assets/img/horn.svg"></image>
+            <view class="cell-text">您有{{notDoneCount}}个互动未参与</view>
+            <image class="cell-arrow" src="../../assets/img/double-arrow.svg"></image>
+        </view>
+        <!-- 消息提醒--您有2个未参与E -->
+        <!-- 今日任务-全部计划S -->
+        <view class="ui-today-task">
+            <view class="ui-title">
+                <view class="cell-tip">今日任务</view>
+                <view class="cell-plan" @tap.stop="getAllToadyTask">全部计划<text class="icon-details"></text></view>
+            </view>
+            <repeat wx:if="{{todayTask.length}}" for="{{todayTask}}" key="index" index="index" item="item">
+                <view class="module-lesson-box" @tap.stop="getLesson" data-item="{{item}}">
+                    <view class="ui-item main-justify cross-center" wx:if="{{item.taskType == 'online'}}">
+                        <image class="cell-thumb" mode="aspectFill" src="{{item.imageUrl}}" />
+                        <view class="cross-center flex-width-1">
+                            <view class="dir-top main-center flex-width-1">
+                                <view class="cell-name text-overflow">{{item.senceName}}</view>
+                                <view class="cell-dec text-overflow" wx:if="{{item.skillGroup}}"># {{item.skillGroup}}</view>
+                            </view>
+                            <button class="cell-btn">{{item.buttonMsg}}</button>
+                        </view>
+                    </view>
+                </view>
+                <view class="ui-offline-image" wx:if="{{'offline' == item.taskType &&  '图片' == item.contentType}}">
+                    <image mode="widthFix" src="{{item.image}}" />
+                </view>
+                <view wx:if="{{'offline' == item.taskType &&  '列表' == item.contentType}}" class="ui-offline-detail">
+                    <view class="ui-portrait">
+                        <image mode="aspectFill" src="{{item.portrait}}" />
+                    </view>
+                    <view class="ui-message">
+                        <view class="ui-name">
+                            <view>{{item.offlineTaskName}}</view>
+                        </view>
+                        <view class="ui-time">
+                            <text class="cell-key">主持人：</text>
+                            <text class="cell-value">{{item.teacherName}}</text>
+                        </view>
+                        <view class="ui-time">
+                            <text class="cell-key">授课时间：</text>
+                            <text class="cell-value">{{item.offlineTime}}</text>
+                        </view>
+                        <view class="ui-address">
+                            <text class="cell-key">授课地点：</text>
+                            <text class="cell-value">{{item.address}}</text>
+                        </view>
+                    </view>
+                </view>
+            </repeat>
+            <view wx:if="{{isLastDay}}">
+                <repeat for="{{reviewTask.TaskContentList}}" key="index" index="index" item="item">
+                    <view class="module-lesson-box" wx:if="{{'comment' == item.lessonType}}" @tap.stop="getEvaluation" data-item="{{item}}">
+                        <view class="ui-item main-justify cross-center">
+                            <image class="cell-thumb" mode="aspectFill" src="../../assets/img/evalution.png" />
+                            <view class="cross-center flex-width-1">
+                                <view class="dir-top main-center flex-width-1">
+                                    <view class="cell-name text-overflow">{{item.senceName}}</view>
+                                    <view class="cell-dec text-overflow" wx:if="{{item.skillGroup}}">{{item.skillGroup}}</view>
+                                </view>
+                                <button class="cell-btn">{{item.buttonMsg}}</button>
+                            </view>
+                        </view>
+                    </view>
+                </repeat>
+            </view>
+            <view wx:if="{{role!='member'}}">
+                <repeat for="{{reviewTask.TaskContentList}}" key="index" index="index" item="item">
+                    <view class="module-lesson-box" wx:if="{{item.isCommentForAdmin}}" @tap.stop="getOverviewEvaluation" data-item="{{item}}">
+                        <view class="ui-item main-justify cross-center">
+                            <image class="cell-thumb" mode="aspectFill" src="../../assets/img/evalution.png" />
+                            <view class="cross-center flex-width-1">
+                                <view class="dir-top main-center flex-width-1">
+                                    <view class="cell-name text-overflow">{{item.senceName}}</view>
+                                    <view class="cell-dec text-overflow" wx:if="{{item.skillGroup}}">{{item.skillGroup}}</view>
+                                </view>
+                                <button class="cell-btn">{{item.buttonMsg}}</button>
+                            </view>
+                        </view>
+                    </view>
+                </repeat>
+            </view>
+            <view class="ui-item-false" wx:if="{{!todayTask.length && !isLastDay && role=='member'}}">
+                今日没有学习任务，与其他学员交流下吧
+            </view>
+        </view>
+        <!-- 今日任务-全部计划E -->
+        <!-- feed动态列表S -->
+        <dynamic :intereact.sync="intereactList" :team.sync="teamID" :role.sync="role"></dynamic>
+        <!-- feed动态列表E -->
+        <view class="cell-more">{{isFinishGetFeed ? '没有更多内容了' : '加载中...'}}</view>
+    </view>
+    <!-- 右下悬浮按钮 -->
+    <view class="ui-float">
+        <view class="main-center" @tap.stop="getFeedList">
+            <view class="ui-item ui-float-btn">
+                <text class="icon-feedlist"></text>
+            </view>
+        </view>
+        <view class="main-center" @tap.stop="getRefresh">
+            <view class="ui-item ui-float-btn">
+                <text class="icon-refresh1"></text>
+            </view>
+        </view>
+        <view class="main-center" wx:if="{{isShowAddButton}}" @tap.stop="getAddTask">
+            <view class="ui-add ui-float-btn">
+                <text wx:if="{{'member'===role}}" class="icon-message"></text>
+                <text wx:else class="icon-add"></text>
+            </view>
+        </view>
+    </view>
+    <!-- 二维码弹窗 -->
+    <view class="ui-fixed-box" wx:if="{{isShowImgCode}}">
+        <view class="ui-fixed-mask" @tap.stop="hideImgCode"></view>
+        <view class="ui-fixed-main">
+            <image src="{{imgCode}}"></image>
+        </view>
+    </view>
+    <!-- 点击 标题问号 弹窗 -->
+    <view class="ui-box" :class="{'active':isShowQuestion}">
+        <view class="ui-top" @tap.stop="getToggleQuestion">
+            <text class="icon-back-close"></text>
+        </view>
+        <scroll-view class="ui-scroll" scroll-y>
+            <view wx:if="{{ targetList.length&&targetList[0]}}">
+                <view class="cell-title">学习目标</view>
+                <view wx:for="{{ targetList }}" wx:key="{{ item }}" class="cell-li">{{ item }}</view>
+            </view>
+            <view wx:if="{{ courseImageList.length }}">
+                <view class="cell-title">训练营介绍</view>
+                <image wx:for="{{ courseImageList }}" wx:key="{{ item }}" class="cell-poster" src="{{item}}" mode="widthFix"></image>
+            </view>
+            <view wx:if="{{ teacherImage }}">
+                <view class="cell-title">导师介绍</view>
+                <image class="cell-teacher-image" src="{{ teacherImage }}" mode="widthFix" />
+            </view>
+        </scroll-view>
+    </view>
+    <!-- 新消息提示框 -->
+    <view class="ui-new-tips" @tap.stop="scrollToLast" wx:if="{{isShowNewTips && newTipsLocation > 0}}">
+        <image src="../../assets/img/tipsbg.svg"></image>
+        <view class="cell-tips-text">新互动</view>
+    </view>
+    <view class="cell-mask" hidden="{{ !isShowQuestion }}"></view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {
+        getStore,
+        connect
+    } from "wepy-redux"
+    import Loading from '../../components/common/loading'
+    import header from '../../components/common/header'
+    import poll from '../../components/cards-type/poll'
+    import { shareDictionary, initializationDeligate, navigateToLesson } from "../../utils"
+    import {fetch, team as teamApi, share as shareApi } from '../../api'
+    import _ from 'underscore';
+    import config from '../../api/config';
+    import dynamic from '../../components/team-module/training-camp-dynamic';
+
+    const store = getStore();
+    @connect({
+        token(state) {
+            return state.user.token
+        },
+        avatar(state) {
+            return state.user.avatarUrl
+        },
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class teamDetail extends wepy.page {
+        config = {
+            navigationBarTitleText: "下拉刷新",
+            enablePullDownRefresh: true,
+            backgroundTextStyle: "dark"
+        }
+        components = {
+            'jn-header': header,
+            'jn-loading': Loading,
+            'jn-poll': poll,
+            dynamic, //底部feed动态列表
+        };
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isLoaded: false,
+            headerBackground: 'background-transparent',
+            isShowAddButton: true,
+            replyValueDictionary: {},
+            teamID: '',
+            wxPushType: '',
+            role: null,
+            teamTime: null,
+            teamName: null,
+            signUpUserCount: 0,
+            imageUrl: '',
+            isShowQuestion: false,
+            targetList: [],
+            courseImageList: [], // 课程介绍海报
+            teacherImage: '',
+            todayTask: [],
+            isShowManagerButton: false,
+            managerButtonStatus: '',
+            teamDetail: {},
+            senceID: null,
+            intereactList: [],
+            taskList: {},
+            reviewTask: {},
+            isLastDay: false,
+            weight: 0,
+            labelDictionary: {
+                1: 'A',
+                2: 'B',
+                3: 'C',
+                4: 'D',
+                5: 'E',
+                6: 'F',
+                7: 'G',
+                8: 'H'
+            },
+            taskRate: 0,
+            pollOrQuizRate: 0,
+            pollOrQuizCount: 0,
+            taskCount: 0,
+            isOpen: false, //是否连上了websocket
+            imgCode: 'http://image.runwise.cn/image/Td9197b351644a48a0568e2217d51Width430ImageCode.png', //训练营二维码图片地址
+            isShowImgCode: false, //是否展示二维码,默认否
+            notDoneCount: '', //多少条未参与
+            hasNewFeed: false, //是否有新消息
+            isShowNewTips: false, //是否展示有新的消息
+            newTipsLocation: 0, //新消息的条数
+            isFinishGetFeed: false, //是否获取到了feed列表
+            setIntervalWebsocket: '', //websocket断线重连定时器
+            oldscrollTop: '', //滚动了多少高度
+            canUseOpenData:wx.canIUse('open-data'),//是否支持open-data组件
+        }
+        watch = {
+            role(newValue, oldValue) {
+                console.log(newValue, oldValue)
+            }
+        }
+        onLoad(params) {
+            let self = this;
+            self.teamID = params.teamID
+            self.wxPushType = params.wxPushType
+            self.$apply()
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+        /**
+         * 监听滚动条的位置
+         * @param
+         */
+        onPageScroll(res) {
+            let self = this;
+            let scrollTop = res.scrollTop;
+            self.oldscrollTop = scrollTop;
+            self.headerBackground = scrollTop > 240 ? 'background-transparent-opacity' : 'background-transparent';
+            setTimeout(() => {
+                let query = wx.createSelectorQuery();
+                query.selectAll('.ui-training-detail >>> .ui-interact-item').boundingClientRect((rect) => {
+                    if (rect.length == 0 || self.newTipsLocation <= 0) return
+                    let targetHeight = self.intereactList[0].isTop ? rect[self.newTipsLocation].top : rect[self.newTipsLocation - 1].top;
+                    if (scrollTop > targetHeight) {
+                        self.isShowNewTips = false;
+                        self.hasNewFeed = false;
+                    }
+                }).exec()
+            }, 300)
+            self.$apply()
+        }
+        onShow() {
+            let self = this
+            initializationDeligate({
+                initializeFunc: self.initialize.bind(self)
+            })
+        }
+        onPullDownRefresh() {
+            let self = this
+            wx.closeSocket()
+            clearInterval(self.setIntervalWebsocket);
+            self.initialize().then(() => {
+                wx.stopPullDownRefresh()
+            }).catch((error) => {
+                console.log(error)
+            })
+        }
+
+        
+
+        /**
+         * 初始化数据
+         */
+        initialize(index) {
+            let self = this
+            let postData = {
+                token: self.token,
+                teamID: self.teamID
+            }
+            self.__InitSocket()
+            if (self.wxPushType) {
+                postData.wxPushType = self.wxPushType
+            }
+            return fetch.getTeamDetail(postData).then((response) => {
+                response = response.data;
+                self.reviewTask = response.reviewTask
+                self.isLastDay = response.isLastDay
+                self.imageUrl = response.imageUrl;
+                self.teamName = response.name;
+                self.signUpUserCount = response.signUpUserCount;
+                self.teamTime = response.time;
+                self.todayTask = response.taskList.TaskContentList;
+                self.role = response.role;
+                self.targetList = response.targetList;
+                self.courseImageList = response.courseImageList;
+                self.teacherImage = response.teacherImage;
+                self.isShowManagerButton = response.isShowManagerButton
+                self.managerButtonStatus = response.managerButtonStatus
+                self.teamDetail = response.teamDetail;
+                self.imgCode = response.shareImage;
+                self.isLoaded = true;
+                self.$apply()
+            }).then(() => {
+                self.__getFeedList()
+            }).catch((error) => {})
+        }
+        /**
+         * 数组重组
+         * @paramsresponse 接口返回的数据
+         */
+        __dataRegroup(response) {
+            let self = this
+            _.each(response, (data) => {
+                data.isTopNumber = data.isTop ? 1 : 0
+                data.replyValue = '';
+                data.content = data.content.split('&hc').join('\n');
+                switch (data.contentType) {
+                    case 'discuss':
+                        data.moduleTitle = data.moduleTitle || '讨论'
+                        data.icon = 'discuss'
+                        break
+                    case 'notice':
+                        data.moduleTitle = data.moduleTitle || '通知，晚间讨论'
+                        data.icon = 'inform'
+                        break
+                    case 'practice':
+                        data.moduleTitle = data.moduleTitle || '小练习'
+                        data.icon = 'practice'
+                        _.each(data.practiceList, (item) => {
+                            item.role = self.role
+                            _.each(item.select, (data) => {
+                                data.sId = _.clone(data.id)
+                                data.id = item.id + data.id
+                                if (item.type !== 'multiSelection') {
+                                    if (data.isSelected) {
+                                        item.feedback = data.feedback
+                                    }
+                                }
+                            })
+                        })
+                        self.$apply()
+                        break
+                    case 'poll':
+                        data.moduleTitle = data.moduleTitle || '来投一下票，做下调查'
+                        data.icon = 'poll'
+                        data.role = self.role
+                        if ('member' !== data.role) {
+                            data.isDone = true
+                        }
+                        if (data.isDone) {
+                            _.each(data.select, (item) => {
+                                item.prop = Math.floor(item.ballot / data.pollCount * 1000) / 10
+                            })
+                        }
+                        break
+                    default:
+                        data.moduleTitle = data.moduleTitle || '讨论'
+                        data.icon = 'discuss'
+                }
+            })
+            response = _.sortBy(response, (item) => {
+                return -item.isTopNumber
+            })
+            return response
+        }
+        /**
+         * 发起wx的websocket链接
+         * @params teamID-userID
+         */
+        __connectSocket() {
+            let self = this;
+            console.log(config)
+            let myCrossEnv = config.environment == 'development' ? 'wssdev' : 'wssrel';
+            console.log('wss://wx-small.runwise.cn/' + myCrossEnv + '/TeamWebSocket/' + self.teamID + '-' + self.systemInfo.userid)
+            wx.connectSocket({
+                url: 'wss://wx-small.runwise.cn/' + myCrossEnv + '/TeamWebSocket/' + self.teamID + '-' + self.systemInfo.userid,
+                method: "GET",
+                success() {
+                    console.log('websocket连接成功')
+                },
+                fail() {
+                }
+            })
+        }
+        /**
+         * 关闭socket
+         */
+        onHide() {
+            wx.closeSocket()
+            clearInterval(this.setIntervalWebsocket)
+        }
+        onUnload() {
+            wx.closeSocket()
+            clearInterval(this.setIntervalWebsocket)
+        }
+        /**
+         * 获取feed列表
+         */
+        __getFeedList() {
+            let self = this
+            let postData = {
+                token: self.token,
+                teamID: self.teamID
+            }
+            fetch.getActivityfeedList(postData).then((response) => {
+                self.taskRate = response.taskRate;
+                self.pollOrQuizRate = response.pollOrQuizRate;
+                self.pollOrQuizCount = response.pollOrQuizCount;
+                self.taskCount = response.taskCount;
+                self.intereactList = self.__dataRegroup(response.rtList)
+                self.notDoneCount = response.notDoneCount;
+                self.isFinishGetFeed = true;
+                self.hasNewFeed && (self.isShowNewTips = true);
+                self.$apply()
+            }).then(() => {
+            })
+        }
+        /**
+         * 初始化socket 监听数据变化
+         */
+        __InitSocket() {
+            let self = this;
+            self.__connectSocket();
+            //监听连接失败
+            wx.onSocketError(res => {
+                self.isOpen = false;
+                wepy.showToast({
+                    title: '连接已断开',
+                    icon: 'fail'
+                })
+            })
+            //监听连接成功
+            wx.onSocketOpen(res => {
+                self.isOpen = true;
+                self.setIntervalWebsocket = setInterval(() => {
+                    wx.sendSocketMessage({
+                        data: 'ping',
+                        fail() {
+                            wx.closeSocket()
+                            clearInterval(this.setIntervalWebsocket)
+                            self.__InitSocket()
+                        }
+                    })
+                }, 10000);
+                wx.onSocketMessage(data => {
+                    console.log(data.data)
+                    if (data.data == 'isNewFeed') {
+                        self.hasNewFeed = true;
+                        self.newTipsLocation++;
+                        self.__getFeedList();
+                    }
+                    if (data.data == 'cancelFeed') {
+                        self.hasNewFeed = true;
+                        self.newTipsLocation--;
+                        self.__getFeedList();
+                    }
+                })
+            })
+        }
+        methods = {
+            hideImgCode() { //隐藏二维码
+                let self = this
+                self.isShowImgCode = false
+            },
+            showImgCode() { //展示二维码
+                let self = this
+                self.isShowImgCode = true
+            },
+            scrollToLastOne() { //滚动到最后一个未参与的feed
+                let self = this
+                setTimeout(() => {
+                    let query = wx.createSelectorQuery();
+                    query.selectAll('.ui-training-detail >>> .cell-uncomplete').boundingClientRect((rect) => {
+                        if (rect.length == 0) return
+                        let targetHeight = rect[rect.length - 1].top - 88;
+                        wx.pageScrollTo({
+                            scrollTop: targetHeight + self.oldscrollTop,
+                            duration: 300,
+                            success() {
+                            }
+                        })
+                    }).exec()
+                }, 300)
+            },
+            scrollToLast() { //滚动到新消息的位置
+                let self = this
+                setTimeout(() => {
+                    let query = wx.createSelectorQuery();
+                    query.selectAll('.ui-training-detail >>> .ui-interact-item').boundingClientRect((rect) => {
+                        if (rect.length == 0) return
+                        let targetHeight = self.intereactList[0].isTop ? rect[self.newTipsLocation].top : rect[self.newTipsLocation - 1].top;
+                        wx.pageScrollTo({
+                            scrollTop: targetHeight,
+                            duration: 300,
+                            success() {
+                                self.isShowNewTips = false;
+                                self.hasNewFeed = false;
+                            }
+                        })
+                    }).exec()
+                }, 300)
+            },
+            getEvaluation() { //学员查看评价
+                this.$navigate(`/pages/training-camp-module/evaluation`, {
+                    teamID: this.teamID
+                })
+            },
+            getOverviewEvaluation() { //导师\管理员查看评价
+                this.$navigate(`/pages/training-camp-module/overview-evaluation`, {
+                    teamID: this.teamID
+                })
+            },
+            getSelected(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            practiceIndex,
+                            item,
+                            itemIndex,
+                            interractIndex
+                        }
+                    }
+                } = event
+                let cardData = self.intereactList[interractIndex].practiceList[practiceIndex];
+                if ('member' !== cardData.role || cardData.options) {
+                    return false
+                }
+                if ("multiSelection" === cardData.type) {
+                    item.isSelected = !item.isSelected
+                    self.intereactList[interractIndex].practiceList[practiceIndex].select[itemIndex] = item
+                    self.$apply()
+                } else {
+                    _.each(cardData.select, (option) => {
+                        option.isSelected = false
+                    })
+                    item.isSelected = true;
+                    self.intereactList[interractIndex].practiceList[practiceIndex].select[itemIndex] = item
+                    self.$apply()
+                }
+                let selectNum = 0
+                _.each(cardData.select, (option) => {
+                    if (option.isSelected) {
+                        selectNum++;
+                    }
+                })
+                selectNum ? cardData.isSubmit = true : cardData.isSubmit = false
+                self.intereactList[interractIndex].practiceList[practiceIndex] = cardData
+                self.$apply()
+            },
+            getSubmit(event) {
+                let {
+                    currentTarget: {
+                        dataset: {
+                            practiceIndex,
+                            interractIndex
+                        }
+                    }
+                } = event
+                let self = this;
+                let cardData = self.intereactList[interractIndex].practiceList[practiceIndex];
+                self.$apply()
+                if ('member' !== cardData.role || cardData.options) {
+                    return;
+                }
+                if (!cardData.isSubmit) {
+                    return wx.showToast({
+                        title: '请选择选项',
+                        icon: 'none',
+                        duration: 2000
+                    })
+                }
+                let selectedId = ''
+                let num = 0
+                if ('multiSelection' !== cardData.type) {
+                    _.each(cardData.select, (option) => {
+                        if (option.isSelected) {
+                            cardData.feedback = option.feedback;
+                            self.$apply();
+                        }
+                    })
+                }
+                _.each(cardData.select, (option) => {
+                    if (option.isSelected) {
+                        selectedId = selectedId ? selectedId + `,${option.sId}` : option.sId
+                        num = num + option.weight
+                        self.$apply()
+                    }
+                })
+                let postData = {
+                    token: self.token,
+                    teamID: self.teamID,
+                    senceID: cardData.senceID,
+                    cardID: cardData.id,
+                    score: cardData.score || 0,
+                    message: '', // 选中选项的name
+                    weight: num, // 选中选项的权重
+                    questionIndex: 0,
+                    skillID: cardData.skillID,
+                    json: selectedId // 选中选项的id或顺序
+                }
+                fetch.sendTeamPractice(postData).then(response => {
+                    cardData.options = '1' //标志 已经做过了
+                    self.intereactList[interractIndex].practiceList[practiceIndex] = cardData;
+                    self.intereactList[interractIndex].isDone = true
+                    self.$apply()
+                })
+            },
+            // 标题 问好
+            getToggleQuestion() {
+                let self = this;
+                self.isShowQuestion = !self.isShowQuestion
+                self.$apply()
+            },
+            // feed 列表
+            getFeedList() {
+                this.$navigate(`/pages/training-camp-module/feed-list`, {
+                    teamID: this.teamID,
+                    role: this.role
+                })
+            },
+            // 刷新列表
+            getRefresh() {
+                let self = this
+                wx.startPullDownRefresh()
+            },
+            getAddTask() {
+                let self = this;
+                if (self.role === 'member') {
+                    self.$navigate(`/pages/training-camp-module/release-discuss`, {
+                        teamID: self.teamID,
+                        userID: self.systemInfo.userid,
+                        role: self.role
+                    })
+                } else {
+                    self.$navigate(`/pages/training-camp-module/my/release-discuss`, {
+                        teamID: self.teamID,
+                        userID: self.systemInfo.userid,
+                        role: self.role
+                    })
+                }
+            },
+            /*
+                管理训练营
+            */
+            getManageTeam() {
+                let self = this;
+                if ('showManager' === self.managerButtonStatus) {
+                    return self.$navigate(`/pages/training-camp-module/my/main`, {
+                        teamID: self.teamID,
+                        role: self.role
+                    })
+                } else if ('showMenberComplete' === self.managerButtonStatus) {
+                    return self.$navigate(`/pages/training-camp-module/learning-result`, {
+                        teamID: self.teamID
+                    })
+                } else {
+                    return console.log(`未定义与该状态${self.managerButtonStatus}对应的行为`)
+                }
+            },
+            // 排行榜
+            getRankList() {
+                let self = this;
+                self.$navigate('/pages/training-camp-module/ranking-list', {
+                    teamID: self.teamID,
+                    teamName: self.teamName
+                })
+            },
+            // 查看今日的全部任务
+            getAllToadyTask() {
+                let self = this;
+                self.$navigate(`/pages/training-camp-module/task-list`, {
+                    teamID: self.teamID
+                })
+            },
+            // 跳去微课
+            getLesson(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item
+                        }
+                    }
+                } = event
+                let buttonStatus = item.buttonStatus
+                let senceName = item.name
+                let resume = item.resume ? item.resume : ''
+                self.senceID = item.senceID ? item.senceID : item.id
+                self.courseID = item.courseID
+                if ('needPay' === buttonStatus) {
+                    wepy.switchTab({
+                        url: '/pages/tabPages/course'
+                    })
+                    return
+                }
+                if ('finish' === buttonStatus) {
+                    self.$navigate(`/pages/course-module/course-cover`, {
+                        senceID: self.senceID,
+                        courseID: self.courseID
+                    })
+                    return
+                }
+                navigateToLesson({
+                    senceID: self.senceID,
+                    courseID: self.courseID,
+                    teamID: self.teamID,
+                    resumeLastRead: resume,
+                })
+            }
+        }
+        events = {
+            /**
+             * 刷新列表
+             */
+            'do-update': () => {
+                let self = this
+                self.__getFeedList()
+            },
+            /**
+             * toggle右下悬浮新增feed按钮
+             */
+            'toggle-add-button': data => {
+                let self = this
+                self.isShowAddButton = data.isShowAddButton
+            }
+        }
+
+		onShareAppMessage(event) {
+			let self = this ;
+            wepy.$instance.globalData.getReportFlow('share');
+			let shareId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+				var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+				return v.toString(16);
+			})
+			console.log(shareId)
+			fetch.reportSharing({
+                token: self.token,
+				type: shareDictionary.SHARE_TRAINING_CAMP.type,
+				businessId: shareId
+            })
+			return {
+                title: self.name,
+                path: `/pages/training-camp-module/registration?teamID=${self.teamID}&shareId=${shareId}`,
+                imageUrl: ''
+            }
+        }
+    }
+</script>

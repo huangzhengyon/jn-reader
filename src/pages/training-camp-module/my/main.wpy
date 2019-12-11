@@ -1,0 +1,646 @@
+<template>
+    <scroll-view>
+        <view class="ui-team-manager-box">
+            <jn-header title="训练营管理"></jn-header>
+            <view class="ui-team-cir">
+                <view class="ui-item">
+                    <canvas class="cell-canvas" canvas-id="canvasArc"></canvas>
+                    <view class="ui-contnet">
+                        <view>
+                            <text class="cell-num">{{averageFinish}}</text>
+                            <text class="cell-tip">%</text>
+                        </view>
+                        <view class="cell-desc">平均完成比例</view>
+                    </view>
+                </view>
+            </view>
+            <view class="ui-detail">
+                <view class="ui-item">
+                    <view>
+                        <text class="cell-num">{{averageSenceScore}}</text>
+                        <text class="cell-text ">/5</text>
+                    </view>
+                    <view class="cell-desc">平均微课评分</view>
+                </view>
+                <view class="ui-item">
+                    <view>
+                        <text class="cell-num cell-blue">{{averageLearnAllTime}}</text>
+                        <text class="cell-text">min</text>
+                    </view>
+                    <view class="cell-desc">平均学习总时长</view>
+                </view>
+                <view class="ui-item">
+                    <view>
+                        <text class="cell-num cell-green">{{averageSenceLearnTime}}</text>
+                        <text class="cell-text">min</text>
+                    </view>
+                    <view class="cell-desc">平均微课学习时长</view>
+                </view>
+            </view>
+            <view class="ui-skill-board" wx:if="{{skillGroupList.length||skillSet.length}}">
+                <mSkillSet></mSkillSet>
+            </view>
+            <view class="ui-manager" wx:if="{{roleType == 'admin'}}">
+                <view class="ui-top ui-top-manager">
+                    <view class="cell-title">营长管理</view>
+                    <button class="cell-invite-btn"
+                    wx:if="{{adminUser.isShowShare}}"
+                    open-type="share"
+                    data-target-user="2"
+                    data-token="{{ token }}"
+                    data-share-target="ones"
+                    data-share-title="{{ shareTitle }}"
+                    data-share-image="{{ shareImage }}"
+                    data-admin-name="{{ userName }}"
+                    data-team-i-d="{{ teamID }}"
+                    data-channel="{{entrance.mappers[entrance.scenceID]}}"
+                    data-userName="{{userName}}"
+                    data-role="{{role}}"
+                    data-role-text="营长">邀请营长</button>
+                </view>
+                <view class="ui-content" wx:for="{{adminUser.adminUserList}}" wx:key="{{index}}" >
+                    <view class="ui-item">
+                        <image mode="scaleToFill" class="cell-avater" src="{{item.avatarUrl||''}}" />
+                        <view class="ui-dec">
+                            <view class="cell-name">{{item.nickName}}</view>
+                            <view class="cell-tip">{{(item.department?item.department+' ':'')}}{{(item.position?item.position:'')}}</view>
+                        </view>
+                    </view>
+                    <view class="cell-cancel-btn" @tap.stop="handleCancelManager" data-id="{{item.adminUserID}}" wx:if="{{item.isShowCancel}}">取消资格</view>
+                </view>
+            </view>
+            <view class="ui-manager" wx:if="{{roleType == 'admin'}}">
+                <view class="ui-top ui-top-manager">
+                    <view class="cell-title">导师管理</view>
+                    <button class="cell-invite-btn"
+                    wx:if="{{teacherUser.isShowShare}}"
+                    open-type="share"
+                    data-target-user="3"
+                    data-token="{{ token }}"
+                    data-share-target="ones"
+                    data-share-title="{{ shareTitle }}"
+                    data-share-image="{{ shareImage }}"
+                    data-admin-name="{{ userName }}"
+                    data-team-i-d="{{ teamID }}"
+                    data-channel="{{entrance.mappers[entrance.scenceID]}}"
+                    data-userName="{{userName}}"
+                    data-role="{{role}}"
+                    data-role-text="导师">邀请导师</button>
+                </view>
+                <view class="ui-content" wx:for="{{teacherUser.teacherUserList}}" wx:key="{{index}}" >
+                    <view class="ui-item">
+                        <image mode="scaleToFill" class="cell-avater" src="{{item.avatarUrl||''}}" />
+                        <view class="ui-dec">
+                            <view class="cell-name">{{item.name||item.nickName}}</view>
+                            <view class="cell-tip">{{(item.department?item.department+' ':'')}}{{(item.position?item.position:'')}}</view>
+                        </view>
+                    </view>
+                    <view class="cell-cancel-btn" @tap.stop="handleCancelManager" data-id="{{item.adminUserID}}" wx:if="{{item.isShowCancel}}">取消资格</view>
+                </view>
+            </view>
+            <view class="ui-manager" wx:if="{{member}}">
+                <view class="ui-top">
+                    <view>
+                        <view class="cell-title">学员管理</view>
+                        <view class="cell-brif-dec" @tap.stop="handleTapToMore" data-type="学员管理">落后{{loserCount}}人/总{{memberCount}}人</view>
+                    </view>
+                    <view class="cell-btn" wx:if="{{isShowSendLosePushButton}}" @tap.stop="handleSendPush">进度提醒</view>
+                </view>
+                <view class="ui-search" @tap.stop="handleTapToMore"  data-type="学员管理">
+                    <image class="cell-icon" src="http://wx-small.runwise.cn/image/imageIDc8916e023dc4588c632fd0fdc488.svg" mode="scaleToFill"/>
+                    <input class="cell-input" disabled placeholder="请输入学员姓名"/>
+                </view>
+                <view class="ui-content" wx:for="{{member}}" wx:key="{{index}}" @tap.stop="handleMemberDetail" data-memberuserid="{{item.userID}}">
+                    <view class="ui-item">
+                        <image mode="scaleToFill" class="cell-avater" src="{{item.avatarUrl||''}}" />
+                        <view class="ui-dec">
+                            <view class="cell-name">{{item.name||item.nickName}}</view>
+                            <view class="cell-tip">{{(item.department?item.department+' ':'')}}{{(item.position?item.position:'')}}</view>
+                        </view>
+                    </view>
+                    <view class="ui-right">
+                        <view class="ui-precent">
+                            <text class="cell-name">{{item.userPercent}}</text>
+                            <text class="cell-icon">%</text>
+                        </view>
+                        <view class="ui-tip" wx:if="{{item.loserFlag}}">
+                            <view class="cell-icon">!</view>
+                            <view> 进度落后</view>
+                        </view>
+                    </view>
+                </view>
+                <view class="ui-more" @tap.stop="handleTapToMore" data-type="学员管理" wx:if="{{membertemp>3}}">
+                    <text class="cell-text">查看更多</text>
+                    <text class="icon-right-arrow"></text>
+                </view>
+            </view>
+            <view class="ui-manager" wx:if="{{comment[0]}}">
+                <view class="ui-top ui-top-evalation">
+                    <view class="cell-title">课程评价</view>
+                </view>
+                <view>
+                    <block wx:for="{{comment[0].courseSenceList}}" wx:key="{{index}}" >
+                    <view class="ui-content {{index===0?'cell-border-top':'cell-border-none'}}" @tap.stop="handleCommentDetail" data-senceid="{{item.senceID}}">
+                        <view class="ui-item">
+                            <image mode="aspectFill" class="cell-common-avater" src="{{item.imageUrl}}" />
+                            <view class="ui-dec">
+                                <view class="cell-name" style="font-size:32rpx !important;">{{item.senceName}}</view>
+                                <view class="cell-tip">{{item.skillGroup}}</view>
+                            </view>
+                        </view>
+                        <view class="ui-score">
+                            <view>
+                                <text class="cell-num" style="color: #F5A623 !important;">{{item.senceScore}}</text>
+                                <text class="cell-all">/5</text>
+                            </view>
+                            <view class="cell-evalation">评价学员：{{item.feedBackUserCount}}</view>
+                        </view>
+                    </view>
+                    <view class="ui-common-dec">
+                        <view >
+                            <text>学习参与：</text>
+                            <text class="cell-score">{{item.feed1}}</text>
+                        </view>
+                        <view >
+                            <text>技能掌握：</text>
+                            <text class="cell-score">{{item.feed2}}</text>
+                        </view>
+                        <view >
+                            <text>实践指引：</text>
+                            <text class="cell-score">{{item.feed3}}</text>
+                        </view>
+                    </view>
+                    </block>
+                </view>
+                <view class="ui-more" @tap.stop="handleTapToMore" data-type="课程评价" wx:if="{{comment.length>1}}">
+                    <text class="cell-text">查看更多</text>
+                    <text class="icon-right-arrow"></text>
+                </view>
+            </view>
+            <view class="ui-bottom-btn" wx:if="{{isCustom!=='custom'}}">
+                <button :class="{'is-end' : teamStatus == 'closeLearning'}" @tap.stop="handleEndTeamLearning">
+                    {{teamStatus =='closeLearning' ? '训练营已结束' : '结束训练营'}}</button>
+                <!-- <button @tap.stop="getEditTeam">编辑训练营</button> -->
+            </view>
+        </view>
+    </scroll-view>
+</template>
+<style lang="less" scoped>
+    @import "../../../assets/style/theme";
+    .ui-team-manager-box{
+        width: 100%;height: 100%;
+        .ui-team-cir{
+            width: 100%;position: relative;height: 320rpx;
+            .ui-item{
+                width: 100%;text-align: center;
+                .cell-canvas{display: inline-block;top: -40rpx;width:212px; height:212px;}
+                .ui-contnet{
+                    margin-top: -350rpx;
+                    .cell-num{color: @color-black;font-size: 96rpx;font-weight: bold;}
+                    .cell-tip{color: @color-black;font-family: PingFangSC-Regular;margin-left: 4rpx;font-size: 44rpx}
+                    .cell-desc{color: @color-gray;font-family: PingFangSC-Regular;font-size: 26rpx;}
+                }
+            }
+        }
+        .ui-detail{
+            display: flex;justify-content: space-around;width: 100%;height: 240rpx;
+            .ui-item{
+                height: 100%;width: 250rpx;display: flex;justify-content: center;align-items: center;flex-direction: column;
+                .cell-num{color: @color-black;font-weight: bold;font-size: 48rpx;}
+                .cell-text{color: @color-gray;font-family: PingFangSC-Regular;font-size: 26rpx;margin-left: 4rpx;}
+                .cell-desc{color: @color-gray;;font-family: PingFangSC-Regular;font-size: 26rpx;margin-top: 24rpx;}
+            }
+        }
+        .ui-skill-board{padding: 0 32rpx;border-top: 20rpx solid @border-gray;}
+    }
+    .ui-bottom-btn{
+        width: 100%;background-color: @background-gray-F4;height: 220rpx;border-top: 120rpx solid @border-gray;display: flex;
+        button{
+            color: @color-white;font-weight: bold;font-size: 32rpx;height: 76rpx;line-height: 76rpx;border-radius: @border-radius-20;border: 0;background-color: @background-blue;width: 336rpx;margin:auto;
+            &.is-end{color: @background-gray;background-color: @background-gray-hover;}
+        }
+    }
+    .ui-manager{
+        border-top: 20rpx solid @border-gray;padding: 0 36rpx;width: calc(~"100% - 72rpx");
+        .ui-top{
+            width: 100%;display: flex;flex-direction: row;justify-content: space-between;
+            .cell-title{color: @color-black;font-family: PingFangSC-Semibold;font-size: 48rpx;font-weight: 600;line-height: 48rpx;margin-top: 48rpx;}
+            .cell-brif-dec{color: @color-black;font-family: PingFangSC-Medium;font-size: 32rpx;line-height: 32rpx;margin-bottom: 40rpx;margin-top: 36rpx;}
+            .cell-btn{color: @color-blue;font-family: PingFangSC-Medium;font-size: 32rpx;margin-top: 72rpx;line-height: 72rpx;height: 72rpx;width: 200rpx;border-radius: @border-radius-32;text-align: center;background-color: @background-gray-F4;}
+            .cell-invite-btn{height: 100%;background-color: transparent;font-family: PingFangSC-Medium;font-size: 26rpx;color: @color-blue;text-align: right;line-height: 120rpx;padding: 0;margin: 0;border: 0}
+        }
+        .ui-top.ui-top-manager{
+            align-items:center;height:120rpx;
+            .cell-title{margin:40rpx 0;line-height: 40rpx}
+        }
+        .ui-top.ui-top-evalation{height: 140rpx;}
+        .ui-search{
+            height: 72rpx;margin: 40rpx 0;border-radius: @border-radius-32;background-color: @background-gray-F4;display: flex;align-items: center;
+            .cell-icon{width: 50rpx;height: 50rpx;margin-left: 36rpx;}
+            .cell-input{margin-left: 20rpx;height: 100%;font-size: 32rpx;}
+        }
+        .ui-content{
+            display: flex;justify-content: space-between;width: 100%;height: 180rpx;border-bottom: 2rpx solid @border-gray;align-items: center;
+
+            .ui-right{
+                .ui-precent{
+                    text-align:center;color: @color-black;
+                    .cell-name{font-weight: bold;font-size: 48rpx;}
+                    .cell-icon{font-size: 36rpx;margin-left: 4rpx;}
+                }
+                .ui-tip{
+                    margin-top: 16rpx;color: @color-red;font-family: PingFangSC-Medium;font-size: 24rpx;line-height: 24rpx;display: flex;
+                    .cell-icon{width: 22rpx;height: 22rpx;border-radius: 50%;border: 2rpx solid @color-red;line-height: 26rpx;text-align: center;color: @color-red;font-size: 16rpx;margin-right: 6rpx;}
+                }
+            }
+            .cell-cancel-btn{font-family: PingFangSC-Medium;font-size: 26rpx;color: @color-red;line-height: 28rpx;}
+            .ui-score{
+                text-align:right;
+                .cell-num{color: @color-black;font-weight: bold;font-size: 40rpx;}
+                .cell-all{color: @color-gray;font-weight: bold;font-size: 36rpx;margin-left: 4rpx;}
+                .cell-evalation{margin-top: 20rpx;color: @color-gray;font-family: PingFangSC-Regular;font-size: 24rpx;}
+            }
+        }
+        .ui-common-dec{
+            height: 60rpx;display: flex;padding: 0 44rpx;border-bottom: 2rpx solid @border-gray;margin: 0 -36rpx;justify-content: space-between;color:@color-gray;font-family: PingFangSC-Regular;font-size: 24rpx;
+            .cell-score{color:@color-orange;}
+        }
+        .ui-item{
+            display: flex;align-items: center;
+            .cell-avater{width: 120rpx;height: 120rpx;border-radius: 50%;}
+            .cell-common-avater{width: 120rpx;height: 120rpx;}
+            .ui-dec{
+                margin-left:36rpx;
+                .cell-name{color: @color-black;font-family: PingFangSC-Semibold;font-weight: bold;font-size: 36rpx;max-width: 360rpx;}
+                .cell-tip{color: @color-gray;font-family: PingFangSC-Regular;font-size: 28rpx;margin-top: 12rpx;white-space: pre;overflow:hidden;text-overflow: ellipsis;width: 360rpx;}
+            }
+        }
+        .ui-content.cell-border-none {border: 0;}
+        .ui-content.cell-border-top{border-top: 2rpx solid @border-gray;border-bottom: 0;}
+        .ui-more{
+            width: 100%;height: 140rpx;display: flex;justify-content: center;align-items: center;color:@color-blue;
+            .cell-text{font-size: 32rpx;font-weight: bold;}
+            .cell-icon{margin-left: 8rpx;font-size: 26rpx}
+        }
+    }
+</style>
+<script>
+    import wepy from "wepy"
+    import {getStore, connect} from "wepy-redux"
+    import loadingMixin from "../../../mixins/loading"
+    import header from '../../../components/common/header'
+    import SkillSet from '../../../components/SkillSet/index'
+    import {fetch, team as teamApi} from '../../../api'
+    const store = getStore();
+    const state = store.getState();
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        }, // mapState 即getters
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            // return 'userIDcef89ebd694454a19e2a45101099-1512110049642-a94b56648a4b9ec2c272444598f98537'
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        },
+        role(state) {
+            return state.user.role
+        },
+        entrance(state) {//全局场景值
+            return state.entrance
+        },
+    })
+    export default class TeamLearningManager extends wepy.page {
+        mixins = [loadingMixin] // end mixins
+        components = {
+            'mSkillSet':SkillSet,
+            'jn-header': header
+        }
+        data = {
+            teamID: '',
+            percent: 0,
+            membertemp:0,
+            member: [],
+            comment: [],
+            dashes: [],
+            teamStatus: '',
+            averageFinish: 0,
+            averageLearnAllTime: 0,
+            averageSenceLearnTime: 0,
+            averageSenceScore: 0,
+            limitCount: 0,
+            signUpCount: 0,
+            loserCount:0,
+            memberCount:0,
+            loserUserIDList:'',
+            taskID:'',
+            isCustom:'',
+            skillGroupList:[],
+            skillSet:[],
+            extendAble:true,
+            isShowSendLosePushButton:false,
+            shareTitle:'',
+            shareImage:'',
+            adminUser:{},
+            teacherUser:{},
+            memberList:[],
+            dashes:[],
+            roleType:'',//角色类型 admin member teacher等 不是staff
+        }; 
+        onShow() {
+            let self =this;
+            self.getDetail()
+        }
+        onLoad(parms) {
+            let self = this;
+            self.roleType = parms.role
+            self.teamID = parms.teamID
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            self.$apply();
+            
+        }
+        events = {} // end events
+        methods = {
+            handleCancelManager({currentTarget:{dataset:{id}}}){
+                // return console.log(id)
+                teamApi.cancelTeamAdminUser({token:this.token,teamID:this.teamID,adminUserID:id})
+                .then(data=>{
+                    wx.showToast({
+                        title:'操作成功',
+                        icon:'success'
+                    })
+                    this.getDetail()
+                })
+            },
+            handleSendPush(){
+                teamApi.sendPush_memberLoser({
+                    token: this.token,
+                    teamID: this.teamID,
+                    taskID: this.taskID,
+                    loserUserIDList:this.loserUserIDList
+                })
+                .then(response => {
+                    console.log(response)
+                    wx.showModal({
+                        title: '提示',
+                        content: response.sendPushMsg,
+                        confirmText: '确定',
+                        showCancel: false,
+                        success: function(res) {}
+                       })
+
+
+                        })
+            },
+            handleMemberDetail({
+                currentTarget: {
+                    dataset: {
+                        memberuserid
+                    }
+                }
+            }) {
+                this.$navigate('/pages/training-camp-module/my/students-management', {
+                    teamID: this.teamID,
+                    memberUserID: memberuserid
+                })
+            },
+            handleCommentDetail({
+                currentTarget: {
+                    dataset: {
+                        senceid
+                    }
+                }
+            }) {
+                this.$navigate('/pages/training-camp-module/my/course-evaluation', {
+                    teamID: this.teamID,
+                    senceID: senceid
+                })
+            },
+            handleBeginLearn() {
+                return wepy.navigateBack({
+                    delta: 2
+                })
+            },
+            handleTeamSetting() {
+                if (this.teamStatus === 'closeLearning')
+                    return wx.showToast({
+                        title: '不可设置',
+                        icon: 'none',
+                        duration: 2000
+                    })
+                this.$navigate('/pages/BuildTeamLearning/index', {
+                    id: this.teamID,
+                    type: 'setting'
+                })
+            },
+            handleTapToMore({
+                currentTarget: {
+                    dataset: {
+                        type
+                    }
+                }
+            }) {
+                if(this.dashes){
+                        this.$preload({ memberList: this.memberList, dashes: this.dashes.map((item, index) => ({ ...item, actived: 0===index? true: false, taskID: this.taskID })) })
+                        this.$navigate('/pages/training-camp-module/my/students-list', {
+                        teamID: this.teamID,
+                        type: type,
+                        isShowSendLosePushButton:this.isShowSendLosePushButton
+                    })
+                }else{
+                    console.log('-----------------------> dashes is undefined!!!')
+                }
+
+
+            },
+            getEditTeam() {
+                let self = this;
+                self.$navigate('/pages/training-camp-module/my/edit', {teamID: self.teamID})
+            },
+            handleEndTeamLearning() {
+                let self = this;
+                if(self.teamStatus === 'closeLearning'){
+                    return;
+                }
+                wx.showModal({
+                    content: '一旦结束训练营，学员将无法进入课程学习',
+                    success: function(res) {
+                        if (res.confirm) {
+                            self.closeTeamLearning()
+                        } else if (res.cancel) {
+                            console.log('用户点击取消')
+                        }
+                    }
+                })
+            }
+        }
+        closeTeamLearning() {
+            teamApi.closeTeamLearning({
+                    token: this.token,
+                    teamID: this.teamID
+                })
+                .then(response => {
+                    if (!response) return
+                    wx.showToast({
+                        title: '课程已结束',
+                        icon: 'none',
+                        duration: 2000
+                    })
+                    this.getDetail()
+                })
+        }
+        getDetail() {
+            let self =this;
+            let postData = {
+                token : self.token,
+                teamID : self.teamID
+            }
+            fetch.showAdminPage(postData).then(response => {
+                console.log(postData,1)
+                if (!response) return
+                this.memberCount = response.memberCount
+                this.loserCount = response.loserCount
+                this.averageFinish = response.averageFinish
+                this.averageSenceLearnTime = response.averageSenceLearnTime
+                this.averageLearnAllTime = response.averageLearnAllTime
+                this.averageSenceScore = response.averageSenceScore
+                this.limitCount = response.limitCount
+                this.signUpCount = response.signUpCount
+                this.percent = this.averageFinish / 10
+                this.member = response.memberList
+                this.membertemp = response.memberList.length
+                this.member = this.member.length > 3 ? this.member.slice(0, 3) : this.member
+                this.comment = response.courseList
+                this.loserUserIDList = response.loserUserIDList
+                this.isShowSendLosePushButton = response.isShowSendLosePushButton
+                // this.comment = []
+                // if (response.courseList && response.courseList[0])
+                //     this.comment.push(response.courseList[0])
+                this.teamStatus = response.teamStatus
+                this.taskID = response.taskID
+                this.isCustom = response.isCustom
+                this.shareTitle = response.teamName
+                this.shareImage = response.teamImageUrl
+                this.adminUser = response.adminUser
+                this.teacherUser = response.teacherUser
+
+                this.skillGroupList = response.skillGroupList
+                this.skillSet = response.skillList
+                this.$invoke('mSkillSet','refreshData',{skillSet:response.skillList,skillGroupList:response.skillGroupList,title:'团队技能',extendAble:true})
+                this.memberList = response.memberList
+                this.dashes = response.dashes
+                this.$apply()
+                this.drawProgress()
+                })
+        }
+        drawProgress() {
+            // 页面渲染完成
+            var cxt_arc = wx.createCanvasContext('canvasArc'); //创建并返回绘图上下文context对象。
+            cxt_arc.setLineWidth(1);
+            cxt_arc.setStrokeStyle('#7645C1');
+            cxt_arc.setLineCap('round')
+            cxt_arc.beginPath(); //开始一个新的路径
+            cxt_arc.arc(106, 106, 70, 0, 2 * Math.PI, false); //设置一个原点(106,106)，半径为100的圆的路径到当前路径
+            cxt_arc.stroke(); //对当前路径进行描边
+            cxt_arc.setLineWidth(6);
+            cxt_arc.setStrokeStyle('#7645C1');
+            cxt_arc.setLineCap('round')
+            cxt_arc.beginPath(); //开始一个新的路径
+            cxt_arc.arc(106, 106, 70, -Math.PI * 1 / 2, Math.PI * (this.percent - 2.5) / 5, false); //0~10
+            cxt_arc.stroke(); //对当前路径进行描边
+            cxt_arc.draw();
+            console.log('draw')
+        }
+        onShareAppMessage({ from: formWhere, target: { dataset: { roleText,token, shareTarget, shareTitle,targetUser, shareImage, adminName, teamID, role, userName, channel } } }) {
+            console.log('from', formWhere,'shareTitle',shareTitle,'shareImage',shareImage)
+            if ('menu'===formWhere) return false // 只允许通过按钮转发, menu转发无效
+
+            let mNow = Date.now()
+            let mShareFlag = `${teamID}-${mNow}-${targetUser}`
+            console.log(`shareTarget: ${shareTarget}, teamID: ${teamID}, url: /pages/training-camp-module/registration?teamID=${mShareFlag}`)
+            wepy.$instance.globalData.getReportFlow('share')
+            return {
+                title: `【${roleText}邀请】${adminName}邀请你成为「${ shareTitle }」训练营的${roleText}`,
+                path: `/pages/training-camp-module/registration?teamID=${mShareFlag}`,
+                imageUrl: shareImage,
+                success: ({errMsg, shareTickets: tickets}) => {
+                    console.log('succeed in sharing', errMsg, tickets, mShareFlag)
+                    if ('shareAppMessage:ok'!==errMsg) return false
+                    console.log('shareFlag', mShareFlag)
+                    if ('ones'===shareTarget) {
+                      return teamApi.sendInvitationFlag({
+                        token: this.token,
+                        teamID,
+                        type: ONES,
+                        shareFlag: mNow
+                      })
+                      .then(() =>
+                        fetch.reportSharing({
+                          token,
+                          type: shareDictionary.SHARE_TEAM.type,
+                      })) // 向后台上报分享行为
+                      .then(() => wx.reportAnalytics('share_event', {
+                          role: role,
+                          nickname: userName,
+                          coursename: shareTitle,
+                          sencename: '/',
+                          channel: channel,
+                          type: shareDictionary.SHARE_TEAM.type,
+                        })) //分享事件上报
+                      .then(() => {
+                        let pages = getCurrentPages()
+                        let index = pages.findIndex(item => item.route === 'pages/training-camp-module/training-detail')
+                        if (-1===index) return this.$redirect(`/pages/training-camp-module/training-detail`, { teamID })
+                        let delta = pages.length - 1 - index
+                        return wepy.navigateBack({
+                          delta
+                        })
+
+                      }) // 单人分享)
+                      .catch(error => wx.showToast({
+                        title: '邀请失败，请重试',
+                        icon: 'none'
+                      }))
+                    } // end if 单人分享
+
+                    wepy.getShareInfo({
+                        shareTicket: tickets[0]
+                    })
+                        .then(response => {
+                          console.log('descrypt', response)
+                          return teamApi.sendInvitationFlag({
+                            token: this.token,
+                            teamID,
+                            type: ONES,
+                            shareFlag: mNow
+                          }) // end return
+                        })
+                        .then(() => {
+                          let pages = getCurrentPages()
+                          let index = pages.findIndex(item => item.route === 'pages/training-camp-module/training-detail')
+                          if (-1===index) return this.$redirect(`/pages/training-camp-module/training-detail`, { teamID })
+                          let delta = pages.length - 1 - index
+                          return wepy.navigateBack({
+                            delta
+                          })
+                        }) // 群分享
+                        .catch(error => wx.showToast({
+                          title: '邀请失败，请重试',
+                          icon: 'none'
+                        }))
+                },
+                fail: error => {
+                    console.log('fail to share', error)
+                    wx.showToast({
+                      title: '取消邀请',
+                      icon: 'none'
+                    })
+                }
+            } // end return
+        } // end onShareAppMessage
+    }
+</script>

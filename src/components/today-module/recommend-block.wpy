@@ -1,0 +1,381 @@
+<template>
+    <view class="ui-recommend-module" wx:if="{{list.length}}">
+        <form bindsubmit="handleSavePushCode" report-submit>
+            <swiper class="ui-swiper-wrapper" autoplay="{{autoplay}}" circular="{{circular}}" interval="{{interval}}" duration="{{duration}}" bindchange="changeDots">
+                <block wx:for="{{list}}" wx:key="index">
+                    <swiper-item class="ui-swiper-item">
+                        <button class="cell-item" open-type="{{!phone ? 'getPhoneNumber' : ''}}" @getphonenumber.stop="getItem" @tap.stop="getItem" data-item="{{item}}" data-index="index" wx:if="{{item.sceneType == 'todaySkill'}}">
+                            <image mode="aspectFill" class="cell-image" src="{{item.carousel}}"></image>
+                            <view class="cell-item-mask"></view>
+                            <view class="cell-content">
+                                <view class="cell-content-title">
+                                    <view class="cell-circular {{item.sceneType == 'groupActivity' ? 'cell-orange-circular':''}}"></view>
+                                    <view class="cell-text" wx:if="{{item.sceneType == 'todaySkill'}}">每日技能</view>
+                                    <view class="cell-text font-orange" wx:if="{{item.sceneType == 'groupActivity'}}">限时活动</view>
+
+                                </view>
+                                <view class="cell-content-main">
+                                    <view class="cell-text">
+                                        <view class="cell-text-title">
+                                            {{item.name}}
+                                        </view>
+                                        <view class="cell-text-subtitle">
+                                            {{item.subtitle}}
+                                        </view>
+                                    </view>
+                                    <view class="cell-button">
+                                        <button form-type="submit" wx:if="{{item.sceneType == 'todaySkill'}}">
+                                            {{underCheck ? '马上阅读':'限时免费'}}
+                                            <text class="icon-right-arrow"></text>
+                                        </button>
+
+                                        <button open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getTeamMember" form-type="submit" 
+                                        data-item="{{item}}"
+                                        @tap.stop="getTeamMember" wx:if="{{item.sceneType == 'groupActivity'}}">{{item.groupDrawStatus != '-1' ? '查看组队' : '立即组队'}}<text class="icon-right-arrow"></text></button>
+                                    </view>
+                                </view>
+                            </view>
+                        </button>
+                        <button class="cell-item" open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getTeamMember" form-type="submit" 
+                        data-item="{{item}}"
+                        @tap.stop="getTeamMember" data-item="{{item}}" data-index="index" wx:elif="{{item.sceneType == 'groupActivity' && !underCheck}}">
+                            <image mode="aspectFill" class="cell-image" src="{{item.carousel}}"></image>
+                            <view class="cell-item-mask"></view>
+                            <view class="cell-content">
+                                <view class="cell-content-title">
+                                    <view class="cell-circular {{item.sceneType == 'groupActivity' ? 'cell-orange-circular':''}}"></view>
+                                    <view class="cell-text" wx:if="{{item.sceneType == 'todaySkill'}}">今日技能</view>
+                                    <view class="cell-text font-orange" wx:if="{{item.sceneType == 'groupActivity'}}">限时活动</view>
+
+                                </view>
+                                <view class="cell-content-main">
+                                    <view class="cell-text">
+                                        <view class="cell-text-title">
+                                            {{item.name}}
+                                        </view>
+                                        <view class="cell-text-subtitle">
+                                            {{item.shareCoverTitle}}
+                                        </view>
+                                    </view>
+                                    <view class="cell-button">
+                                        <button form-type="submit" wx:if="{{item.sceneType == 'todaySkill'}}">
+                                            {{underCheck ? '马上阅读':'限时免费'}}
+                                            <text class="icon-right-arrow"></text>
+                                        </button>
+
+                                        <button open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getTeamMember" form-type="submit" 
+                                        data-item="{{item}}"
+                                        @tap.stop="getTeamMember" wx:if="{{item.sceneType == 'groupActivity'}}">{{item.groupDrawStatus != '-1' ? '查看组队' : '立即组队'}}<text class="icon-right-arrow"></text></button>
+                                    </view>
+                                </view>
+                            </view>
+                        </button>
+                    </swiper-item>
+
+                </block>
+            </swiper>
+        </form>
+        <!-- 模拟面板指示点 -->
+        <view class="ui-swiper-dots {{isIphonex?'is-iphonex':''}} {{isAndroid ? 'is-android-dots' : ''}}" >
+            <block wx:for="{{list}}" wx:key="index">
+                <view class="cell-dots {{index == dotsCurrent ? 'active-dots' :''}}"></view>
+            </block>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy';
+    import { getStore, connect } from 'wepy-redux';
+    import { setStorageAsync, getStorageAsync} from '../../utils';
+    import PushMixin from '../../mixins/push';
+    import { fetch, report as reportApi } from '../../api';
+    import { getUserPhone, refreshUserInformations } from '../../redux/models/user'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+
+    export default class recommend extends wepy.component {
+        mixins = [PushMixin]
+        props = {
+            list: {
+                type: Array,
+                default: []
+            },
+            underCheck:{
+                type:Boolean,
+                default:false
+            }
+        }
+        
+        data = {
+            isAndroid: /android/i.test(wx.getSystemInfoSync().system),
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            autoplay: true,
+            circular: true,
+            interval: 4000,
+            duration: 500,
+            dotsCurrent:0,//指示点的active序号
+        }
+
+        onLoad() {
+            
+        }
+
+        methods = {
+            /* 授权 -> 参加组队 */
+            getTeamMember(event) {
+                let self = this
+                let { currentTarget:{dataset: {item}}, detail: { encryptedData, errMsg, iv } } = event
+
+                wepy.$instance.globalData.getHuilder('今日页/组队抽取会员/立即组队', 'click', '')
+                if(item.groupDrawStatus != '-1') {
+                    wepy.navigateTo({url:`/pages/activity-module/team-learning?groupId=${item.groupId}&unclaimed=${item.unclaimed}&drawResult=${item.drawResult}&drawExtra=${item.drawExtra}`})
+                } else {
+                    wepy.login().then((res) => {
+                        res.code && store.dispatch(refreshUserInformations({
+                            code: res.code
+                        }))
+                        setTimeout(() => {
+                            res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                                store.dispatch(refreshUserInformations({
+                                    phone: response
+                                }))
+                                wepy.$instance.globalData.getHuilder('今日页/组队抽取会员/手机号码授权/授权', 'click', '')
+                                wepy.$instance.globalData.getHuilder('今日页/组队抽取会员/新用户', 'click', '')
+                                /* 设置缓存次数+1 */
+                                setStorageAsync({
+                                    key:'groupDrawStatusNum',
+                                    value: 1
+                                }).catch(error => console.log('设置弹窗次数失败'))
+                                
+
+                                let postData = {
+                                    token:self.systemInfo.token,
+                                    source: 'today-skills'
+                                }
+                                fetch.buildGroup(postData).then(response => {
+                                    let { groupId, unclaimed, drawResult, drawExtra, code, message} = response;
+                                    if(code == 0) {
+                                        wepy.navigateTo({url:`/pages/activity-module/team-learning?groupId=${groupId}&unclaimed=${unclaimed}&drawResult=${drawResult}&drawExtra=${drawExtra}`})
+                                    } else {
+                                        wepy.showToast({
+                                            title:message,
+                                            icon: 'none'
+                                        })
+                                    }
+                                    
+                                })
+
+                                self.$apply();
+                            }).catch((error) => {
+                                console.log(error)
+                                if(error && error.indexOf('getPhoneNumber') > -1){
+                                    wepy.$instance.globalData.getHuilder('今日页/组队抽取会员/手机号码授权/拒绝', 'click', '')
+                                }
+                            })
+                        }, 0);
+                    })
+                }
+                
+            },
+            changeDots(event) {//模拟指示点 改变事件
+                let  {detail: {current, source}} = event
+                this.dotsCurrent = current
+                this.$apply()
+            },
+            /* 
+                去每日技能
+            */
+            getItem(event) {
+                let self = this;
+                
+                let { currentTarget:{dataset: {item,index}}, detail: { encryptedData, errMsg, iv } } = event
+                let courseID = item.id;
+                let name = item.name;
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            store.dispatch(refreshUserInformations({
+                                phone: response
+                            }))
+                            wepy.$instance.globalData.getHuilder('今日页/每日技能/手机号码授权/授权', 'click', '')
+                            
+                            //数据库埋点
+                            let postData = {
+                                token: self.token,
+                                body: {
+                                    json: {
+                                        pageType: "今日页",
+                                        eventType: "每日推荐",
+                                        componentName: "每日技能",
+                                        courseID: courseID,
+                                        cpnPresentName: `第${index}张`
+                                    }
+                                }
+                            }
+                            reportApi.doUserBehaviourLog(postData);
+                            setTimeout(() => {
+                                return wx.navigateTo({url: `/pages/SpecialCourse/index?courseID=${courseID}&source=todayPage`})
+                            }, 1000);
+
+                        }).catch((error) => {
+                            console.log(error)
+                            if(error && error.indexOf('getPhoneNumber') > -1){
+                                wepy.$instance.globalData.getHuilder('今日页/每日技能/手机号码授权/拒绝', 'click', '')
+                            }
+                        })
+                    }, 0);
+                })
+            },
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+@import '../../assets/style/theme';
+.ui-recommend-module {
+    position: relative;
+    .ui-swiper-wrapper {
+        width: 750rpx;
+        height: 978rpx;
+        .ui-swiper-item {
+            width: 100%;
+            height: 100%;
+            .cell-item {
+                width: 100%;
+                height: 100%;
+                position: relative;
+                .cell-image {
+                    height: 922rpx;
+                    min-width: 750rpx;
+                }
+                .cell-item-mask {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    left: 0;
+                    bottom: 54rpx;
+                    background: @background-mask-normal;
+                    z-index: @z-index-normal;
+                }
+                .cell-content {
+                    position: absolute;
+                    padding: 32rpx;
+                    background-color: @background-mask-normal-4;
+                    border-radius: @border-radius-32;
+                    left: 32rpx;
+                    bottom: 155rpx;
+                    width: 686rpx;
+                    box-sizing: border-box;
+                    z-index: @z-index-slightly;
+                    .cell-content-title {
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        .cell-circular{
+                            width: 16rpx;
+                            height: 16rpx;
+                            border-radius: 50%;
+                            margin-right: 10rpx;
+                            background: @background-green-hover;
+                        }
+                        .cell-orange-circular {
+                            background: @color-yellow;
+                        }
+                        .cell-text {
+                            font-size: 32rpx;
+                            line-height: 48rpx;
+                            color: @background-green-hover;
+                        }
+                        .font-orange {
+                            color: @color-yellow;
+                        }
+                    }
+                    .cell-content-main {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-end;
+                        .cell-text {
+                            flex: 1;
+                            .cell-text-title {
+                                width: 100%;
+                                color: @color-white;
+                                font-size: 48rpx;
+                                line-height: 64rpx;
+                                text-overflow: -o-ellipsis-lastline;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                display: -webkit-box;
+                                -webkit-line-clamp: 2;
+                                -webkit-box-orient: vertical;
+                                text-align: left;
+                            }
+                            .cell-text-subtitle {
+                                width: 450rpx;
+                                font-size: 24rpx;
+                                line-height: 40rpx;
+                                color: @color-gray-BF;
+                                padding-right: 10rpx;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                            }
+                        }
+                        .cell-button {
+                            width: 172rpx;
+                            button {
+                                color: @color-white;
+                                background: @background-mask-white;
+                                border-radius: @border-radius-88;
+                                font-size: 28rpx;
+                                padding-left: 16rpx;
+                                font-weight: bold;
+                                .flex-center();
+                                .icon-right-arrow {
+                                    font-size: 24rpx;
+                                    line-height: 40rpx;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .ui-swiper-dots {
+        position: absolute;
+        top: 136rpx;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 50rpx;
+        &.is-android-dots { top: 156rpx;}
+        &.is-iphonex{top: 196rpx;}
+        .cell-dots {
+            width: 12rpx;
+            height: 12rpx;
+            margin: 6rpx;
+            border-radius: 50%;
+            background-color: @color-white-opacity-40;
+        }
+        .active-dots {
+            width: 24rpx;
+            border-radius: @border-radius-12;
+            background-color: @color-white;
+        }
+    }
+}
+</style>

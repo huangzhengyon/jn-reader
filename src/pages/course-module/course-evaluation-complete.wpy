@@ -1,0 +1,202 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .module-course-complete-box {
+        box-sizing: border-box;
+        width: 100%;
+        view {
+            box-sizing: border-box;
+        }
+        .ui-container {
+
+            .ui-content {
+                height: 100%;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                flex-direction: column;
+                image {
+                    width: 348rpx;
+                    margin: 64rpx auto;
+                }
+                .ui-title {
+                    font-size: 48rpx;
+                    color: @color-black;
+                    font-weight: bold;
+                    line-height: 2;
+                }
+                .ui-tips {
+                    font-size: 32rpx;
+                    color: @color-gray-86;
+                }
+            }
+        }
+        .ui-buttons {
+            width: 684rpx;
+            position: fixed;
+            left: 50%;
+            bottom: 16rpx;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            &.is-iphonex {
+                bottom: 68rpx;
+            }
+            button {
+                width: 326rpx;
+                height: 88rpx;
+                font-size: 32rpx;
+                color: @color-blue;
+                background: @background-gray-F4;
+                border-radius: @border-radius-16;
+                font-weight: bold;
+                .flex-center();
+                &+button {
+                    color: @color-white;
+                    background: @background-blue;
+                }
+            }
+        }
+    }
+</style>
+
+<template>
+    <jn-loading wx:if="{{!isLoaded}}">
+    </jn-loading>
+    <view class="module-course-complete-box" wx:if="{{isLoaded}}">
+        <jn-header title="评价成功" buttonIcon="back-close" buttonColor="#007AFF" :delta.sync="routerDelta"></jn-header>
+        <view class="ui-container dir-top">
+            <view class="ui-content">
+                
+                <image mode="widthFix" src="http://wx-small.runwise.cn/image/evaluation-complete.png"></image>
+                <view class="ui-title">感谢评价！</view>
+                <view class="ui-tips">完成课后练习可获得更多即能币哟！</view>
+                
+            </view>
+            <view class="ui-buttons" :class="{'is-iphonex': isIphonex}">
+                <button class="cell-button" @tap.stop="goBackCover">返回</button>
+                <button class="cell-button" @tap.stop="broadPractice">做练习</button>
+            </view>
+        </view>
+    </view>
+    
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import { getStore, connect } from 'wepy-redux'
+    import header from '../../components/common/header'
+    import Loading from '../../components/common/loading'
+    import { fetch } from '../../api'
+    import _ from 'underscore';
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        entrance(state) { //全局场景值
+            return state.entrance
+        },
+    })
+    export default class evaluationComplete extends wepy.page {
+        components = {
+            'jn-header': header,
+            'jn-loading': Loading
+        }
+        data = {
+            headerHeigth: 68,
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isLoaded: false,
+            isEvaluation: false,
+            routerDelta: 1,
+            shareID: '',
+            paramsInfo: {},
+            finishResultInfo: {},
+            starList: [1, 2, 3, 4, 5],
+            skipRoutes: [
+                'pages/course-module/course-cover',
+                'pages/course-module/course-exercises',
+                'pages/course-module/course-learning',
+                'pages/course-module/course-first-learning',
+                'pages/course-module/course-evaluation',
+                'pages/course-module/course-learn-complete',
+                'pages/course-module/course-practice-complete',
+            ],
+        }
+        onLoad(params) {
+            let self = this
+            // 分享进来的
+            if (1 === getCurrentPages().length) {
+                wx.reLaunch({
+                    url: '/pages/tabPages/course'
+                })
+                return
+            }
+            self.paramsInfo = params
+            self.isLoaded = true
+            self.$apply()
+            
+            self.__originalRouter()
+        }
+        computed = {
+            
+        }
+        onShow() {
+            let self = this
+            // ga
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+        watch = {
+            routerDelta(newValue,oldValue) {
+                console.log(newValue,oldValue)
+            }
+        }
+        
+        
+        
+        /**
+         * 计算返回到微课入口页面
+         * @private
+         */
+        __originalRouter() {
+            let self = this
+            let routers = getCurrentPages()
+            let lenght = routers.length - 2
+            
+            _.find(routers, (data, index) => {
+                let item = routers[lenght - index]
+                if (item && -1 === _.indexOf(self.skipRoutes, item.route)) {
+                    return data
+                } else {
+                    ++self.routerDelta
+                    self.$apply()
+                }
+            })
+            self.$apply()
+        }
+        methods = {
+            broadPractice() {//去做练习
+                let self = this
+                wepy.$instance.globalData.getHuilder('评价完成页/做练习', 'click', '')
+                self.$navigate('/pages/course-module/course-exercises',{
+                    courseID: self.paramsInfo.courseID,
+                    senceID: self.paramsInfo.senceID,
+                    teamID: self.paramsInfo.teamID
+                })
+            },
+            goBackCover() {//回到封面页
+                let self = this
+                wepy.$instance.globalData.getHuilder('评价完成页/返回', 'click', '')
+                wepy.reLaunch({url:`/pages/course-module/course-cover?courseID=${self.paramsInfo.courseID}&senceID=${self.paramsInfo.senceID}`})
+            }
+        }
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>

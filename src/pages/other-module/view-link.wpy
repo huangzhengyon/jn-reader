@@ -1,0 +1,41 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-webview-box{
+        box-sizing:border-box;width:100%;padding:0;
+    }
+</style>
+
+<template>
+    <view class="ui-webview-box">
+        <jn-header buttonAfter></jn-header>
+        <web-view src="{{link}}"></web-view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class jobSkills extends wepy.page {
+        components = {
+            'jn-header': header
+        }
+        data = {
+            link: '',//链接地址
+        }
+        onLoad(params) {
+            let self = this;
+            self.link = params.link;
+            console.log(self.link)
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            self.$apply()
+        }
+    }
+</script>

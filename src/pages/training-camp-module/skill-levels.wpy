@@ -1,0 +1,155 @@
+<template>
+    <jn-header title="技能水平"></jn-header>
+    <view class="tips-body">
+        <view class="tips-content">
+            <view class="tips-title">技能⽔平系数</view>
+            <view class="tips-desc" wx:for="{{tips}}" wx:key="{{index}}">{{item}}</view>
+            <view class="tips-label">
+                <view class="tips-label-top-row">
+                    <view>技能⽔平系数</view>
+                    <view class="tips-label-row-right">技能掌握程度</view>
+                </view>
+                <view class="divide-line" />
+                <view class="tips-label-row" wx:for="{{skillLevel}}" wx:key="{{index}}">
+                    <view>{{item.param}}</view>
+                    <view class="tips-label-row-right">{{item.desc}}</view>
+                </view>
+            </view>
+        </view>
+        <button plain="{{ true }}" class="evaluation-article__wrapper__fixed-footer" hover-class="evaluation-article__wrapper__fixed-footer-hover" @tap.stop="handleSubmit"> 知道了 </button>
+    </view>
+</template>
+<style lang="less" scoped>
+    .tips-body {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        /* justify-content: space-between; */
+        flex-direction: column;
+    }
+    .tips-content {
+        padding: 40rpx 40rpx 0rpx;
+        /* flex: 1; */
+        overflow: auto;
+    }
+    .tips-title {
+        color: #2db7b5;
+        font-family: PingFangSC-Semibold;
+        font-size: 56rpx;
+    }
+    .tips-desc {
+        margin-top: 24rpx;
+        word-break: break-all;
+        white-space: pre-line;
+        color: #303f48;
+        font-family: PingFangSC-Medium;
+        font-size: 32rpx;
+        line-height: 48rpx;
+    }
+    .tips-label {
+        margin-top: 84rpx;
+    }
+    .tips-label-top-row {
+        color: #2db7b5;
+        font-family: PingFangSC-Medium;
+        font-size: 28rpx;
+        position: relative;
+        line-height: 40rpx;
+        text-align: left;
+        white-space: pre-line;
+    }
+    .divide-line {
+        width: 100%;
+        margin: 16rpx 0rpx;
+        background-color: #f1f2f5;
+        height: 2rpx;
+    }
+    .tips-label-row {
+        color: #303f48;
+        font-family: PingFangSC-Semibold;
+        font-size: 32rpx;
+        position: relative;
+        line-height: 44rpx;
+        margin-bottom: 24rpx;
+        text-align: left;
+        /* display: flex; */
+        white-space: pre-line;
+    }
+    .tips-label-row-right {
+        position: absolute;
+        left: 420rpx;
+        top: 0;
+    }
+    .evaluation-article__wrapper__fixed-footer-hover {
+        background-color: #249290;
+    }
+    .evaluation-article__wrapper__fixed-footer {
+        width: 400rpx;
+        height: 88rpx;
+        line-height: 88rpx;
+        /* margin-bottom: 48rpx; */
+        margin-top: 48rpx;
+        /* margin: 0 auto; */
+        background-color: #2db7b5 !important;
+        border: 0 !important;
+        border-radius: 44rpx;
+        color: #FFF !important;
+        font-family: PingFangSC-Semibold;
+        font-size: 36rpx;
+    }
+    .evaluation-article__wrapper__fixed-footer::after {
+        border-radius: 0 !important;
+    }
+</style>
+<script>
+    import wepy from 'wepy'
+    import header from '../../components/common/header'
+
+    export default class TeamlearningCompleteTips extends wepy.page {
+        components = {
+            'jn-header': header
+        }
+
+        data = {
+            tips: [
+                '技能⽔平系数用于衡量学习者的技能掌握程度。',
+                '技能⽔平系数范围从 0 到 10，基于答题正确率和学习课程的难度计算得出。',
+                '在【即能】中，技能掌握程度分为 5 个等级，与技能⽔平系数对应：'
+            ],
+            skillLevel: [{
+                    param: '0 - 2',
+                    desc: '入门'
+                },
+                {
+                    param: '2 - 4',
+                    desc: '理解'
+                },
+                {
+                    param: '4 - 6',
+                    desc: '掌握'
+                },
+                {
+                    param: '6 - 8',
+                    desc: '熟练'
+                },
+                {
+                    param: '8 - 10',
+                    desc: '精通'
+                },
+            ]
+        }
+
+        onLoad() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        methods = {
+            handleSubmit() {
+                wepy.navigateBack({
+                    delta: 1
+                })
+            }
+        }
+    }
+</script>
+

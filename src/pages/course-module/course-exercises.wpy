@@ -1,0 +1,504 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-course-exercises-box{
+        height:100%;
+        view{box-sizing:border-box;}
+        .ui-progress-box{
+            .ui-progress{width:216rpx;height:10rpx;background-color:rgba(241,242,245,.5);border-radius:6rpx;position:relative;overflow:hidden;}
+            .cell-current{height:100%;background-color:#A1A9AB;border-radius:6rpx;position:absolute;left:0;top:0;transition:width .5s ease-in-out;}
+            .cell-number{width:58rpx;padding-left:16rpx;font-size:24rpx;color:#A1A9AB;}
+        }
+        .module-swiper-box{
+            width:100%;height:100%;position:absolute;left:0;top:0;
+            .ui-swiper-clear{width:100%;}
+            .ui-swiper{
+                width:100%;height:100%;
+                .ui-start-practice {
+                    .flex-center();
+                    padding: 128rpx 0;
+                    box-sizing: border-box;
+                }
+            }
+        }
+        .ui-button-box{
+            width:100%;height:128rpx;padding:16rpx 32rpx;border-top:1px solid @border-gray;position:absolute;bottom:0;
+            &.is-iphonex{bottom:34rpx;}
+            >view{width:auto;}
+            .cell-number{
+                padding-top:8rpx;font-size:24rpx;color:@color-gray;
+                text{padding-right:6rpx;font-size:40rpx;font-weight:700;color:@color-blue;}
+            }
+            .ui-progress{
+                width:220rpx;height:16rpx;margin-bottom:6rpx;background-color:@background-tint-blue;border-radius:8rpx;position:relative;overflow:hidden;
+                .cell-current{height:100%;background-color:@background-blue;border-radius:8rpx;position:absolute;left:0;top:0;transition:width .5s ease-in-out;}
+            }
+            .cell-button{
+                width:320rpx;height:96rpx;background:@background-gray-F4;font-size:32rpx;color:@color-gray;border-radius:@border-radius-20;font-weight:600;
+                &.is-selected{color:@color-blue;}
+            }
+            .ui-under-limit {
+                button {
+                    font-size:32rpx;
+                    color: @color-blue;
+                    font-weight: bold;
+                    height: 96rpx;
+                    .flex-center();
+                }
+            }
+            .cell-hover{background: @background-gray-hover}
+            .ui-block-form {
+                display: block;
+                width: 100%;
+                .cell-button {
+                    width: 100%;
+                }
+            }
+        }
+        .ui-start-button-box {
+            width:100%;padding:16rpx 32rpx;position:absolute;bottom:0;
+            &.is-iphonex{bottom:34rpx;}
+            .cell-button{
+                width:100%;height:96rpx;background:@background-gray-F4;font-size:32rpx;color:@color-blue;border-radius:@border-radius-20;
+                .icon-next {
+                    font-size: 46rpx;
+                    padding-left: 10rpx;
+                }
+            }
+        }
+    }
+</style>
+
+<template>
+    <jn-loading wx:if="{{!isLoaded}}"></jn-loading>
+    <view class="ui-course-exercises-box" wx:if="{{isLoaded}}">
+        <jn-header className="background-transparent">
+            <view slot="content" class="ui-progress-box main-center cross-center">
+                <view class="ui-progress">
+                    <view class="cell-current" style="width:{{(cardCurrent+1) / cardsList.length * 100}}%"></view>
+                </view>
+                <view class="cell-number">{{cardCurrent+1}}/{{cardsList.length}}</view>
+            </view>
+        </jn-header>
+
+        <view class="module-swiper-box">
+            <swiper class="ui-swiper"
+                    duration="300"
+                    current="{{cardCurrent}}">
+                <repeat for="{{cardsList}}" key="index" index="index" item="item">
+                    <swiper-item class="ui-start-practice" catchtouchmove="getCatchTouchMove" wx:if="{{item.type == 'front'}}">
+                        <jn-front :cardItem.sync="item" :cardIndex.sync="index" :cardsList.sync="cardsList"></jn-front>
+                    </swiper-item>
+                    <swiper-item catchtouchmove="getCatchTouchMove" wx:else>
+                        <view class="ui-swiper-clear" style="height: {{headerHeigth}}px"></view>
+                        <view style="height: calc(100% - {{headerHeigth}}px)">
+                            <jn-single-choice :cardItem.sync="item"
+                                              :cardIndex.sync="index"
+                                              :cardsList.sync="cardsList"
+                                              :commentsCount.sync="commentsCount"
+                                              :disabled.sync="isMember"
+                                              isExercises
+                                              isShowType
+                                              wx:if="{{item.type==='textSelectionVer2'}}"></jn-single-choice>
+                            <jn-sort :cardItem.sync="item"
+                                     :cardIndex.sync="index"
+                                     :cardsList.sync="cardsList"
+                                     :commentsCount.sync="commentsCount"
+                                     :disabled.sync="isMember"
+                                     isExercises
+                                     isShowType
+                                     wx:if="{{item.type==='order'}}"></jn-sort>
+                        </view>
+                    </swiper-item>
+                </repeat>
+            </swiper>
+        </view>
+
+        <view class="ui-button-box dir-left main-justify" :class="{'is-iphonex': isIphonex}" wx:if="{{cardCurrent > 0}}">
+            <view class="dir-top main-justify" wx:if="{{phone}}">
+                <view class="cell-number">
+                    <text>{{currentScore || 0}}</text> {{skillName}}
+                </view>
+                <view class="ui-progress">
+                    <view class="cell-current" style="width:{{currentScore / practiceLength * 100}}%"></view>
+                </view>
+            </view>
+            <form class="{{!phone ? 'ui-block-form' : ''}}" bindsubmit="handleSavePushCode" report-submit>
+                <button class="cell-button main-center cross-center"
+                        hover-class="cell-hover"
+                        hover-stay-time="100"
+                        form-type="submit"
+                        :class="{'is-selected': cardCurrentInfo[0].selectedId}"
+                        disabled="{{!cardCurrentInfo[0].selectedId}}"
+                        @tap.stop="getContinue" wx:if="{{!isLast || isMember}}">
+                    {{cardCurrentInfo[0].fullImageBottomtText}}
+                </button>
+                <view class="ui-under-limit" wx:else>
+                    <button open-type="{{!phone ? 'getPhoneNumber' : ''}}" @getphonenumber.stop="getExprienceMember" @tap.stop="getExprienceMember" form-type="submit" wx:if="{{!phone}}">注册解锁题目答案</button>
+                    <button form-type="submit" @tap.stop="getSubscribe" wx:else>订阅解锁题目答案</button>
+                </view>
+            </form>
+        </view>
+        <view class="ui-start-button-box" :class="{'is-iphonex': isIphonex}" wx:else>
+            <form bindsubmit="handleSavePushCode" report-submit>
+                <button class="cell-button main-center cross-center"
+                        hover-class="cell-hover"
+                        hover-stay-time="100"
+                        form-type="submit"
+                        @tap.stop="getContinue">
+                    开始练习<text class="icon-next"></text>
+                </button>
+            </form>
+        </view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import header from '../../components/common/header'
+    import Loading from '../../components/common/loading'
+    import singleChoice from '../../components/cards-type/single-choice'
+    import front from '../../components/cards-type/front'
+    import sort from '../../components/cards-type/sort'
+    import {fetch, share as shareApi, report as reportApi} from '../../api'
+    import {initializationDeligate} from '../../utils'
+    import PushMixin from '../../mixins/push'
+    import { getUserPhone, refreshUserInformations } from '../../redux/models/user'
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        requestFlag(state) {
+            return state.cards.requestFlag
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+    export default class courseExercises extends wepy.page {
+        mixins = [PushMixin]
+
+        components = {
+            'jn-header': header,
+            'jn-loading': Loading,
+            'jn-single-choice': singleChoice,
+            'jn-sort': sort,
+            'jn-front': front,
+        }
+
+        data = {
+            headerHeigth: 68,
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isLoaded: false,
+            paramsInfo: '', // 地址栏的参数信息
+            isAnswerOver: false,
+            commentsCount: 0,
+            cardCurrent: 0,//当前卡片序号
+            cardCurrentInfo: [],
+            cardsList: [],
+            practiceSenceId:'',//课后练习的senceId
+            currentScore:0,//当前总分
+            skillName:'',//练习名称
+            practiceLength:0,//练习题的数量
+            isLast:false,//是否为最后一题
+            isMember:null,//是否在会员期内
+        }
+
+        onLoad(params) {
+            let self = this
+            // 重置状态变量
+            self.isLoaded = false
+            self.cardCurrentInfo = []
+            self.cardCurrent = 0
+            self.cardsList = []
+            self.isAnswerOver = false
+            self.paramsInfo = params
+            self.paramsInfo.viewResult = params.viewResult == 'true' ? true : false
+            console.log(self.paramsInfo)
+            self.$apply()
+            initializationDeligate({initializeFunc: self.initialize.bind(self)})
+        }
+
+        onShow() {
+            
+        }
+
+        initialize() {
+            let self = this
+            let postData = {
+                token: self.systemInfo.token,
+                senceID: self.paramsInfo.senceID,
+                courseID: self.paramsInfo.courseID,
+                requestFlag: self.requestFlag,
+                teamID: self.paramsInfo.teamID || 'defaultTeamID',
+                source:self.paramsInfo.source || '',
+                viewResult:self.paramsInfo.viewResult
+            }
+            self.isLoaded = false
+            fetch.getPracticeList(postData).then(response => {
+                self.isLoaded = true
+                wepy.$instance.globalData.getLoadHuilder({pageTheme: response.name}) // ga统计
+                self.__dataRegroup(response)
+            }).catch(error => {
+                self.isLoaded = true
+            })
+        }
+
+        /**
+         * 重组接口返回的数据信息
+         * @returns {response}
+         */
+        __dataRegroup(response) {
+            let self = this
+            self.practiceSenceId = response.practiceSenceId;
+            self.skillName = response.skillName;
+            self.isMember = response.isMember;
+            self.currentScore = response.totalScore;
+            self.cardsList = response.list;
+            self.practiceLength = response.list.length - 1 ;
+            _.each(self.cardsList, (data, index) => {
+                if (!data.fullImageBottomtText) {
+                    switch (data.type) {
+                        case 'textSelectionVer2':
+                            data.fullImageBottomtText = '请选择答案'
+                            break
+                        case 'order':
+                            data.fullImageBottomtText = '请选排列顺序'
+                            break
+                        default:
+                            data.fullImageBottomtText = '下一题'
+                    }
+                }
+                
+                // 由于但选择题，可能是复制出来的，导致选项id是相同的
+                'textSelectionVer2' === data.type && _.each(data.select, (item) => {
+                    item.sId = _.clone(item.id)
+                    item.id = data.id + item.id
+                })
+            
+                if('order' === data.type) {
+                    let trueSequence = _.isArray(data.trueSequence) ? data.trueSequence : data.trueSequence.split(',')
+                    let select = data.select
+                    _.each(trueSequence, (optionId,optionIndex) => {
+                        _.each(select,(item) => {
+                            if(item.id == optionId) {
+                                item.index = optionIndex + 1
+
+                            }
+                        })
+                    })
+                    data.select = select;
+                }
+                /* 未注册or不在会员期内做题不展示反馈,注册后or订阅后重新展示他之前做题选项和反馈 */
+                if(self.paramsInfo.viewResult) {
+                    data.fullImageBottomtText = '下一题';
+                    data.isAnswerOver = true;
+                    /* 重组单选题数据 */
+                    if('textSelectionVer2' === data.type) {
+                        _.each(data.select, (item) => {
+                            item.selected && (data.selectedId = item.id);
+                            item.selected && (item.description = item.feedback.description);
+                        })
+                    }
+                    /* 重组排序题数据 */
+                    if('order' == data.type) {
+                        data.select = data.select.map(item => {
+                            let result = {};
+                            _.each(data.trueSequence,(sequenceItem,index) => {
+                                item.id == sequenceItem && (result.index = index + 1)
+                            })
+                            _.each(data.selectedInfo,selectedItem => {
+                                item.id == selectedItem.optionId && (result.selectIndex = selectedItem.index)
+                            })
+                            return Object.assign({},item,result)
+                        })
+                        data.select = _.sortBy(data.select,item => {
+                            return item.selectIndex
+                        })
+                        data.isWrong = _.some(data.select,item => {
+                            return item.index != item.selectIndex
+                        })
+                        data.selectedId = data.select.map(item => { return item.id}).join(',')
+
+                        let selectObj = {};
+                        data.selectedInfo.map(item => {
+                            let id = item.optionId;
+                            selectObj[id] = {
+                                index: item.index - 1,
+                                isSelected: true
+                            }
+                        })
+                        data.selectedInfo = selectObj;
+                    }
+                }
+            })
+            let index = _.findIndex(self.cardsList, {id: response.lastCardID}) || 0
+            index = -1 !== index ? index : 0
+            self.cardCurrentInfo.push(self.cardsList[index])
+            self.$apply()
+        }
+
+        /**
+         * 获取提交答案的分数
+         * @param {type} 1初始值
+         */
+        __scoreInfo() {
+            let self = this
+            let current = self.cardCurrentInfo[0]
+            let postData = {}
+
+            let json;
+            if(current.type === 'order') {
+                json = JSON.parse(current.json)
+            }else {
+                json = {optionID:current.json}
+            }
+            postData = {
+                token: self.systemInfo.token,
+                teamID: self.paramsInfo.teamID,
+                senceID: self.paramsInfo.senceID,
+                cardID: current.id,
+                score: current.score,
+                message: current.selectedItem.option, // 选中选项的name
+                weight: current.selectedItem.weight, // 选中选项的权重
+                json: json, // 选中选项的sId
+                practiceType:1
+            }
+
+            if (self.paramsInfo.teamID) {
+                postData.teamID = self.paramsInfo.teamID
+            }
+            
+
+            fetch.sendCardScore(postData).then((response) => {
+                // 当技能分数叠加
+                self.currentScore += response.currentScore;
+                self.commentsCount = response.commentsCount;
+                self.$apply();
+            }).catch(error => console.log(error))
+        }
+
+        methods = {
+            /* 订阅会员解锁答案 */
+            getSubscribe() {
+                let self = this
+                wepy.$instance.globalData.getHuilder('课后练习/订阅解锁题目答案/去订阅', 'click', '')
+                self.$navigate(`/pages/course-module/course-subscribe`,{viewResult:true,courseID:self.paramsInfo.courseID,senceID:self.paramsInfo.senceID})
+            },
+            /* 注册体验会员解锁题目答案 */
+            getExprienceMember(event) {
+                let self = this
+                let { detail: { encryptedData, errMsg, iv } } = event
+
+                wepy.$instance.globalData.getHuilder('课后练习/注册解锁题目答案/授权', 'click', '')
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            store.dispatch(refreshUserInformations({
+                                phone: response
+                            }))
+                            //数据库埋点
+                            let postData = {
+                                token: self.systemInfo.token,
+                                body: {
+                                    json: {
+                                        pageType: "课后练习",
+                                        eventType: "注册",
+                                        componentName: "解锁题目答案",
+                                        cpnPresentName: "",
+                                    }
+                                }
+                            }
+                            reportApi.doUserBehaviourLog(postData);
+                            self.isMember = true;
+                            wepy.redirectTo({url: `/pages/course-module/course-exercises?courseID=${self.paramsInfo.courseID}&senceID=${self.paramsInfo.senceID}&viewResult=true`})
+                            self.$apply();
+                        }).catch((error) => {
+                            console.log(error)
+                            if(error && error.indexOf('getPhoneNumber') > -1){
+                                wepy.$instance.globalData.getHuilder('课后练习/注册解锁题目答案/拒绝', 'click', '')
+                            }
+                        })
+                    }, 0);
+                })
+            },
+            /**
+             * 禁止滑块跟随手势移动
+             * @returns {boolean}
+             */
+            getCatchTouchMove() {
+                return false
+            },
+            /**
+             * 继续下一道题目
+             */
+            getContinue() {
+                let self = this
+                let cardCurrent = self.cardCurrentInfo[0];
+                self.isLast = self.cardsList.length-1 !== self.cardCurrent ? false : true;
+
+                if (cardCurrent.isAnswerOver && self.isLast && cardCurrent.fullImageBottomtText === '完成') {
+                    wx.navigateTo({url: `/pages/course-module/course-practice-complete?courseID=${self.paramsInfo.courseID}&senceID=${self.paramsInfo.senceID}&teamID=${self.paramsInfo.teamID}&source=${self.paramsInfo.source}&isReview=${self.paramsInfo.isReview}&isFromTodayListing=${self.paramsInfo.isFromTodayListing}&practiceId=${self.practiceSenceId}&totalScore=${self.practiceLength}`})
+                    return
+                }
+
+                if (cardCurrent.isAnswerOver && !self.isLast || cardCurrent.type == 'front') {
+                    self.cardCurrent += 1
+                    if(self.paramsInfo.viewResult && self.cardCurrent == self.cardsList.length-1) {
+                        self.cardsList[self.cardCurrent].fullImageBottomtText = '完成'
+                    }
+                    self.cardCurrentInfo.splice(0, 1, self.cardsList[self.cardCurrent])
+                    self.$broadcast('broadcast-reset-status',self.cardCurrentInfo[0])
+                    self.$apply()
+                    return
+                }
+
+                cardCurrent.fullImageBottomtText = !self.isLast ? '下一题' : '完成';
+                cardCurrent.isAnswerOver = true
+                cardCurrent.allowToNext = true
+                self.$apply()
+
+                !cardCurrent.isAnswerOver && self.$broadcast('broadcast-reset-status',self.cardCurrentInfo[0])
+                if(cardCurrent.isAnswerOver && !self.paramsInfo.viewResult) {
+                    switch (cardCurrent.type) {
+                        case 'textSelectionVer2':
+                            self.$broadcast('broadcast-single-choive', cardCurrent)
+                            break
+                        case 'order':
+                            self.$broadcast('broadcast-sort', cardCurrent)
+                            break
+                    }
+                }
+                if(!self.paramsInfo.viewResult && cardCurrent.type !== 'front') {
+                    self.__scoreInfo()
+                }
+            }
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            },
+            /**
+             * 交互卡，选择，排序卡
+             * @param data
+             */
+            'on-interaction': (data) => {
+                let self = this
+                let item = _.find(self.cardsList, {id: data.id})
+                _.extend(item, data);
+                self.cardCurrentInfo.splice(0, 1, item)
+                self.$apply()
+            }
+        }
+    }
+</script>

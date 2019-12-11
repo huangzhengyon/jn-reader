@@ -1,0 +1,104 @@
+<template>
+    <view class="ui-circular-progress {{blue == 'true' ?'theme-blue':''}}">
+        <view class="cell-progress-number" wx:if="{{!isPercent}}">{{resume}}/{{counts}}</view>
+        <view class="cell-progress-number" wx:else>{{percent}}%</view>
+        <view class="ui-wrapper ui-right">
+            <view class="cell-circle-right" style="transform:rotate({{percent <= 50 ? (-135 + 3.6 * percent) : 45}}deg);">
+            </view>
+        </view>
+        <view class="ui-wrapper ui-left">
+            <view class="cell-circle-left" style="transform:rotate({{percent > 50 ? (-135 + 3.6 * (percent - 50)) : -135}}deg);"></view>
+        </view>
+    </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class circular extends wepy.component {
+    props = {
+        resume:{
+            type:Number,
+            default:0
+        },
+        counts:{
+            type:Number
+        },
+        percent:{
+            type:Number
+        },
+        isPercent: {
+            type: Boolean,
+            default: false
+        },
+        blue:{
+            type:String
+        }
+    }
+
+    watch = {
+        blue(newValue,oldValue){
+            console.log(newValue,oldValue)
+        }
+    }
+
+    onLoad(){
+        
+    }
+}
+</script>
+<style lang="less" scoped>
+    @import '../../assets/style/theme.less';
+    .ui-circular-progress {
+        font-size: 20rpx;
+        width: 72rpx;
+        height: 72rpx;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        &::before {
+            border: 6rpx solid @background-mask-white;
+        }
+        .ui-wrapper {
+            >view {
+                box-sizing: border-box;
+                &.cell-circle-right {
+                    border-top: 6rpx solid @color-white;
+                    border-right: 6rpx solid @color-white;
+                }
+                &.cell-circle-left {
+                    border-bottom: 6rpx solid @color-white;
+                    border-left: 6rpx solid @color-white;
+                }
+            }
+        }
+        .cell-progress-number {
+            color: @color-white;
+            text-align: center;
+            line-height: 72rpx;
+        }
+    }
+    .theme-blue {
+        &::before {
+            border: 6rpx solid @background-poll-blue;
+        }
+        .ui-wrapper {
+            >view {
+                box-sizing: border-box;
+                &.cell-circle-right {
+                    border-top: 6rpx solid @color-blue;
+                    border-right: 6rpx solid @color-blue;
+                }
+                &.cell-circle-left {
+                    border-bottom: 6rpx solid @color-blue;
+                    border-left: 6rpx solid @color-blue;
+                }
+            }
+        }
+        .cell-progress-number {
+            color: @color-blue;
+            text-align: center;
+            line-height: 72rpx;
+        }
+    }
+</style>

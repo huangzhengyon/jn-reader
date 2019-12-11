@@ -1,0 +1,123 @@
+<template>
+    <jn-header title="更改目标"></jn-header>
+    <view class="ui-edit-target dir-top cross-center" style="height: calc(100% - {{headerHeigth}}px)">
+        <view class="cell-title">您的学习目标</view>
+        <view class="ui-targer">
+            <view wx:for="{{targetList}}" 
+                wx:key="{{item.id}}" class="cell-item" 
+                :class="{'cell-item-active' : item.isActive}" 
+                @tap.stop="getItem" data-item="{{item}}">
+                {{item.label}}
+            </view>
+        </view>
+        <view class="cell-commit" @tap.stop="getCommit">确定</view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import {getStore, connect} from "wepy-redux";
+    import {report as reportApi} from "../../api";
+    import header from '../../components/common/header'
+
+    const store = getStore();
+    @connect({
+        token(state) {
+            return state.user.token;
+        }
+    })
+    export default class MineEditTarget extends wepy.page {
+        data = {
+            headerHeigth: 68,
+            targetList:[],
+            isCommit:false,
+
+        }
+        components = {
+            'jn-header': header,
+        }
+        methods = {
+            getCommit(){
+                let self = this
+
+                let list = self.targetList.filter(item => {
+                    return item.isActive
+                })
+
+                if(!list.length) {
+                    return wepy.showToast({
+                        title: '请选择您的学习目标',
+                        icon:'none'
+                    })
+                }
+                let postData = {
+                    token:self.token,
+                    json: {targetList: list},
+                    flag:'targetList'
+                }
+                reportApi.saveUserCenterInfo(postData).then((res) => {
+                    wx.navigateBack()
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
+
+            },
+            getItem(event){
+                let self = this;
+                let {currentTarget: {dataset: {item}}} = event
+
+                self.targetList.map(i =>{
+                    if(i.id == item.id) {
+                        i.isActive = !i.isActive
+                    }else {
+                        i.isActive = false
+                    }
+                })
+            }
+
+
+        }
+
+        onLoad() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        onShow(){
+            let self = this
+            let postData = {
+                token:this.token
+            }
+            reportApi.userCenterInfo(postData).then(data=>{
+                self.targetList = data.targetList
+                let tempIndex = self.targetList.findIndex((item) => {return item.isActive})
+                if(tempIndex > -1) {
+                    self.isCommit = true
+                }
+                self.$apply()
+            })
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+    .ui-edit-target{
+        font-weight: bold;
+        .cell-title{font-size: 48rpx;color: #000;letter-spacing: 24rpx;margin-top: 96rpx}
+        .ui-targer{
+            margin-top: 120rpx;
+            .cell-item{width: 560rpx;height: 100rpx;background: #EFEFF4;border-radius:20rpx;opacity: 0.8;font-size: 32rpx;color: #000;letter-spacing: 0.02rpx;text-align: center;line-height: 100rpx;margin-bottom: 36rpx}
+            .cell-item.cell-item-active{background: #007AFF;color: #fff}
+        }
+    }
+    .cell-commit{width: 702rpx;height: 100rpx;background: #EFEFF4;border-radius:20rpx;color:#007AFF;font-weight: bold;font-size:34rpx;letter-spacing: 0.04rpx;text-align: center;line-height: 100rpx;margin-top: 106rpx}
+</style>

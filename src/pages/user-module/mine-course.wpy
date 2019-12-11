@@ -1,0 +1,230 @@
+<style lang="less" scoped>
+    .ui-mine-course {
+        .ui-block {
+            height: 104rpx;
+            font-size: 32rpx;
+            background: #fff;
+            position: fixed;
+            z-index: 3;
+            .cell-name {
+                width: 206rpx;
+                font-weight: bold;
+                &.cell-selectd {
+                    font-size: 36rpx;
+                    color: #007AFF;
+                }
+            }
+        }
+        .ui-course-list {
+            overflow: scroll;
+            padding: 90rpx 0;
+            .fadeIn {
+                animation: fadeIn 0.3s linear;
+            }
+        }
+    }
+</style>
+
+<template>
+    <mloading wx:if="{{ !isLoaded  }}" />
+    <jn-header buttonColor="#007AFF" title="我的课程" background="#fff"></jn-header>
+    <view class="ui-mine-course" style="height: calc(100% - {{headerHeigth}}px)">
+        <view class="ui-block cross-center">
+            <!-- <view class="cell-name cross-center main-center" :class="{'cell-selectd' : 0 == currentIndex}" @tap.stop="getChangeType" data-index="0">已领取({{ownedList.length}})</view> -->
+            <view class="cell-name cross-center main-center" :class="{'cell-selectd' : 1 == currentIndex}" @tap.stop="getChangeType" data-index="1">正在学({{learningList.length}})</view>
+            <view class="cell-name cross-center main-center" :class="{'cell-selectd' : 2 == currentIndex}" @tap.stop="getChangeType" data-index="2">已学完({{finishedList.length}})</view>
+        </view>
+        <view class="ui-course-list">
+            <repeat for="{{showList}}" key="index" index="index" item="item">
+                <view class="module-course-progress" :class="{'fadeIn':delayAnimate}" @tap.stop="getCourseDetail" data-item="{{item}}">
+                    <view>
+                        <image src="{{item.bgImg}}" />
+                    </view>
+                    <view class="ui-detail">
+                        <view class="ui-msg">
+                            <view class="cell-name text-overflow">{{item.courseName}}</view>
+                            <view class="cell-dec text-overflow">{{item.courseDec}}</view>
+                            <view class="cell-btn">{{item.btnMsg}}</view>
+                        </view>
+                        <view class="ui-status">
+                            <view class="ui-circular-progress">
+                                <view class="cell-progress-number">{{item.finishLesson}}/{{item.allLesson}}</view>
+                                <view class="ui-wrapper ui-right">
+                                    <view class="cell-circle-right" style="transform:rotate({{item.percent <= 50 ? (-135 + 3.6 * item.percent) : 45}}deg);"></view>
+                                </view>
+                                <view class="ui-wrapper ui-left">
+                                    <view class="cell-circle-left" style="transform:rotate({{item.percent > 50 ? (-135 + 3.6 * (item.percent - 50)) : -135}}deg);"></view>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </repeat>
+        </view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import header from '../../components/common/header'
+    import {
+        fetch
+    } from "../../api";
+    import {
+        getStore,
+        connect
+    } from "wepy-redux";
+    import Loading from '../../components/common/loading'
+    import {
+        initializationDeligate
+    } from '../../utils'
+    const store = getStore();
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class TeamLearningAnnounce extends wepy.page {
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+        }
+        data = {
+            isLoaded: false,
+            courseType: [{
+                    name: '已获取',
+                    index: 0
+                },
+                {
+                    name: '正在学',
+                    index: 1
+                },
+                {
+                    name: '已学完',
+                    index: 2
+                }
+            ],
+            headerHeigth: 68,
+            currentIndex: 1,
+            finishedList: [],
+            learningList: [],
+            ownedList: [],
+            showList: [],
+            paramsInfo: '', //url querystring
+            delayAnimate:false,//延迟加载动画
+        };
+        onShow() {
+            let self = this;
+            self.currentIndex = self.paramsInfo || 1;
+            self.$apply()
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            initializationDeligate({
+                initializeFunc: self.initialize.bind(self)
+            })
+        }
+        onLoad({
+            currentIndex
+        }) {
+            this.paramsInfo = currentIndex;
+            wepy.$instance.globalData.getReportFlow()
+            this.$apply()
+        }
+        methods = {
+            getChangeType(event) {
+                let self = this;
+                let {
+                    currentTarget: {
+                        dataset: {
+                            index
+                        }
+                    }
+                } = event
+                self.currentIndex = index
+                self.__getSwitchPage(index);
+                self.$apply();
+            },
+            getCourseDetail(event) {
+                let self = this;
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item
+                        }
+                    }
+                } = event
+                let courseName = item.courseName
+                let key = self.currentIndex;
+                let source = '已获取'
+                switch (key) {
+                    case '0':
+                        source = '已获取'
+                        break;
+                    case '1':
+                        source = '正在学'
+                        break;
+                    case '2':
+                        source = '已学完'
+                        break;
+                }
+                wepy.$instance.globalData.getHuilder(`我的/我的课程/${source}/课程详情`, 'click', courseName)
+                wepy.navigateTo({
+                    url: `/pages/course-module/course-details?id=${item.courseID}&source=我的/我的课程`
+                })
+            }
+        }
+        initialize() {
+            let self = this
+            self.__fetchCourse()
+        }
+        __getSwitchPage(num) {
+            let self = this;
+            switch (num) {
+                case "0":
+                    wepy.$instance.globalData.getHuilder('我的/我的课程/已获取', 'click', '')
+                    self.showList = self.ownedList;
+                    self.$apply()
+                    break;
+                case "1":
+                    wepy.$instance.globalData.getHuilder('我的/我的课程/正在学', 'click', '')
+                    self.showList = self.learningList;
+                    self.$apply()
+                    break;
+                case "2":
+                    wepy.$instance.globalData.getHuilder('我的/我的课程/已学完', 'click', '')
+                    self.showList = self.finishedList;
+                    self.$apply()
+                    break;
+            }
+        }
+        __fetchCourse() {
+            let self = this;
+            let postData = {
+                token: self.systemInfo.token
+            }
+            fetch.getAllMyCourse(postData).then(res => {
+                self.isLoaded = true;
+                self.finishedList = res.finishedCourseList;
+                self.learningList = res.learningCourseList;
+                self.ownedList = res.ownedCourseList;
+                self.showList = res.learningCourseList;
+                self.delayAnimate = true;
+                setTimeout(()=>{
+                    self.delayAnimate = false;
+                    self.$apply();
+                },1000)
+                !!self.paramsInfo && self.__getSwitchPage(self.paramsInfo)
+                self.$apply()
+            }).catch((err) => {
+                console.log(err)
+            })
+        }
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>

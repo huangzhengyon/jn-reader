@@ -1,0 +1,317 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-share-box{width:100%;height:667px;display:none;position:fixed;top:0;left:150%;}
+    .ui-share-canvas{width:375px;}
+    .skillboard-share{
+        height:218rpx;width:100%;background-color:@background-white;
+        .btn{
+            width:400rpx;height:88rpx;border-radius:@border-radius-20;background-color:@background-gray-F4;display:flex;align-items:center;justify-content:center;
+            .icon-share{font-size: 40rpx;margin-right:8rpx}
+            text{font-family:PingFangSC-Semibold;font-size:32rpx;color:@color-blue;text-align:center}
+        }
+    }
+</style>
+
+<template>
+    <view class="skillboard-share flex-center">
+        <view class="btn" @tap.stop="getShareImage">
+            <text class="icon-share"></text>
+            <text >分享成果</text>
+        </view>
+    </view>
+    <view class="ui-share-box main-center cross-center {{isShowCanvas ? 'is-show' : 'is-hide'}}">
+        <canvas class="ui-share-canvas" canvas-id='shareCanvas' style="height: {{shareInfo.canvasHeiht}}px"></canvas>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class skillsBoard extends wepy.component {
+        props = {
+            dataInfo: {
+                type: Object,
+                twoWay: true,
+                default: {
+                    myLearnTime: 1,
+                    scoreBase: 1,
+                    skillCount: 1,
+                    avgSkillScore: 1,
+                    shareBackgroundImage: 'https://wx-small.runwise.cn/image/imageID72dbd9d1b2d46b886bf936890977.png',
+                    shareCodeImage: 'https://wx-small.runwise.cn/image/imageID219e41f66ad4cb9f1f27f0eb3fe3.png'
+                }
+            }
+        }
+
+        data = {
+            isShowCanvas: false,
+            shareCanvas: null,
+            createImage: null,
+            shareImage: [],
+            shareInfo: {
+                width: 375,
+                height:667,
+                canvasHeiht: 591,
+                previewWidth: 375,
+                previewHeight: 591
+            }
+        }
+
+        onLoad() {
+            let self = this
+        }
+
+        methods = {
+            getShareImage() {
+                let self = this
+                self.isShowCanvas = true
+                !self.createImage ? self.__drawCard() : self.__previewImage()
+                self.$emit('handleShareImage')
+            }
+        }
+
+        events = {}
+
+        /**
+         *
+         * @param images
+         * @private
+         */
+        __drawCard () {
+            let self = this
+            let windowWidth = self.data.shareInfo.width
+            let windowHeight = self.data.shareInfo.height
+            let prop = 1
+
+            _.mapObject(self.dataInfo, (val, key) => {
+                if (-1 !== val.toString().indexOf('http://image.runwise.cn/')) {
+                    self.dataInfo[key] = val.replace('http://image.runwise.cn/', 'https://wx-small.runwise.cn/')
+                }
+            })
+
+            wx.showLoading({
+                title: '正在加载',
+                mask: true
+            })
+
+            let shareBackgroundImage = new Promise(function (resolve, reject) {
+                wx.getImageInfo({
+                    src: self.dataInfo.shareBackgroundImage,
+                    success(res) {
+                        prop = windowWidth / res.width
+                        self.shareInfo.previewWidth = res.width
+                        self.shareInfo.previewHeight = res.height
+                        self.shareInfo.canvasHeiht = Math.ceil(res.height * prop)
+                        resolve(res)
+                    }
+                })
+            })
+            let shareCodeImage = new Promise(function (resolve, reject) {
+                wx.getImageInfo({
+                    src: self.dataInfo.shareCodeImage,
+                    success(res) {
+                        resolve(res);
+                    }
+                })
+            })
+            let avatarImage = new Promise(function (resolve, reject) {
+                wx.getImageInfo({
+                    src: self.systemInfo.avatarUrl,
+                    success(res) {
+                        resolve(res);
+                    }
+                })
+            })
+
+            Promise.all(
+                [shareBackgroundImage, shareCodeImage, avatarImage]
+            ).then(res => {
+                self.shareCanvas = wx.createCanvasContext('shareCanvas')
+
+                let shareImage = self.data.shareImage = res
+                let w = Math.ceil(shareImage[0].width * prop)
+                let h = Math.ceil(shareImage[0].height * prop)
+                w = w < windowWidth ? windowWidth : w
+
+                self.shareCanvas.drawImage(shareImage[0].path, 0, 0, w, h) // 背景图片
+                self.__drawMyLearnTime() // 学习时长
+                // self.shareCanvas.draw();
+                self.shareCanvas.draw(false, () => {
+                    wx.hideLoading()
+                    self.__saveImage()
+                })
+            })
+        }
+        /**
+         * 学习时长
+         * @private
+         */
+        __drawMyLearnTime() {
+            let self = this
+            let dataInfo = self.dataInfo
+            let windowWidth = self.data.shareInfo.width
+
+            self.shareCanvas.beginPath()
+            self.shareCanvas.setTextAlign('left')
+            self.shareCanvas.setFillStyle('#ffc037')
+            self.shareCanvas.setFontSize(34)
+            let minWidth = 34
+            let myLearnTimeWidth = dataInfo.myLearnTime.toString().length * 20
+            let myLearnTimeX = (windowWidth - myLearnTimeWidth - minWidth) >> 1
+            self.shareCanvas.fillText(dataInfo.myLearnTime, myLearnTimeX, 158)
+
+            self.shareCanvas.setFillStyle('#fff')
+            self.shareCanvas.setFontSize(16)
+            let minX = ((windowWidth - myLearnTimeWidth - minWidth) >> 1) + myLearnTimeWidth
+            self.shareCanvas.fillText(' min', minX, 158)
+
+            self.shareCanvas.setFillStyle('#fff')
+            self.shareCanvas.setTextAlign('center')
+            self.shareCanvas.setFontSize(18)
+            let textX = windowWidth >> 1
+            self.shareCanvas.fillText('学习时长', textX, 195)
+
+            self.shareCanvas.closePath()
+            self.__drawStudyTotal() // 学习情况统计
+        }
+        /**
+         * 获得技能、技能水平
+         * @private
+         */
+        __drawStudyTotal() {
+            let self = this
+            let dataInfo = self.dataInfo
+            let windowWidth = self.data.shareInfo.width
+            let textWidth = 64 // 下面四个中文的长度
+            let rightX = windowWidth - textWidth - 75 // 第二个四个中文的固定x做标
+            let skillsWidth = dataInfo.skillCount.toString().length * 20 + 4 // 获得技能数的长度，4是数字跟单位的间距
+            let skillX = 75 - ((skillsWidth + 16 - textWidth) >> 1) // 16是‘个’的长度
+
+            let skillScoreWidth = dataInfo.avgSkillScore.toString().length * 20 + 4 // 获得技能水平的长度，4是数字跟单位的间距
+            if (-1 !== dataInfo.avgSkillScore.toString().indexOf('.')) {
+                skillScoreWidth -= 16
+            }
+            let skillScoreX = rightX - ((skillScoreWidth + 26 - textWidth) >> 1) // 26是‘/10’的长度
+
+            self.shareCanvas.beginPath()
+            self.shareCanvas.setTextAlign('left')
+
+            // 左边
+            self.shareCanvas.setFillStyle('#32EDFF')
+            self.shareCanvas.setFontSize(34)
+            self.shareCanvas.fillText(dataInfo.skillCount, skillX, 280)
+            // 右边
+            self.shareCanvas.fillText(dataInfo.avgSkillScore, skillScoreX, 280)
+
+            self.shareCanvas.setFillStyle('#fff')
+            self.shareCanvas.setFontSize(16)
+            // 左边
+            self.shareCanvas.fillText('个', skillX + skillsWidth, 277)
+            self.shareCanvas.fillText('获得技能', 75, 307)
+            // 右边
+            self.shareCanvas.fillText('/' + dataInfo.scoreBase, rightX + skillScoreWidth, 280)
+            self.shareCanvas.fillText('技能水平', rightX, 307)
+
+            self.shareCanvas.closePath()
+            self.__drawQrcode() // 二维码
+        }
+        /**
+         * 二维码
+         * @private
+         */
+        __drawQrcode() {
+            let self = this
+            let shareImage = self.data.shareImage
+            self.shareCanvas.beginPath()
+            self.shareCanvas.drawImage(shareImage[1].path, 58, 470 ,66, 66)
+            self.shareCanvas.closePath()
+
+            self.__drawTitle() // 小标题
+        }
+        /**
+         * 小标题
+         * @private
+         */
+        __drawTitle() {
+            let self = this
+            let windowWidth = self.data.shareInfo.width
+            let title = '互联网技能，即学即用'
+            let titleWidth = Math.ceil(self.shareCanvas.measureText(title).width)
+            let titleX = windowWidth - titleWidth - 25
+
+            self.shareCanvas.beginPath()
+            self.shareCanvas.setTextAlign('left')
+            self.shareCanvas.setFontSize(16)
+            self.shareCanvas.fillText('互联网技能，即学即用', titleX, 38)
+
+            self.shareCanvas.closePath()
+            self.__drewAvatar() // 用户头像跟名字
+        }
+        /**
+         * 用户头像、名字
+         * @private
+         */
+        __drewAvatar() {
+            let self = this
+            let shareImage = self.data.shareImage
+
+            // 名字
+            self.shareCanvas.beginPath()
+            self.shareCanvas.setTextAlign('left')
+            self.shareCanvas.setFillStyle('#32EDFF')
+            self.shareCanvas.fillText(self.systemInfo.nickName, 70, 38)
+            // 用户头像
+            self.shareCanvas.setStrokeStyle('#fff')
+            self.shareCanvas.setFillStyle('#fff')
+            self.shareCanvas.setLineWidth(2)
+            self.shareCanvas.save()
+            self.shareCanvas.arc(44, 30, 19, 0, 2 * Math.PI)
+            self.shareCanvas.fill()
+            self.shareCanvas.clip()
+            self.shareCanvas.drawImage(shareImage[2].path, 25, 12, 37, 37)
+            self.shareCanvas.closePath()
+            self.shareCanvas.stroke()
+        }
+        /**
+         * 保存为分享图片
+         * @private
+         */
+        __saveImage() {
+            let self = this
+            let windowWidth = self.data.shareInfo.width
+            let windowHeight = self.data.shareInfo.height
+
+            wx.canvasToTempFilePath({
+                destWidth: self.shareImage.previewWidth,
+                destHeight: self.shareImage.previewHeight,
+                fileType: 'png',
+                canvasId: 'shareCanvas',
+                success(res) {
+                    // 预览
+                    self.createImage = res.tempFilePath
+                    self.__previewImage()
+                }
+            })
+        }
+        /**
+         * 预览图片
+         * @private
+         */
+        __previewImage() {
+            let self = this
+            self.isShowCanvas = false
+            wx.previewImage({
+                current: self.createImage, // 当前显示图片的http链接
+                urls: [self.createImage] // 需要预览的图片http链接列表
+            })
+        }
+    }
+</script>

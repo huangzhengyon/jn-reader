@@ -1,0 +1,289 @@
+<style lang="less">
+    @import "../../assets/style/theme";
+    .ui-practice-end{
+        width:100%;height:100%;
+        .ui-user{
+            padding:0 40rpx;height:90rpx;display:flex;align-items:center;position:relative;z-index:2;
+            .ui-img{
+                height:90rpx;display:flex;align-items:center;
+                image{width:72rpx;height:72rpx;border-radius:50%;margin-right:20rpx}
+            }
+            .cell-name{font-size:34rpx;@color:@color-black;}
+        }
+        .ui-content-box{
+            width:100%;position:absolute;top:0;left:0;
+            image{width:100%;}
+        }
+        .ui-bottom-btn{
+            width:100%;height:auto;padding:24rpx;position:fixed;bottom:0;left:0;box-sizing:border-box;
+            button{
+                height:100rpx;color:@color-white;background:@background-blue;border-radius:@border-radius-20;font-size:34rpx;line-height:100rpx;
+                text{font-size:46rpx;}
+                &:nth-of-type(1){width:100rpx;margin-right:20rpx;}
+            }
+            .ui-tips{
+                height:56rpx;padding:0 26rpx;background-color:@background-red;font-size:24rpx;color:@color-white;text-align:center;line-height:56rpx;border-radius:@border-radius-20;position:absolute;left:24rpx;top:-56rpx;
+                text{display:block;font-size:34rpx;color:@color-red;transform:rotatex(180deg);position:absolute;left:32rpx;bottom:-34rpx;}
+            }
+        }
+    }
+    .ui-shade{
+        position:fixed;top:0;right:0;left:0;right:0;bottom:0;background:@background-mask-slightly;z-index:@z-index-mask;
+        .ui-item{
+            height:1084rpx;width:686rpx;background:@background-white;border-radius:@border-radius-16;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+            .ui-code{
+                background: #EBF7FD;height:912rpx;width:100%;justify-content:center;border-top-left-radius:@border-radius-16;border-top-right-radius:@border-radius-16;
+                .ui-close{
+                    padding:20rpx 20rpx 0 0 ;display:flex;justify-content:flex-end;width:100%;color:@color-white;height:76rpx;box-sizing:border-box;background:transparent;position:absolute;
+                    .cell-item{width:56rpx;height:56rpx;background:@background-gray-cc;color:@color-white;text-align:center;line-height:56rpx;border-radius:50%;}
+                }
+                .ui-content{height:912rpx;
+                    image{width:100%;height:912rpx;}
+                }
+                .ui-btn{
+                    display:flex;justify-content:center;align-items:center;position:absolute;bottom:40rpx;left:50%;transform:translate(-50%);
+                    .cell-item-btn{width:400rpx;height:100rpx;border-radius:@border-radius-20;background:@background-blue;color:@color-white;text-align:center;line-height:100rpx}
+                    .cell-hover{background:@background-blue-hover;}
+                }
+            }
+        }
+    }
+</style>
+
+<template>
+    <mloading wx:if="{{ !isLoaded }}"/>
+    <view class="ui-practice-end">
+        <jn-header className="background-transparent" buttonAfter></jn-header>
+        <view class="ui-user">
+            <view class="ui-img">
+                <image src="{{avatar}}" />
+            </view>
+            <view class="cell-name">Hi， {{userName}}</view>
+        </view>
+        <view class="ui-content-box">
+            <image mode="widthFix" src="{{resultObj.resultImageURL}}" />
+        </view>
+        <view class="ui-bottom-btn main-justify">
+            <view class="ui-tips" wx:if="{{isTips}}">立即保存你的专属卡~<text class="icon-arrow"></text></view>
+            <button class="flex-box-0 main-center" @tap.stop="getSaveImage"><text class="icon-down"></text></button>
+            <button class="flex-box-1 main-center"
+                    open-type="{{resultObj.buttonAttr === '分享' ? 'share' : ''}}"
+                    data-status="{{resultObj.buttonAttr}}"
+                    @tap.stop="getToShare">{{resultObj.buttonMsg}}</button>
+        </view>
+    </view>
+    <view class="ui-shade" wx:if="{{isShowShade}}">
+        <view class="ui-item">
+            <view class="ui-code">
+                <view class="ui-close">
+                    <view class="cell-item" @tap.stop="getCloseBtn">
+                        <text class="icon-back-close"></text>
+                    </view>
+                </view>
+                <view class="ui-content">
+                    <image src="{{resultObj.buttonFebackImageURL}}" />
+                </view>
+                <view class="ui-btn">
+                    <view class="cell-item-btn" hover-class="cell-hover" @tap.stop="getImg">{{shareButtonMessage || '保存图片并学课'}}</view>
+                </view>
+            </view>
+        </view>
+    </view>
+    <jn-shareAppraisal></jn-shareAppraisal>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import Loading from '../../components/common/loading'
+    import header from '../../components/common/header'
+    import shareAppraisal from '../../components/shareImages/share-appraisal'
+    import {fetch} from '../../api'
+    import {initializationDeligate} from "../../utils"
+
+    const store = getStore()
+    @connect({
+        avatar(state) {
+            return state.user.avatarUrl
+        },
+        userName(state) {
+            return state.user.nickName
+        },
+        token(state) {
+            return state.user.token
+        },
+        windowHeight(state) {
+            return state.user.screenHeight
+        },
+        entrance(state) {//全局场景值
+            return state.entrance
+        },
+    })
+    export default class appraisalResults extends wepy.page {
+        components = {
+            'jn-header': header,
+            'jn-shareAppraisal': shareAppraisal,
+            'mloading': Loading,
+        }
+
+        data = {
+            examID: '',
+            isLoaded: false,
+            isTips: true,
+            senceID: '',
+            course: {},
+            isShowShare: false,
+            isShowShade: false,
+            headerHeigth: 68,
+            shareButtonMessage: '', // 弹窗的分享按钮文案
+            resultObj: {}
+        }
+
+        onLoad({senceID, examID}) {
+            let self = this
+            self.senceID = senceID
+            self.examID = examID
+            self.$apply()
+        }
+
+        onShow() {
+            let self = this
+            initializationDeligate({initializeFunc: self.initialize.bind(self)})
+        }
+
+        initialize() {
+            let self = this
+            fetch.getUserExamScore({token: self.token, examID: self.examID}).then(data => {
+                self.isLoaded = true
+                self.resultObj = data
+                self.$apply()
+
+                setTimeout(() => {
+                    self.isTips = false
+                    self.$apply()
+                }, 5000)
+
+                wepy.$instance.globalData.getLoadHuilder({pageTheme: data.subjectHeading}) // ga统计
+            }).catch(error => {
+                self.showErrorPage = true
+                self.$apply()
+            })
+
+
+        }
+
+        getCourseDetail() {
+            let self = this
+            if (!self.resultObj || !self.resultObj.course) return;
+            let courseID = self.resultObj.course.courseID;
+            let courseName = self.resultObj.course.courseName;
+
+            wepy.navigateTo({url: `/pages/course-module/course-details?id=${courseID}`})
+        }
+
+        methods = {
+            
+            getCloseBtn() {
+                let self = this;
+                wepy.$instance.globalData.getHuilder('测评/测评结果/关闭保存图片并学课', 'click', `${self.resultObj.subjectHeading}`)
+                self.isShowShade = false
+                self.$apply()
+            },
+            getToShare({currentTarget: {dataset: {status}}}) {
+                let self = this;
+                if (status === '分享') {
+                    if (!self.isShowShade) {
+                        return setTimeout(() => {
+                            self.isShowShade = true
+                            self.$apply()
+                        }, 1000)
+                    }
+                } else if (status === '学课') {
+                    return self.getCourseDetail()
+                } else {
+                    setTimeout(() => {
+                        self.isShowShade = true
+                        self.$apply()
+                    }, 300)
+                }
+            },
+            getImg() {
+                let self = this;
+                let url = self.resultObj.buttonFebackImageURL
+                let urlReplace = ''
+                wepy.$instance.globalData.getHuilder('测评/测评结果/保存图片并学课', 'click', `${self.resultObj.subjectHeading}`)
+                if (-1 !== url.toString().indexOf('http://image.runwise.cn/')) {
+                    urlReplace = url.replace('http://image.runwise.cn/', 'https://wx-small.runwise.cn/')
+                }
+                wx.downloadFile({
+                    url: urlReplace,
+                    success: function (res) {
+                        let path = res.tempFilePath
+                        wx.saveImageToPhotosAlbum({
+                            filePath: path,
+                            success(res) {
+                                self.isShowShade = false
+                                self.$apply()
+                                self.getCourseDetail()
+                            },
+                            fail(res) {
+                                return wepy.showToast({
+                                    title: `保存失败,没有授权权限`,
+                                    icon: 'none'
+                                })
+                            },
+                            complete(res) {
+                                self.isShowShade = false
+                                self.$apply()
+                            }
+                        })
+                    }, fail: function (res) {
+                        console.log(res)
+                    }
+                })
+            },
+
+            getSaveImage() {
+                let self = this
+                let shareImages = {
+                    shareImage: self.resultObj.resultImageURL
+                }
+                wepy.$instance.globalData.getHuilder('测评/测评结果/保存图片', 'click', `${self.resultObj.subjectHeading}`)
+                // 通知组件，生成图片预览
+                self.$broadcast('share-appraisal-images', shareImages)
+
+            }
+        }
+
+        events = {
+            'on-alert-visible': (data) => {
+                let self = this
+                self.isShowShare = data.isShow
+                self.$apply()
+            },
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+
+
+        onShareAppMessage(res) {
+            let self = this
+
+            wepy.$instance.globalData.getHuilder('测评/测评结果/分享', 'click', `${self.resultObj.subjectHeading}`)
+            wepy.$instance.globalData.getReportFlow('share')
+
+            return {
+                title: self.resultObj.subjectHeading,
+                path: `/pages/activity-module/appraisal-start?examID=${self.examID}`,
+                imageUrl: self.resultObj.shareImage,
+                complete: function (res) {
+                    self.isShowShade = true
+                    self.$apply()
+                }
+            }
+        }
+    }
+</script>

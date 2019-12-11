@@ -1,0 +1,350 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .cell-canvas{width:375px;height:650px;position:fixed;left:150%;top:0;}
+    .ui-toast-box{
+        box-sizing:border-box;width:100%;height:100%;padding-top:50%;background-color:@background-mask-normal;position:fixed;left:0;top:0;z-index:@z-index-highest;display:none;
+        .ui-toast-content{
+            width:606rpx;height:582rpx;margin:0 auto;background-color:@color-white;border-radius:@border-radius-32;
+            .ui-content{padding:70rpx 32rpx 0;}
+            .cell-title{padding-bottom:54rpx;font-size:48rpx;color:@color-black;line-height:66rpx;text-align:center;}
+            .cell-content{font-size:36rpx;color:@color-black;line-height:56rpx;}
+            button{width:336rpx;height:100rpx;margin:0 auto 48rpx;background-color:@background-blue;font-size:34rpx;color:@color-white;border-radius:@border-radius-20;}
+        }
+    }
+</style>
+
+<template>
+    <canvas class="cell-canvas" canvas-id="cardShare" style="width:{{cardShareInfo.width}}px;height:{{cardShareInfo.height}}px"></canvas>
+    <view class="ui-toast-box"
+          :class="{'is-show': isShowToast}"
+          @tap.stop="getClose">
+        <view class="ui-toast-content dir-top main-justify" @tap.stop="getBubbling">
+            <view class="ui-content">
+                <view class="cell-title">温馨提示</view>
+                <view class="cell-content">你关闭了访问相册的权限，无法保存，请在设置中打开允许访问相册后再保存。</view>
+            </view>
+            <button class="main-center cross-center"
+                    open-type="openSetting"
+                    bindopensetting='getCommit'>确定</button>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import {getStore, connect} from 'wepy-redux'
+    import _ from 'underscore'
+
+    const store = getStore()
+    @connect({
+        systemInfo(state) {
+            return state.user
+        },
+        userName(state) {
+            return state.user.nickName
+        }
+    })
+    export default class skillsBoard extends wepy.component {
+        props = {}
+
+        data = {
+            isDrawStart: true, // 是否可以开始绘画
+            isDrawOver: false, // 是否会话结束
+            cardCanvas: null, // 画布容器
+            isShowToast: false,
+            shareThumb: '', // 最后生成的分享图片
+            shareImage: [], // 加载的图片信息
+            // 画布上元素参考的的信息，有设计稿定死的
+            cardShareInfo: {
+                width: 360,
+                height: 586,
+                prop: 1
+            }
+        }
+
+        onLoad() {
+            let self = this
+        }
+
+        /**
+         * 获取微信设置信息
+         * @private
+         */
+        __wxSetting() {
+            let self = this
+            // 检测设置中是否允许保存到相册中去
+            wx.getSetting({
+                success(res) {
+                    // 第一次，系统会自动调取授权
+                    if (_.isUndefined(res.authSetting['scope.writePhotosAlbum'])) {
+                        self.__saveImage()
+                    } else if (!res.authSetting['scope.writePhotosAlbum']){ // 不授权
+                        self.isShowToast = true
+                    } else { // 授权
+                        self.__saveImage()
+                    }
+                    self.$apply()
+                }
+            })
+        }
+
+        methods = {
+            /**
+             * 关闭组件
+             * @private
+             */
+            getClose() {
+                let self = this
+                self.isShowToast = false
+                self.$apply()
+            },
+            /**
+             * 阻止冒泡
+             * @private
+             */
+            getBubbling() {
+                return
+            },
+            getCommit() {
+                let self = this
+                wepy.$instance.globalData.getHuilder('测评/测评结果/保存图片/确定授权相册', 'click', '')
+                // 检测设置中是否允许保存到相册中去
+                wx.getSetting({
+                    success(res) {
+                        // 第一次，系统会自动调取授权
+                        if (_.isUndefined(res.authSetting['scope.writePhotosAlbum'])) {
+                            self.__saveImage()
+                        } else if (!res.authSetting['scope.writePhotosAlbum']){ // 不授权
+                            self.isShowToast = true
+                        } else { // 授权
+                            self.__saveImage()
+                        }
+                        self.$apply()
+                    }
+                })
+            }
+        }
+
+        events = {
+            // 监听父组件的触发事件
+            'share-appraisal-images': (images) => {
+                _.mapObject(images, (val, key) => {
+                    if (-1 !== val.toString().indexOf('http://image.runwise.cn/')) {
+                        images[key] = val.replace('http://image.runwise.cn/', 'https://wx-small.runwise.cn/')
+                    }
+                    if (-1 !== val.toString().indexOf('http://wx-small.runwise.cn')) {
+                        images[key] = val.replace('http://wx-small.runwise.cn', 'https://wx-small.runwise.cn/')
+                    }
+                })
+
+                let self = this
+                if (self.shareThumb) {
+                    self.__wxSetting()
+                    return
+                }
+
+                wx.showLoading({title: '努力生成中...'})
+                self.cardCanvas = wx.createCanvasContext('cardShare')
+                // 如果还没绘画结束，则不继续绘画下一个
+                if (!self.isDrawOver) {
+                    self.isDrawOver = false
+                    self.__initShareCard(images)
+                }
+            }
+        }
+
+        /**
+         * 加载图片资源
+         * @private image
+         */
+        __loadingImages(image) {
+            let self = this
+
+            return new Promise((resolve, reject) => {
+                wx.getImageInfo({
+                    src: image,
+                    success(res) {
+                        resolve(res)
+                    },
+                    fail(error) {
+                        console.log(12, error)
+                        wx.showToast({
+                            icon: 'none',
+                            title: error
+                        })
+                        self.isDrawStart = true
+                        self.isDrawOver = true
+                        wx.hideLoading()
+                        wx.showToast({
+                            icon: 'none',
+                            title: ' 生成图片失败 '
+                        })
+                    }
+                })
+            })
+        }
+        /**
+         * 初始化，绘画所需要的元素及计算实际画布参考的大小及比例
+         * @private
+         */
+        __initShareCard(images) {
+            let self = this
+            let shareImage = self.__loadingImages(images.shareImage) // 背景图片
+            let portraitImage = self.__loadingImages(self.systemInfo.avatarUrl)
+
+            Promise.all([shareImage, portraitImage]).then(res => {
+                self.shareImage = res
+                self.cardShareInfo.prop = self.systemInfo.windowWidth / self.shareImage[0].width;
+                self.cardShareInfo.width = self.shareImage[0].width * self.cardShareInfo.prop;
+                self.cardShareInfo.height = self.shareImage[0].height * self.cardShareInfo.prop
+                self.$apply()
+
+                self.cardCanvas.clearRect(0, 0, self.cardShareInfo.width, self.cardShareInfo.height)
+                self.__drawStart() // 绘画开始
+                self.cardCanvas.draw(false, () => {
+                    wx.hideLoading()
+                    self.__creatImage()
+                })
+            })
+        }
+        /**
+         * 绘画开始，微课的图标
+         * @private
+         */
+        __drawStart() {
+            let self = this
+            let shareImage = self.shareImage
+            let cardShareInfo = self.cardShareInfo
+
+            let x = 0
+            let y = 0
+            let w = self.cardShareInfo.width * self.cardShareInfo.prop;
+            let h = Math.ceil(shareImage[0].height * self.cardShareInfo.prop) * self.cardShareInfo.prop;
+
+            self.cardCanvas.save()
+            self.cardCanvas.clearRect(x, y, w, h)
+            self.cardCanvas.setFillStyle('#fff')
+            self.cardCanvas.fillRect(x, y, w, h)
+            self.__clipBackground(x, y, w, h)
+            self.cardCanvas.clip() // 通过裁剪得到圆角矩形
+            self.cardCanvas.drawImage(shareImage[0].path, x, y, w, h)
+            self.cardCanvas.closePath()
+            self.cardCanvas.stroke()
+            self.cardCanvas.restore() // 恢复到之前的画板
+
+            self.__drewShareAvatar()
+        }
+        /**
+         * 裁切背景图
+         * @param x
+         * @param y
+         * @param width
+         * @param height
+         * @private
+         */
+        __clipBackground(x, y, width, height) {
+            let self = this
+            // let h = Math.ceil(height - (100 * self.cardShareInfo.prop))
+            let h = Math.ceil(height * 1 )
+            self.cardCanvas.setStrokeStyle('#fff')
+            self.cardCanvas.beginPath()
+            self.cardCanvas.moveTo(x, y)
+            self.cardCanvas.lineTo(x, y + h )
+            self.cardCanvas.lineTo(x + width, y + h )
+            self.cardCanvas.lineTo(x + width, y)
+            self.cardCanvas.lineTo(x, y)
+            
+            self.cardCanvas.closePath()
+            self.cardCanvas.stroke()
+        }
+        /**
+         * 用户头像
+         * @private
+         */
+        __drewShareAvatar() {
+            let self = this
+            let shareImage = self.shareImage
+
+            self.cardCanvas.save()
+            self.cardCanvas.beginPath()
+            self.cardCanvas.setStrokeStyle('#fff')
+            self.cardCanvas.setLineWidth(1)
+
+            self.cardCanvas.arc(40 * self.cardShareInfo.prop, 42 , 22 * self.cardShareInfo.prop, 0, 2 * Math.PI, false)
+            self.cardCanvas.fill()
+            self.cardCanvas.clip()
+            self.cardCanvas.drawImage(shareImage[1].path, (40 - 22) * self.cardShareInfo.prop, 42 - 22 * self.cardShareInfo.prop , 44 * self.cardShareInfo.prop, 44 * self.cardShareInfo.prop)
+            self.cardCanvas.closePath()
+            self.cardCanvas.stroke()
+            self.cardCanvas.restore() // 恢复到之前的画板
+
+            self.__drewUserName()
+            
+        }
+        /**
+         * 用户昵称
+         * @private
+         */
+        __drewUserName() {
+            let self = this
+            self.cardCanvas.save()
+
+            self.cardCanvas.setFontSize(8)
+            self.cardCanvas.fillText(`Hi,${self.userName}`, (50 + 22) * self.cardShareInfo.prop, 50)
+
+            self.cardCanvas.restore() // 恢复到之前的画板
+        }
+        /**
+         * 生成图片
+         * @private
+         */
+        __creatImage() {
+            let self = this
+            let cardShareInfo = self.cardShareInfo
+
+            wx.canvasToTempFilePath({
+                width:cardShareInfo.width * cardShareInfo.prop,
+                height:cardShareInfo.height * cardShareInfo.prop,
+                destWidth: (cardShareInfo.width / cardShareInfo.prop) * 3,
+                destHeight: (cardShareInfo.height / cardShareInfo.prop) * 3,
+                fileType: 'jpg',
+                canvasId: 'cardShare',
+                success(response) {
+                    self.isDrawStart = true
+                    self.isDrawOver = true
+                    self.shareThumb = response.tempFilePath
+                    self.$apply()
+                    self.__saveImage()
+                }
+            })
+        }
+        /**
+         * 保存图片
+         * @private
+         */
+        __saveImage() {
+            let self = this
+            wx.saveImageToPhotosAlbum({
+                filePath: self.shareThumb,
+                success(res) {
+                    wx.showToast({
+                        title: '已保存至系统相册',
+                        showCancel: false,
+                        duration: 2500
+                    })
+                    self.isDrawOver = false
+                    self.$apply()
+                },
+                fail(res) {
+                    wx.showToast({
+                        icon: 'none',
+                        title: '保存失败',
+                        showCancel: false,
+                        duration: 2500
+                    })
+                    self.__wxSetting()
+                }
+            })
+        }
+    }
+</script>

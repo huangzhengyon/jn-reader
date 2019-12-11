@@ -1,0 +1,212 @@
+<template>
+    <view class="ui-hot-course-list">
+        <view class="ui-hot-course-title">
+            <view class="cell-title">热门课程</view>
+            <view class="cell-link" @tap.stop="getAllSeries">更多课程</view>
+        </view>
+        <view class="ui-course-list">
+            <block wx:for="{{hotCourseList}}" wx:key="index">
+                <view class="cell-list-item" data-item="{{item}}" @tap.stop="getCourseDetail">
+                    <view class="cell-course-image">
+                        <image class="cell-icon" lazy-load="{{true}}" src="{{item.image}}"></image>
+                    </view>
+                    <view class="cell-content">
+                        <view class="cell-text">
+                            <view class="cell-title">{{item.name}}</view>
+                            <view class="cell-subtitle">{{item.showPoint}}</view>
+                        </view>
+                        <view class="cell-right-icon">
+                            <text class="icon-right-arrow"></text>
+                        </view>
+                    </view>
+                </view>
+            </block>
+        </view>
+    </view>
+</template>
+<script>
+import wepy from 'wepy';
+import { getStore, connect } from 'wepy-redux';
+import { fetch, report as reportApi } from '../../api';
+
+    const store = getStore()
+    @connect({
+        token(state) {
+            return state.user.token
+        },
+        systemInfo(state) {
+            return state.user
+        }
+    })
+
+export default class hotCourseList extends wepy.component {
+    data = {
+        hotCourseList: [],//热门课程
+    }
+    onLoad() {
+        this.__getHotCourseList();
+    }
+
+    __resetArray(arr) {
+        let self = this
+        if(Object.prototype.toString.call(arr) == '[object Array]') {
+            arr.map( item => {
+                self.__resetArray(item)
+            })
+        } else {
+            self.hotCourseList.push(arr)
+        }
+    }
+
+    /* 
+        获取热门课程列表
+        */
+    __getHotCourseList() {
+        let self = this
+        let postData = {
+            token: self.systemInfo.token,
+        }
+        
+        fetch.coursePageList(postData).then((response) => {
+            
+            self.__resetArray(response.hotCourseList)
+            self.$apply()
+        }).catch(error => {
+            console.log('home fetch courses error', error)
+            throw error
+        })
+    }
+    methods = {
+        /* 
+        查看全部课程
+         */
+        getAllSeries() {
+            let self = this
+            wepy.$instance.globalData.getHuilder(`今日页/热门课程/更多课程`, 'click', '')
+            //数据库埋点
+            let postData = {
+                token: self.systemInfo.token,
+                body: {
+                    json: {
+                        pageType: "今日页",
+                        eventType: "热门课程",
+                        componentName: "更多课程",
+                        cpnPresentName: ''
+                    }
+                }
+            }
+            reportApi.doUserBehaviourLog(postData);
+            wepy.switchTab({ url: '/pages/tabPages/course'})
+        },
+        /* 
+            查看热门课程
+        */
+        getCourseDetail(event) {
+            let self = this
+            let {currentTarget:{dataset:{item}}} = event
+            let courseID = item.courseID;
+            let courseType = item.courseType;
+            let courseName = item.name;
+
+            wepy.$instance.globalData.getHuilder(`今日页/热门课程`, 'click', `${courseName}`)
+            //数据库埋点
+            let postData = {
+                token: self.systemInfo.token,
+                body: {
+                    json: {
+                        pageType: "今日页",
+                        eventType: "热门课程",
+                        componentName: "查看课程",
+                        cpnPresentName: courseName
+                    }
+                }
+            }
+            reportApi.doUserBehaviourLog(postData);
+            
+            wepy.navigateTo({
+                url: `/pages/course-module/course-details?id=${courseID}&source=${courseType}`
+            })
+        }
+    }
+}
+</script>
+<style lang="less" scoped>
+@import '../../assets/style/theme';
+.ui-hot-course-list {
+    width: 686rpx;
+    margin: 32rpx auto;
+    box-shadow: @box-shadow-hight;
+    border-radius: @border-radius-24;
+    padding: 16rpx 0;
+    position: relative;
+    z-index: 5;
+    background: @background-white;
+    .ui-hot-course-title {
+        padding: 16rpx 32rpx;
+        .flex-between();
+        border-bottom: solid 1rpx @border-gray;
+        .cell-title {
+            font-size: 40rpx;
+            color: @color-black;
+            font-weight: bold;
+        }
+        .cell-link {
+            color: @color-blue;
+            font-size: 32rpx;
+        }
+    }
+    .ui-course-list {
+        .cell-list-item {
+            .flex-between();
+            margin: 16rpx 32rpx;
+            &:last-child {
+                .cell-content {
+                    border-bottom: none;
+                }
+            }
+            .cell-course-image {
+                .flex-center();
+                .cell-icon {
+                    width: 120rpx;
+                    height: 120rpx;
+                    border-radius: @border-radius-12;
+                }
+            }
+            .cell-content {
+                flex: 1;
+                margin-left: 24rpx;
+                height: 144rpx;
+                .flex-between();
+                border-bottom: solid 1rpx @border-gray;
+                .cell-text {
+                    .cell-title {
+                        font-size: 32rpx;
+                        line-height: 48rpx;
+                        color: @color-black;
+                        font-weight: bold;
+                        width: 330rpx;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                    .cell-subtitle {
+                        font-size: 28rpx;
+                        line-height: 44rpx;
+                        color: @color-gray;
+                        width: 330rpx;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                }
+                .cell-right-icon {
+                    .icon-right-arrow {
+                        color: @color-gray;
+                        font-size: 28rpx;
+                    }
+                }
+            }
+        }
+    }
+}
+</style>

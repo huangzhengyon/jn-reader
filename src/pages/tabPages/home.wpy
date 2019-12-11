@@ -1,0 +1,1054 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .module-header.ui-today-header .ui-button {
+        width: 200rpx;
+    }
+    .ui-box {
+        height: 100%;
+    }
+    .ui-today-body {
+        padding-bottom: 170rpx;
+        &.ui-iphonex-body {
+            padding-bottom: 225rpx;
+        }
+    }
+    //马上学
+    .ui-atonce-learn {
+        position: relative;
+        z-index: @z-index-lower;
+
+        .cell-tips {
+            font-size: 32rpx;
+            color: #8E8E93;
+            padding-left: 32rpx;
+            margin-bottom: 32rpx
+        }
+        .ui-learn-swiper {
+            .flex-center();
+            flex-wrap: wrap;
+            .ui-swiper-item {
+                overflow: visible;
+                box-shadow: @box-shadow-hight;
+                border-radius: @border-radius-32;
+                view {
+                    box-sizing: border-box;
+                }
+                .ui-team {
+                    width: 686rpx;
+                    border-radius: 32rpx;
+                    .ui-item {
+                        .ui-content {
+                            width: 686rpx;
+                            background: @background-white;
+                            background-repeat: none;
+                            background-size: 100% 100%;
+                            border-top-left-radius: 32rpx;
+                            border-top-right-radius: 32rpx;
+                            overflow: hidden;
+                            position: relative;
+                            image {
+                                width: 100%;
+                            }
+                        }
+                    }
+                }
+                .ui-first-btn {
+                    width: 686rpx;
+                    border-bottom-left-radius: 32rpx;
+                    border-bottom-right-radius: 32rpx;
+                    height: 176rpx;
+                    .cell-button {
+                        width: 558rpx;
+                        height: 88rpx;
+                        background: #007AFF;
+                        border-radius: 20rpx;
+                        color: #fff;
+                        font-size: 34rpx;
+                        line-height: 84rpx;
+                        text-align: center;
+                        font-weight: bold;
+                    }
+                }
+
+            }
+        }
+    }
+
+    .ui-home-form {
+        display: block;
+        /* 今日页问候语S */
+        .ui-greeting-box {
+            width: 686rpx;
+            height: 144rpx;
+            margin: 32rpx auto;
+            background: @background-white;
+            border-radius: @border-radius-24;
+            box-shadow: @box-shadow-hight;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30rpx;
+            margin-top: -120rpx;
+            z-index: @z-index-slightly;
+            position: relative;
+            box-sizing: border-box;
+            .ui-today-greetings {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                box-sizing: border-box;
+                .cell-content {
+                    font-size: 32rpx;
+                    color: @color-black;
+                    flex:1;
+                    padding-right: 40rpx;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    .cell-greetings-text {
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        flex-wrap: wrap;
+                        font-weight: bold;
+                        .ui-exprience-modules {
+                            display: flex;
+                            justify-content: flex-start;
+                            align-items: center;
+                            font-size: 28rpx;
+                            color: @color-gray;
+                            font-weight: 400;
+                            position: absolute;
+                            right: 40rpx;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            image {
+                                width: 32rpx;
+                                height: 32rpx;
+                            }
+                            .cell-subscribe-button {
+                                color: @color-blue;
+                            }
+                        }
+                    }
+                }
+                .cell-progress {
+                    padding-left: 40rpx;
+                    border-left: solid 1rpx @border-color;
+                    .flex-center();
+                    color: @color-gray;
+                    .cell-finished-task {
+                        color: @color-green;
+                    }
+                }
+            }
+        }
+        /* 今日页问候语E */
+        /* 模拟背景 渐变 */
+        .ui-gradient-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 196rpx;
+            z-index: 3;
+            background: linear-gradient(to top,rgba(0,0,0,0),rgba(2,2,2,.5))
+        }
+        /* 滚动向下出现的白色底 */
+        .ui-gradient-bar-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 136rpx;
+            background: @background-white;
+            box-sizing: border-box;
+            z-index: @z-index-mask-header;
+        }
+        .fadeIn {
+            -webkit-animation: fadeIn 0.5s ease-in-out both;
+            animation: fadeIn 0.5s ease-in-out both;
+        }
+        .fadeOut {
+            -webkit-animation: fadeOut 0.5s ease-in-out both;
+            animation: fadeOut 0.5s ease-in-out both;
+        }
+        .ui-android-bar {
+            height: 156rpx;
+        }
+        .ui-iphonex-bar {
+            height: 196rpx;
+        }
+
+    }
+
+    /* 老用户回顾免费领课弹窗 */
+    .ui-flyback-module {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        .flex-center();
+        z-index: 1000;
+        .ui-flyback-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: @background-mask-normal-4;
+        }
+        .ui-flyback-content {
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: @z-index-lower;
+
+            .ui-content-image {
+                .cell-image {
+                    width: 100%;
+                }
+                .cell-close {
+                    width: 64rpx;
+                    height: 64rpx;
+                    position: absolute;
+                    top:-10rpx;
+                    right:30rpx;
+                }
+            }
+            .ui-content-button {
+                .flex-center();
+                padding: 32rpx 0;
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 134rpx;
+                button {
+                    width: 490rpx;
+                    height: 88rpx;
+                    background: transparent;
+                    color: @color-white;
+                    border-radius: @border-radius-44;
+                    font-size: 30rpx;
+                    margin: 0;
+                    padding: 0;
+                    .flex-center();
+                    font-weight: bold;
+                }
+            }
+        }
+    }
+</style>
+
+<template>
+    <jn-loading wx:if="{{!isLoaded}}"></jn-loading>
+
+    <view class="ui-today-body {{isIphonex ? 'ui-iphonex-body':''}}">
+        <form class="ui-home-form" bindsubmit="handleSavePushCode" report-submit>
+            <tabbar :showWhiteBackground.sync="isShowDiyTabBarBackground" :selected.sync="selected"></tabbar>
+            <!-- 推荐专题 -->
+            <view class="ui-gradient-bar"></view>
+            <view class="ui-gradient-bar-background {{isShowDiyTabBarBackground ? 'fadeIn' : 'fadeOut'}} {{isAndroid ? 'ui-android-bar' :''}} {{isIphonex ? 'ui-iphonex-bar':''}}"></view>
+            <recommend :list.sync="skillList" :underCheck.sync="isInspect" wx:if="{{skillList.length}}"></recommend>
+
+            <!-- 今日页 每日提醒 -->
+            <view class="ui-greeting-box" wx:if="{{!hasFirstExprience}}">
+                <view class="ui-greeting-inner-box" wx:if="{{isExpire}}">
+                    <view class="ui-today-greetings">
+                        <view class="cell-content" wx:if="{{experienceExpire}}" @tap.stop="getFirstExprience">
+                            <view class="cell-greetings-text" wx:if="{{!isInspect}}">您的体验已结束，快来订阅噢～
+                                <view class="ui-exprience-modules">
+                                    <text class="cell-subscribe-button" @tap.stop="getSubscribe" data-type="1">马上订阅</text>
+                                </view>
+                            </view>
+                            <view class="cell-greetings-text" wx:else>您的体验已结束</view>
+                        </view>
+                        <view class="cell-content" wx:else>
+                            <view class="cell-greetings-text" wx:if="{{!isInspect}}">您的会员订阅期已结束了噢～
+                                <view class="ui-exprience-modules">
+                                    <text class="cell-subscribe-button" @tap.stop="getSubscribe" data-type="2">去续费</text>
+                                </view>
+                            </view>
+                            <view class="cell-greetings-text" wx:else>您的体验已结束了噢～</view>
+                        </view>
+                    </view>
+                </view>
+                <view class="ui-greeting-inner-box" wx:else>
+                    <view class="ui-today-greetings">
+                        <view class="cell-content">
+                            <view class="cell-greetings-text" wx:if="{{finishedTasks < totalTasks}}">{{greetings}} {{todayTaskResult}}</view>
+                            <view class="cell-greetings-text" wx:else>{{todayTaskResult}}</view>
+                        </view>
+                        <view class="cell-progress" wx:if="{{totalTasks > 0}}">
+                            <view class="cell-finished-task">{{finishedTasks}}</view>/
+                            <view class="cell-total-task">{{totalTasks}}</view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+            <view class="ui-greeting-box" wx:else>
+                <view class="ui-greeting-inner-box">
+                    <view class="ui-today-greetings">
+                        <view class="cell-content" @tap.stop="getFirstExprience">
+                            <view class="cell-greetings-text">欢迎来到即能！快来进行即能初体验吧
+                                <view class="ui-exprience-modules">
+                                    <text class="icon-right-arrow"></text>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+            <!-- 今日训练营任务 -->
+            <camp-block :camparr.sync="campLists" wx:if="{{isShowCampLists}}"></camp-block>
+            <!-- 今日学习清单 -->
+            <task-block :taskarr.sync="taskLists" :disabled.sync="isExpire" wx:if="{{hasLearnedSence}}"></task-block>
+            <!-- 24小时免费模块 -->
+            <view class="ui-atonce-learn" wx:if="{{showExperienceMember}}">
+                <view class="ui-learn-swiper">
+                    <view class="ui-swiper-item">
+                        <view class="ui-team" @tap.stop="goChooseCoursePage">
+                            <view class="ui-item main-justify cross-center">
+                                <view class="ui-content">
+                                    <image mode="widthFix" src="http://wx-small.runwise.cn/image/new-user-course-image.png" wx:if="{{!isInspect}}"></image>
+                                    <image mode="widthFix" src="http://wx-small.runwise.cn/image/new-user-course-image-undercheck.png" wx:else></image>
+                                </view>
+                            </view>
+                        </view>
+                        <view class="ui-first-btn main-center cross-center" >
+                            <button class="cell-button" open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getExprienceMember" @tap.stop="getExprienceMember" wx:if="{{!phone}}">领取新人福利</button>
+                            <view class="cell-button" @tap.stop="goChooseCoursePage" wx:else>马上去选课</view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+            <!-- 热门课程 -->
+            <hot-course-list wx:if="{{!isShowTaskLists}}"></hot-course-list>
+            <practice-block :list.sync="practiceLists"></practice-block>
+        </form>
+
+        <!-- 老用户回归弹窗 -->
+        <view class="ui-flyback-module" wx:if="{{oldGive}}">
+            <view class="ui-flyback-mask"></view>
+            <view class="ui-flyback-content">
+                <view class="ui-content-image">
+                    <image mode="widthFix" class="cell-image" src="https://wx-small.runwise.cn/image/oldUserBack.png"></image>
+                    <image mode="widthFix" @tap.stop="closeFlyBack" class="cell-close" src="../../assets/img/alert-close.svg"></image>
+                </view>
+                <view class="ui-content-button">
+                    <button @tap.stop="toCoursePage"></button>
+                </view>
+            </view>
+        </view>
+
+        <!-- 未领取会员 -->
+        <view class="ui-flyback-module" wx:if="{{giftGetDialog && showGiftDialog}}">
+            <view class="ui-flyback-mask"></view>
+            <view class="ui-flyback-content">
+                <view class="ui-content-image">
+                    <image mode="widthFix" class="cell-image" src="http://wx-small.runwise.cn/image/ungetgift.png"></image>
+                    <image mode="widthFix" @tap.stop="closeGiftDialog" class="cell-close" src="../../assets/img/alert-close.svg"></image>
+                </view>
+                <view class="ui-content-button">
+                    <button @tap.stop="toGiftResult"></button>
+                </view>
+            </view>
+        </view>
+
+        <!-- 新人礼包弹窗 -->
+        <new-user-dialog :show.sync="newGive" :underCheck.sync="isInspect"></new-user-dialog>
+
+        <!-- 学习bar -->
+        <studying-bar :scrollTop.sync="scrollTop" :isLearning.sync="isShowTaskLists" :disabled.sync="isExpire"></studying-bar>
+        <!-- 会员到期提醒 -->
+        <member-toast :show.sync="isShowMemberExprienceEndToast"></member-toast>
+        <!-- 组队弹窗 -->
+        <team-draw-member :showByBottom.sync="showTeamDrawToastInBottom" :groupSource.sync="groupSource"></team-draw-member>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy';
+    import { getStore, connect } from 'wepy-redux';
+    import PushMixin from '../../mixins/push';
+    import Loading from '../../components/common/loading';
+    import header from '../../components/common/header';
+    import studyingBar from '../../components/common/studying-bar';
+    import { fetch, report as reportApi } from '../../api';
+    import { getLoginInfo, getUserPhone, refreshUserInformations } from '../../redux/models/user';
+    import { initializationDeligate, shareDictionary, getStorageAsync, navigateToLesson, setStorageAsync } from '../../utils';
+    import _ from 'underscore';
+    import campBlock from '../../components/today-module/camp-block';
+    import taskBlock from '../../components/today-module/task-block';
+    import practiceBlock from '../../components/today-module/practice-block';
+    import recommend from '../../components/today-module/recommend-block';
+    import newUserDialog from '../../components/common/new-user-dialog';
+    import tabbar from '../../components/common/tabbar';
+    import hotCourseList from '../../components/course-module/hot-course-list';
+    import memberToast from '../../components/common/member-limited-toast';
+    import teamDrawMember from '../../components/team-module/team-draw-members';
+
+    const store = getStore()
+    @connect({
+        token(state) {
+            return state.user.token
+        },
+        systemInfo(state) {
+            return state.user
+        },
+        phone(state) {
+            return state.user.phone
+        },
+        isIos(state){
+            return state.user.platform === 'ios'
+        }
+    })
+    export default class todayModule extends wepy.page {
+        mixins = [PushMixin]
+        components = {
+            'jn-loading': Loading,
+            'studying-bar': studyingBar,
+            'task-block': taskBlock, //今日课程任务组件
+            'practice-block': practiceBlock, //热门练习组件
+            'camp-block': campBlock, //训练营任务组件
+            recommend,//每日推荐组件
+            tabbar,//头部导航组件
+            'new-user-dialog': newUserDialog, //新人弹窗
+            'hot-course-list': hotCourseList,//热门课程列表
+            'member-toast':memberToast,//会员到期提醒
+            'team-draw-member':teamDrawMember,//组队弹窗
+        }
+        config = {
+            usingComponents: {}
+        }
+        data = {
+            isAndroid: /android/i.test(wx.getSystemInfoSync().system),
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isLoaded: false,
+            hasStudyingBar: false, // 是否有学习bar
+            scrollTop: 0,
+            skillList: [],//今日技能推荐列表
+            teamList: [], //训练营列表
+            pageLoad: 0,
+            isDone: true,
+            shareImg: '',//分享的图片
+            shareTitle: '',//分享的title
+            freeCourseSource: '',//souce来源渠道
+            taskLists: [], //今日课程列表
+            practiceLists: [], //热门练习列表
+            isShowTaskLists: false, //是否有学习清单任务
+            hasLearnedSence: null, //是否有学过微课的历史记录
+            campLists: [], //今日训练营任务列表
+            isShowCampLists: false, //是否展示训练营任务板块
+            isLimitedOn: null, //是否显示会员优惠倒计时
+            greetings:'',//问候语 如'早上好!'
+            selected:null,//默认选中项
+            isShowDiyTabBarBackground:false,//是否显示顶部白色底
+            hasFirstExprience:false,//是否还有即能初体验
+            firstCourseId:'',//初体验课程id
+            firstSenceId:'',//初体验微课id
+            newGive:false,//是否显示新用户弹窗
+            oldGive:false,//是否显示老用户回归弹窗
+            experienceExpire:null,//体验会员是否到期
+            memberExpire:null,//订阅会员是否到期
+            isShowMemberExprienceEndToast:false,//是否展示会员到期提醒
+            isInspect:false,//是否为审核需要隐藏状态,true为需要隐藏(只有IOS需要隐藏)
+            groupDrawStatus:null,//组队状态
+            groupDrawStatusNum:null,//组队弹窗缓存的次数
+            showTeamDrawToastInBottom:false,//是否展示组队弹窗(底部按钮触发)
+            groupSource:'',//表示弹窗触发的入口
+            showGiftDialog:true,//是否展示有奖励未领取 与 giftGetDialog 共同作用
+            groupId:'',//队伍id
+        }
+        watch = {
+            /* 是否隐藏tabBar */
+            newGive(newValue, oldValue) {
+                let self = this
+                if (newValue) {
+                    wx.hideTabBar()
+                    // ga埋点
+                    wepy.$instance.globalData.getHuilder('今日页/新人专享/弹窗', 'click', '');
+                    //数据库埋点
+                    let postData = {
+                        token: self.token,
+                        body: {
+                            json: {
+                                pageType: "今日页",
+                                eventType: "新人礼包",
+                                componentName: "新人专享",
+                                courseID: '',
+                                cpnPresentName: "弹窗",
+                                senceID: ''
+                            }
+                        }
+                    }
+                    reportApi.doUserBehaviourLog(postData);
+
+                } else {
+                    // wx.showTabBar()
+                }
+            },
+            /* 自定义tabBar是否显示白底 */
+            scrollTop(newValue,oldValue) {
+                this.isShowDiyTabBarBackground = newValue >= 175 ? true : false;
+                if(newValue >= 175) {
+                    if (typeof this.$wxpage.getTabBar === 'function' &&
+                    this.$wxpage.getTabBar()) {
+                        this.$wxpage.getTabBar().setData({
+                            showWhiteBackground: true
+                        })
+                    }
+                } else {
+                    if (typeof this.$wxpage.getTabBar === 'function' &&
+                    this.$wxpage.getTabBar()) {
+                        this.$wxpage.getTabBar().setData({
+                            showWhiteBackground: false
+                        })
+                    }
+                }
+            }
+        }
+        computed = {
+            /**
+             * 监听滚动的方向，{1: 向下, 0: 向上}
+             * @returns {Boolean}
+             */
+            direction() {
+                let self = this
+                let flag = (self.scrollTop <= self.oldScrollTop || self.scrollTop <= 5) ? true : false
+                let t = setTimeout(() => {
+                    self.oldScrollTop = self.scrollTop;
+                    clearTimeout(t);
+                    self.$apply();
+                }, 120)
+                return flag
+            },
+            /**
+             * 根据是否有滚动条 和 是否滚动隐藏决定 倒计时高度
+             * @returns {Boolean}
+             */
+            isActive() {
+                let self = this
+                let result;
+                if (self.isAndroid) {
+                    result = self.hasStudyingBar
+                } else {
+                    result = self.direction && !!self.hasStudyingBar
+                }
+                return result
+            },
+            /**
+             * 根据今日任务目标数 和 当前完成数 返回提示语
+             * @returns {string}
+             */
+            todayTaskResult() {
+                let self = this
+                let result;
+                if(self.totalTasks > 0) {
+                    result  = self.totalTasks > self.finishedTasks ? `今天共有${self.totalTasks}个学习任务` : '好棒！今天学习任务已完成，明天再来学习吧';
+                } else {
+                    result = '欢迎来到即能！'
+                }
+                return result
+            },
+            /* 计算任务总数 */
+            totalTasks() {
+                let self = this
+                let taskLength = 0 ;
+                self.campLists.length && self.campLists.map( item => {
+                    item.lesson && item.lesson.length && (taskLength += item.lesson.length)
+                })
+                let result = self.taskLists.length + taskLength
+                return result
+            },
+            /* 计算已完成任务数 */
+            finishedTasks() {
+                let self = this
+                let result = 0;
+
+                self.taskLists.length && self.taskLists.map(item => {
+                    item.senceList.length && item.senceList.map( m => {
+                        m.buttonStatus == 'finish' && result++;
+                    })
+                })
+
+                self.campLists.length && self.campLists.map(item => {
+                    item.lesson && item.lesson.length && item.lesson.map( m => {
+                        m.buttonStatus == 'finish' && result++;
+                    })
+                })
+                return result
+            },
+            /* 是否有到期提示 */
+            isExpire() {
+                return this.experienceExpire || this.memberExpire
+            },
+            /* 是否展示24小时福利提示 */
+            showExperienceMember() {
+                return !this.hasLearnedSence && !this.newGive && !this.isExpire
+            },
+            /* 是否有未领取奖励 */
+            giftGetDialog() {
+                return this.groupDrawStatus == '2' ? true : false
+            }
+        }
+        onLoad(param) {
+            let self = this
+            wx.hideTabBar();
+            /* 获取当前时间, */
+            let now = new Date();
+
+            self.greetings = now.getHours() > 18 ? '晚上好！' : now.getHours() > 13 ? '下午好！' : now.getHours() > 12 ? '中午好！' : now.getHours() > 9 ? '上午好！' : '早上好！';
+            self.$apply()
+
+            /**
+             * 判断是否显示 评价框
+             */
+            let t = setTimeout(() => {
+                self.selected = 0 ;
+                if (param.source) {
+                    self.freeCourseSource = param.source;
+                    self.$apply()
+                }
+                /* 获取组队弹窗弹出次数 */
+                getStorageAsync({key:'groupDrawStatusNum'}).then(response => {
+                    self.groupDrawStatusNum = response ? response : 0;
+                    self.$apply();
+                })
+
+                getStorageAsync({
+                    key: 'pageLoadNum'
+                }).then((response) => {
+                    self.pageLoad = response
+                    self.isShowEvaluate = 8 === response ? true : false;
+                }).catch(error => {
+                    console.log(error)
+                })
+
+                getStorageAsync({
+                    key: 'tabShare'
+                }).then((response) => {
+                    self.shareImg = response.img;
+                    self.shareTitle = response.title;
+                    self.$apply()
+                }).catch(error => {
+                    console.log(error)
+                })
+                self.$apply();
+                clearTimeout(t)
+            }, 300)
+        }
+        onShow() {
+            let self = this
+            initializationDeligate({
+                initializeFunc: self.__todayTaskList.bind(self)
+            });
+            wepy.$instance.globalData.getLoadHuilder(); // ga统计
+            self.$broadcast('studying-bar');
+        }
+        onHide() {
+            
+        }
+        /**
+         * 监听滚动条的位置
+         * @param
+         */
+        onPageScroll(res) {
+            let self = this
+            self.scrollTop = res.scrollTop
+            self.$apply()
+        }
+        /**
+         * 列表数据 专题
+         * @private
+         */
+        __todaySkills() {
+            let self = this
+            let postData = {
+                token: self.token,
+                isFull: false
+            }
+            fetch.todaySkills(postData).then((response) => {
+                self.skillList = response.course;
+                self.$apply()
+            }).catch(error => {
+                throw error
+            })
+        }
+        /* 获取今日课程任务
+        @params token
+        */
+        __todayCourseList() {
+            let self = this
+            let postData = {
+                token: self.token
+            }
+            fetch.getCourseLists(postData).then(response => {
+                self.taskLists = response.courseTask;
+                self.practiceLists = response.hotPracticeList;
+                setStorageAsync({
+                    key: 'isReceive',
+                    value: self.isShowTaskLists
+                }).catch(error => console.log('设置是否领过课程失败', error))
+                self.$apply()
+            })
+        }
+        /* 获取今日训练营任务
+        @params token */
+        __todayCampLists() {
+            let self = this
+            let postData = {
+                token: self.token
+            }
+            fetch.getcampLists(postData).then(response => {
+
+                self.campLists = response.teamTask;
+                self.isShowCampLists = self.campLists.length > 0 ? true : false;
+                self.$apply()
+            })
+        }
+        /* 更新登录状态 */
+        __updateLogin() {
+            let self = this;
+            let postData = {
+                token: self.systemInfo.token,
+                platform: self.systemInfo.platform
+            }
+            fetch.updateLogin(postData).then(response => {
+                self.isInspect = response.isIOSClosed && self.isIos ? true : false ;
+                self.$apply();
+            }).catch((err) => {})
+        }
+
+        /* 查询今日页状态 */
+        __getTodayStatus() {
+            let self = this
+            let postData = {
+                token: self.token
+            }
+            fetch.todayStatus(postData).then((response) => {
+
+                self.newGive = response.newGive;//是否为新用户
+                self.oldGive = response.oldGive;//是否为回归用户
+                self.hasFirstExprience = response.firstExperience;//是否有初体验权限
+                self.firstCourseId = response.firstCourseId;//初体验课程id
+                self.firstSenceId = response.firstSenceId;//初体验微课id
+                self.memberExpire = response.memberExpire;//订阅会员是否到期
+                self.experienceExpire = response.experienceExpire;//体验会员是否到期
+                self.isMember = response.isMember;//是否为订阅会员
+
+                self.hasLearnedSence = response.isLearning;//是否有学过微课
+                self.isShowTaskLists = response.isLearning;
+                self.isShowMemberExprienceEndToast = response.isShowMemberExprienceEndToast;//是否展示会员到期提示
+                self.groupDrawStatus = response.groupDrawStatus;//组队状态
+                if(self.groupDrawStatus == '2') {
+                    wepy.$instance.globalData.getHuilder('今日页/未领取会员弹窗/出现','click', '')
+                }
+                self.groupId = response.groupId;//队伍id
+                /* 缓存设置组队状态 */
+                setStorageAsync({
+                    key:'groupDrawStatus',
+                    value:self.groupDrawStatus
+                }).catch(error => console.log('设置组队状态失败'))
+                self.isLoaded = true
+                self.$apply()
+            })
+        }
+        /* 初始化 */
+        __todayTaskList() {
+            let self = this
+            let postData = {
+                token: self.token
+            }
+            fetch.profileList(postData).then((response) => {
+                // 是否去欢迎页
+                if (!response.json.isDone && self.pageLoad == 1 && !self.systemInfo.phone && !self.systemInfo.nickname) {
+                    wx.reLaunch({
+                        url: `/pages/registered-module/weclome`
+                    })
+                    throw new Error('break promise.then')
+                }
+            }).then(() => {
+                /* 获取每日技能推荐 */
+                self.__todaySkills();
+                /* 获取今日课程任务 */
+                self.__todayCourseList();
+                /* 获取今日训练营任务 */
+                self.__todayCampLists();
+                /* 获取今日页各种状态 */
+                self.__getTodayStatus();
+                /* 查询提审状态 */
+                self.__updateLogin();
+            }).catch(error => {
+                throw error
+            });
+        }
+
+        methods = {
+            
+            /**
+             * 注册体验会员
+             * @param token
+             */
+            getExprienceMember(event) {
+                let self = this
+                let { detail: { encryptedData, errMsg, iv } } = event
+
+                wepy.$instance.globalData.getHuilder('今日页/24小时免费/领取新课课程', 'click', '')
+
+                wepy.login().then((res) => {
+                    res.code && store.dispatch(refreshUserInformations({
+                        code: res.code
+                    }))
+                    let t = setTimeout(() => {
+                        res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                            store.dispatch(refreshUserInformations({
+                                phone: response
+                            }))
+                            //数据库埋点
+                            let postData = {
+                                token: self.token,
+                                body: {
+                                    json: {
+                                        pageType: "今日页",
+                                        eventType: "24小时免费",
+                                        componentName: "领取新课程",
+                                        cpnPresentName: "",
+                                    }
+                                }
+                            }
+                            reportApi.doUserBehaviourLog(postData);
+
+                            self.$apply();
+                        }).catch((error) => {
+                            console.log(error)
+                            if(error && error.indexOf('getPhoneNumber') > -1){
+                                wepy.$instance.globalData.getHuilder('今日页/新人礼包弹窗/拒绝', 'click', '')
+                            }
+                        })
+                        clearTimeout(t)
+                    }, 0);
+                })
+            },
+            /* 去订阅页 */
+            getSubscribe(event) {
+                let self = this
+                let {currentTarget:{dataset:{type}}} = event
+
+                type == '1' ? wepy.$instance.globalData.getHuilder('今日页/去订阅', 'click', '') : wepy.$instance.globalData.getHuilder('今日页/去续费', 'click', '') ;
+
+                if( self.groupDrawStatusNum == 0 && (self.groupDrawStatus == -1 || self.groupDrawStatus == 2)){
+                    wepy.$instance.globalData.getHuilder('今日页/组队抽会员/限时活动弹窗/出现','click', '')
+                    self.showTeamDrawToastInBottom = true
+                    self.groupSource = 'today-subscribe'
+                    self.$apply()
+                } else {
+                    wepy.navigateTo({url: `/pages/course-module/course-subscribe`})
+                }
+            },
+            /* 24小时免费提示框按钮点击去选课 */
+            goChooseCoursePage() {
+                wepy.$instance.globalData.getHuilder('今日页/体验会员/马上去选课', 'click', '');
+                wepy.switchTab({ url: '/pages/tabPages/course'});
+            },
+            /*
+                老用户回归弹窗去领课
+            */
+            toCoursePage() {
+                let self = this
+                let postData = {
+                    token:self.token,
+                    closeType:'giveAlertWindow'
+                }
+                wepy.$instance.globalData.getHuilder('今日页/老用户回归/免费领取', 'click', '');
+                self.oldGive = false
+                self.$apply()
+                wepy.switchTab({ url: '/pages/tabPages/course'});
+                /* fetch.closeGiveBar(postData).then(() => {
+                    self.giveAlertWindow = false
+                    self.$apply()
+                    wepy.switchTab({ url: '/pages/tabPages/course'});
+                }) */
+            },
+            /*
+             *跳去领取奖品
+             */
+            toGiftResult(){
+                let self = this
+                wepy.$instance.globalData.getHuilder('今日页/未领取会员弹窗/前往领取','click', '')
+                self.showGiftDialog = false
+                wepy.navigateTo({url:`/pages/activity-module/team-learning?groupId=${self.groupId}`})
+                self.$apply()
+            },
+            /*
+            *关闭领奖框
+            */
+            closeGiftDialog(){
+                let self = this
+                wepy.$instance.globalData.getHuilder('今日页/未领取会员弹窗/X','click', '')
+                self.showGiftDialog = false
+                self.$apply()
+            },
+            /*
+              关闭老用户回归弹窗
+            */
+            closeFlyBack() {
+                let self = this
+                /* let postData = {
+                    token:self.token,
+                    closeType:'giveAlertWindow'
+                } */
+                wepy.$instance.globalData.getHuilder('课程页/老用户回归/关闭', 'click', '')
+                self.oldGive = false
+                self.$apply();
+                /* fetch.closeGiveBar(postData).then(() => {
+                    self.giveAlertWindow = false
+                    self.$apply()
+                }) */
+            },
+            /**
+             * 去每日推荐
+             */
+            getSkillLesson(event) {
+                let self = this;
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item,
+                            text
+                        }
+                    }
+                } = event;
+                let senceID = item.senceInfo.id;
+                let resume = item.senceResume;
+                let courseID = item.courseIdOfLinkSence;
+                //ga埋点
+                wepy.$instance.globalData.getHuilder('今日页/今日技能/微课学习', 'click', item.senceInfo.name);
+                //数据库埋点
+                let postData = {
+                    token: self.token,
+                    body: {
+                        json: {
+                            pageType: "今日页",
+                            eventType: "微课学习",
+                            componentName: "今日技能",
+                            courseID: courseID,
+                            cpnPresentName: "今日技能",
+                            senceID: senceID
+                        }
+                    }
+                }
+                reportApi.doUserBehaviourLog(postData);
+                switch (text) {
+                    case 'finish':
+                        this.$navigate(`/pages/course-module/course-cover`, {
+                            courseID,
+                            senceID
+                        })
+                        break;
+                    default:
+                        navigateToLesson({
+                            courseID,
+                            senceID,
+                            resumeLastRead: resume,
+                            source: 'todaySkill'
+                        })
+                }
+            },
+
+            // 初体验 课程
+            getFirstExprience() {
+                let self = this;
+
+                wepy.$instance.globalData.getHuilder('今日页/初体验', 'click', '')
+                navigateToLesson({courseID:self.firstCourseId,senceID:self.firstSenceId,source:'firstExprience',isExprience: true,resumeLastRead: 'NO'})
+
+            },
+            /**
+             * 微信授权登录
+             */
+            getAuthorize(event) {
+                let self = this
+                let {
+                    detail: {
+                        errMsg,
+                        userInfo,
+                        rawData
+                    }
+                } = event
+                store.dispatch(getLoginInfo({
+                    userInfo,
+                    errMsg
+                })).then(response => {
+                    wepy.$instance.globalData.getHuilder('今日页/头像', 'click', '')
+                    wepy.redirectTo({
+                        url: '/pages/user-module/mine-edit?source=today'
+                    })
+                }).catch(error => {})
+            }
+        }
+        events = {
+            'on-is-studying-bar': (data) => {
+                let self = this
+                self.hasStudyingBar = data.isShowBar
+                self.$apply()
+            },
+            /* 隐藏会员订阅优惠倒计时弹窗 */
+            'short-countdown-stop': () => {
+                let self = this
+                self.isLimitedOn = false
+                self.$apply()
+            },
+            /* 新人注册 */
+            'on-newdialog-register':()=> {
+                let self = this
+                self.__getTodayStatus();
+            },
+            /* 隐藏今日页新人礼包弹窗 */
+            'on-hide-newdialog': () => {
+                let self = this
+                self.newGive = false;
+                self.$apply();
+            },
+            /* ga埋点区分tab页 */
+            'on-click-float': () => {
+                wepy.$instance.globalData.getHuilder('今日页/新人礼包浮窗', 'click', '')
+            },
+            /* 关闭组队弹窗 */
+            'on-hide-teamdraw':() => {
+                let self = this
+                self.showTeamDrawToastInBottom = false
+                self.groupDrawStatusNum = 1
+                wepy.navigateTo({url: `/pages/course-module/course-subscribe`})
+                self.$apply()
+            }
+        }
+        /**
+         * 分享
+         * @param options
+         * @returns {{title: string, path: string, success: success, fail: fail}}
+         */
+        onShareAppMessage(options) {
+            let self = this
+            wepy.$instance.globalData.getHuilder('今日页/分享', 'click', '')
+            wepy.$instance.globalData.getReportFlow('share')
+            return {
+                title: self.shareTitle,
+                imageUrl: self.shareImg,
+                path: '/pages/tabPages/home?source=TodayTabShare',
+                success(res) {
+                    fetch.reportSharing({
+                        token: self.token,
+                        type: shareDictionary.SHARE_WE_APP.type
+                    }) // 向后台上报分享行为
+                },
+                fail(res) {
+                    console.log('转发失败')
+                }
+            }
+        }
+    }
+</script>

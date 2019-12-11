@@ -1,0 +1,318 @@
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-pre-practice{
+        width: 100%;height: 100%;background-position: top center;background-repeat: no-repeat;background-size: cover;position: relative;overflow:hidden;
+        /* 进度条 */
+        .ui-progress-box{
+            .ui-progress{width:216rpx;height:10rpx;background-color:@background-gray-F4;border-radius:6rpx;position:relative;left:0rpx;overflow:hidden;}
+            .cell-current{height:100%;background-color:#A1A9AB;border-radius:6rpx;position:absolute;left:0;top:0;transition:width .5s ease-in-out;}
+            .cell-number{width:58rpx;padding-left:16rpx;font-size:24rpx;color:#A1A9AB;}
+        }
+        /* 题目 */
+        .ui-practice-block{
+            background-color: transparent;margin-top:182rpx;padding: 0 72rpx;box-sizing:border-box;
+            .cell-shadow{position: absolute;left: 0;right: 0;top: 0;bottom: 0;z-index: 1;}
+            .cell-title{font-family: PingFangSC-Medium;font-size: 34rpx;color: @color-black;margin-bottom:82rpx;}
+            .ui-item{
+                height: 112rpx;border-radius: @border-radius-20;display: flex;align-items: center;width: 606rpx;
+                text{font-size: 48rpx;color:@color-blue;margin-right: 12rpx;}
+                .cell-content{font-family: PingFangSC-Regular;font-size: 32rpx;color: @color-black;display:flex;flex: 1;}
+            }
+        }
+        .ui-margin{width: 100%;height: 30rpx;}
+        .ui-bottom{
+            width: 100%;position: absolute;bottom:120rpx;display:flex;justify-content:center;
+            .cell-btn{
+                width: 402rpx;height: 100rpx;border-radius: @border-radius-20;background: @background-gray-F4;color:@color-blue;text-align: center;line-height: 100rpx;font-size:34rpx;
+                text{margin-right: 10rpx}
+            }
+        }
+    }
+    .ui-shade{
+        position: fixed;z-index: @z-index-mask;left: 0;right: 0;top: 0;bottom: 0;background: @background-mask-normal;
+        .ui-comfirm{
+            position: absolute;top: 50%;left: 50%;transform: translate(-50%,-50%);border-radius:@border-radius-16;width:560rpx;background: @background-white;overflow:hidden;
+            .cell-content{font-size: 34rpx;color:@color-black;height: 190rpx;text-align: center;line-height: 190rpx;}
+            .ui-btn{
+                color:@color-blue;height: 100rpx;border-top:2rpx solid @border-gray;display: flex;border-bottom-left-radius:@border-radius-16;border-bottom-right-radius:@border-radius-16;
+                .cell-item{width: 280rpx;text-align: center;line-height: 100rpx;}
+                .cell-hover{background: @background-gray-F4;}
+                &:last-of-type .cell-item{border-left:2rpx solid @border-gray; }
+            }
+        }
+    }
+</style>
+
+<template>
+    <mloading wx:if="{{ !isLoaded }}" />
+    <view class="ui-pre-practice" wx:if="{{ isLoaded }}"
+          style="background-image: url('{{imagePracticeURL}}');">
+        <jn-header className="background-transparent" buttonAfter>
+            <view slot="content" class="ui-progress-box main-center cross-center">
+                <view class="ui-progress">
+                    <view class="cell-current" style="width:{{((currentIndex)/(practiceList.length)) * 100}}%"></view>
+                </view>
+                <view class="cell-number">{{currentIndex}}/{{practiceList.length}}</view>
+            </view>
+        </jn-header>
+        <swiper class="ui-practice-block"
+                style="height: calc(100% - {{headerHeigth}}px)"
+                current="{{activedIndex}}"
+                bindchange="getSwiperItem"
+                duration="{{300}}"
+                bindanimationfinish="getFinish">
+            <block wx:for="{{tempList}}" wx:index="{{index}}" wx:key="{{index}}">
+                <swiper-item
+                        bindtouchstart="getTouchStart"
+                        bindtouchmove="getTouchMove"
+                        data-practice-id="{{item.practiceID}}">
+                    <view class="cell-shadow" wx:if="{{isPracticeShow}}"></view>
+                    <view class="cell-title">{{item.content}}</view>
+                    <block wx:for="{{item.optionList}}" wx:key="{{optionIndex}}"
+                           wx:for-item="selectItem" wx:for-index="optionIndex">
+                        <view  class="ui-item" @tap.stop="getSelectItem"
+                                data-temp-index="{{currentIndex}}" data-option-index="{{optionIndex}}"
+                               data-item="{{selectItem}}" data-practice-id="{{item.practiceID}}">
+                            <text class="{{selectItem.isSelected ? 'icon-selected' : 'icon-selectable'}}"></text>
+                            <view class="cell-content">{{selectItem.optionContent}}</view>
+                        </view>
+                    </block>
+                </swiper-item>
+            </block>
+        </swiper>
+        <view class="ui-margin"></view>
+        <view class="ui-bottom">
+            <view class="cell-btn" wx:if="{{ arrLength.length === practiceList.length}}" @tap.stop="handleTapToFinish">
+                完成<text class="icon-details"></text>
+            </view>
+        </view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import {fetch, report as reportApi} from "../../api"
+    import {getStore, connect} from "wepy-redux"
+    import Loading from '../../components/common/loading'
+    import header from '../../components/common/header'
+    import _ from 'underscore'
+
+    const store = getStore();
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        },
+        token(state) {
+            return state.user.token;
+        },
+        entrance(state) {
+            //全局场景值
+            return state.entrance;
+        },
+    })
+    export default class appraisalQuestions extends wepy.page {
+        config = {
+            disableScroll: true
+        }
+        components = {
+            'jn-header': header,
+            'mloading': Loading,
+        };
+        data = {
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            isLoaded: false,
+            headerHeigth:68,
+            examID: '',
+            currentIndex:1,
+            activedIndex:0,
+            SelectIndex:-1,
+            buttonStatus:'',
+            examTitle:'',
+            imageBottomURL:'',
+            imagePracticeURL:'',
+            imageResultURL:'',
+            practiceList:[],
+            tempList:[],
+            selectObj:{},
+            startPoint:[0,0],
+            curPoint:[0,0],
+            commitList:[],
+            arrLength:[],
+            isPracticeShow:false
+        };
+        methods = {
+            handleTapToFinish() {
+                let self = this;
+                wepy.$instance.globalData.getHuilder(`测评/测评答题/题${self.practiceList.length}/完成`,'click', '')
+                let keys = _.keys(self.selectObj);
+                let values = _.values(self.selectObj);
+                _.each(keys, (item,index)=>{
+                    self.commitList.push({'optionID':values[index],'practiceID':item})
+                });
+                let postData = {
+                    token:self.token,
+                    json:{
+                        'examID':self.examID,
+                        'practiceList':self.commitList
+                    }
+                }
+                fetch.sendUserDoExam(postData).then((res)=>{
+                    wx.hideLoading()
+                    wepy.redirectTo({ url: `/pages/activity-module/appraisal-results?examID=${self.examID}`})
+                })
+                self.$apply()
+            },
+            getSwiperItem(event){
+                let self = this
+                let detail = event.detail
+                self.currentIndex = detail.current+1
+                self.activedIndex = detail.current
+                self.$apply()
+            },
+            // 点击单选
+            getSelectItem(event){
+                let self = this
+                let activedIndex = self.activedIndex + 1
+                let practiceLen = self.practiceList.length
+                
+                if(activedIndex < practiceLen) {
+                    wepy.$instance.globalData.getHuilder(`测评/测评答题/题${activedIndex}/下一题`,'click', '')
+                }
+                self.isPracticeShow = true;
+                let dataset = event.currentTarget.dataset
+                let item = dataset.item
+                let index = item.optionID
+                let id = dataset.practiceId;
+                let tempIndex = dataset.tempIndex-1;
+                let optionIndex = dataset.optionIndex;
+                let tempList = self.tempList;
+
+                
+                tempList = _.each(tempList,(item,sindex)=>{
+                    if(sindex === tempIndex) {
+                        _.each(item.optionList,(optionItem) => {
+                            optionItem.isSelected = false;
+                        })
+                    }
+                })
+                tempList[tempIndex].optionList[optionIndex].isSelected = true
+
+                self.tempList = tempList
+
+                self.__report(id);
+
+                // 获得已选的id
+                self.selectObj[id] = index
+                self.arrLength = _.keys(self.selectObj)
+                // 动态 改变 tempList
+                let tempPracticeList = self.practiceList
+                for(let i = 0 ; i < self.arrLength.length+1 ;i++) {
+                    if(self.arrLength.length < self.practiceList.length) {
+                        self.tempList[i] = self.practiceList[i]
+                    }
+                }
+                setTimeout(()=>{
+                    if(self.activedIndex < self.tempList.length -1 ) {
+                        self.activedIndex = self.activedIndex + 1
+                    }
+                    self.$apply()
+                }, 100)
+                self.$apply()
+            },
+            // 移动
+            getTouchStart(e) {
+                let self = this
+                self.startPoint = [e.touches[0].clientX,e.touches[0].clientY]
+                self.$apply()
+            },
+            getFinish(e){
+                let self = this;
+                self.isPracticeShow = false
+                self.$apply()
+            },
+            getTouchMove(e) {
+                let self = this
+                self.curPoint =  [e.touches[0].clientX,e.touches[0].clientY]
+                let id = e.currentTarget.dataset.practiceId
+                let arrKeys = _.keys(self.selectObj)
+                if(self.startPoint[0] > self.curPoint[0]) {
+                    if(_.indexOf(arrKeys,id) <= -1) {
+                        self.$apply()
+                        wx.showToast({
+                            title: '请选择选项',
+                            icon: 'none',
+                            duration: 200
+                        })
+                    }
+                }
+            }
+        };
+
+        /**
+         * 服务通知数据上报
+         */
+        __report(practiceID) {
+            let self = this
+            let postData = {
+                token: self.token,
+                body: {
+                    json: {
+                        pageType: "测评做题页",
+                        eventType: "测评做题事件上报",
+                        componentName: "测评模块",
+                        courseID: self.examID,
+                        cpnPresentName: `测评做题/题${self.activedIndex + 1}`,
+                        senceID: practiceID
+                    }
+                }
+            }
+            reportApi.doUserBehaviourLog(postData)
+        }
+
+        __getExamPracticeList(params){
+            let self = this
+            let postData = {
+                token: params && params.token || self.token,
+                examID: self.examID
+            }
+            fetch.getExamPracticeList(postData).then((res) => {
+                self.isLoaded = true
+                self.buttonStatus = res.buttonStatus
+                self.examTitle = res.examTitle
+                self.imageBottomURL = res.imageBottomURL
+                self.imagePracticeURL = res.imagePracticeURL
+                self.imageResultURL = res.imageResultURL
+                let practiceList = res.practiceList
+                practiceList = _.each(practiceList, (item)=>{
+                    _.each(item.optionList,(selectItem) =>{
+                         selectItem.isSelected = false
+                    })
+                });
+                self.practiceList = practiceList
+                self.tempList[0] = self.practiceList[0]
+                self.$apply()
+
+                // ga统计
+                wepy.$instance.globalData.getLoadHuilder({pageTheme: self.examTitle})
+            })
+        }
+
+        onLoad({examID}) {
+            let self = this
+            self.examID = examID
+            self.$apply()
+            self.__getExamPracticeList()
+        }
+
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>
+
+

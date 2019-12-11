@@ -1,0 +1,1134 @@
+<style lang="less" scoped>
+    @import '../../assets/style/theme.less';
+    .ui-user-module {
+        // background: #f1f2f5;
+        height: 100%;
+        overflow: auto;
+        padding-top: 136rpx;
+        &.is-android {
+            padding-top: 156rpx;
+        }
+        &.is-iphonex {
+            padding-top: 196rpx;
+        }
+    }
+    /* 自定义tabBar白色底 */
+    .ui-gradient-bar-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 136rpx;
+        background: @background-white;
+        box-sizing: border-box;
+        z-index: @z-index-mask-header;
+    }
+    .ui-android-bar {
+        height: 156rpx;
+    }
+    .ui-iphonex-bar {
+        height: 196rpx;
+    }
+    .module-header {
+        background: none
+    }
+    .ui-user-content {
+        padding-top: 30rpx;
+    }
+    view {
+        box-sizing: border-box;
+    }
+    .cell-icon {
+        color: #d1d1d6;
+        font-size: 26rpx;
+    }
+    .ui-title {
+        width: 230rpx;
+        .cell-num {
+            height: 32rpx;
+            width: 32rpx;
+            color: #fff;
+            text-align: center;
+            line-height: 32rpx;
+            border-radius: 50%;
+            background: #E70202;
+            font-size: 24rpx;
+            margin-left: 8rpx;
+        }
+    }
+    .ui-myself {
+        height: 164rpx;
+        padding: 0 32rpx;
+        background: none;
+        .ui-title {
+            line-height: 1;
+            text-align: left;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            .ui-avatar {
+                height: 100rpx;
+                width: 100rpx;
+                border: solid 1rpx rgba(0, 0, 0, 0.2);
+                border-radius: 50%;
+                display: block;
+                position: relative;
+                overflow: hidden;
+                text {
+                    margin-left: 16rpx;
+                }
+                .cell-avatar {
+                    height: 100rpx;
+                    width: 100rpx;
+                    border-radius: 50%;
+                }
+            }
+            .ui-user-info {
+                padding-left: 20rpx;
+            }
+            .cell-name {
+                font-size: 32rpx;
+                font-weight: bold;
+                width: 400rpx;
+                line-height: 1
+            }
+            .ui-member {
+                font-size: 26rpx;
+                height: 36rpx;
+                margin-top: 10rpx;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                image {
+                    width: 48rpx;
+                }
+                text {
+                    color: @color-gray;
+                    height: 36rpx;
+                    line-height: 36rpx;
+                    &.cell-text {
+                        color: #E3AC00;
+                        margin-right: 12rpx;
+                        font-weight: bold
+                    }
+                    &.ui-member-text {
+                        color: @color-golden;
+                        padding-top: 5rpx;
+                        margin-left: 10rpx;
+                    }
+                }
+            }
+        }
+        .ui-avatar {
+            width: 100rpx;
+            text {
+                margin-left: 16rpx;
+            }
+            image {
+                height: 96rpx;
+                width: 96rpx;
+                border:solid 1rpx @border-color;
+                border-radius: 50%;
+            }
+        }
+    }
+    .ui-item-list {
+        .ui-item {
+            border-top: 0;
+            .ui-contact-button {
+                background:@background-white;
+            }
+            .cell-svg-box {
+                .flex-center();
+                margin-right: 20rpx;
+                image {
+                    margin-left: 12rpx;
+                }
+            }
+            .ui-name {
+                border-top: 1rpx solid #EFEFF4;
+                .ui-label {
+                    position: relative;
+                    font-size: 32rpx;
+                    color: @color-black;
+                    .cell-red-dot {
+                        height: 16rpx;
+                        width: 16rpx;
+                        border-radius: 50%;
+                        background: #E70202;
+                        position: absolute;
+                        top: 16rpx;
+                        right: -26rpx;
+                    }
+                }
+
+            }
+            &:nth-of-type(1) .ui-name {
+                border-top: none;
+            }
+            image {
+                width: 56rpx;
+                height: 56rpx;
+            }
+        }
+    }
+    .ui-item {
+        background: #fff;
+        height: 120rpx;
+        padding: 0 24rpx;
+        .ui-content {
+            text {
+                &:first-of-type {
+                    font-size: 28rpx;
+                    color: #8E8E93;
+                    margin-right: 8rpx;
+                }
+                &.font-color-red {
+                    color: @color-red;
+                }
+                &.font-color-blue {
+                    color: @color-blue;
+                }
+            }
+        }
+        .ui-icon {
+            width: 100rpx;
+            text {
+                font-size: 76rpx;
+                margin-right: 20rpx;
+            }
+        }
+        &.ui-skill {
+            height: 148rpx;
+            .ui-icon text {
+                color: #ffc700
+            }
+        }
+        &.ui-course {
+            .ui-icon text {
+                color: #5AC8FA;
+            }
+        }
+        &.ui-team {
+            .ui-icon text {
+                color: #007AFF;
+            }
+        }
+        &.ui-coin {
+            .ui-icon text {
+                color: #ffcb00;
+            }
+        }
+        &.ui-group {
+            .ui-icon text {
+                color: #ffcb00;
+                line-height: 1;
+            }
+            .ui-name {
+                border-bottom: solid 1rpx @border-gray;
+                margin-left: 10rpx;
+            }
+        }
+        &.ui-collection {
+            .ui-icon text {
+                color: #FF9500;
+            }
+        }
+        &.ui-view {
+            .ui-icon text {
+                color: #007AFF;
+            }
+        }
+        &.ui-test {
+            .ui-icon text {
+                color: #00C956;
+            }
+        }
+        &.ui-contact {
+            .ui-icon text {
+                color: #00C956;
+            }
+            .ui-label {
+                padding-left: 10rpx;
+            }
+        }
+    }
+    .ui-subscribe {
+        width: 686rpx;
+        height: 212rpx;
+        margin: 20rpx auto 10rpx;
+        background-image: linear-gradient(173deg, #F2DFA7 0%, #ECCA83 100%);
+        border-radius: @border-radius-24;
+        .ui-user-center {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 36rpx 48rpx;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            flex-direction: column;
+            .cell-user-center-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+                border-bottom: solid 1rpx @border-color;
+                padding-bottom: 25rpx;
+                .cell-top-left {
+                    .cell-top-tips {
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        .cell-tips-text {
+                            color: @color-black;
+                            font-size: 32rpx;
+                            font-weight: bold;
+                        }
+                        image {
+                            width: 48rpx;
+                            height: 36rpx;
+                            margin-bottom: 5rpx;
+                            margin-right: 10rpx;
+                        }
+                    }
+                }
+                .cell-top-right {
+                    position: relative;
+                    height: 34rpx;
+                    line-height: 34rpx;
+                    .cell-right-btn {
+                        padding-right: 25rpx;
+                        &::after {
+                            content: '';
+                            width: 0;
+                            height: 0;
+                            border-width: 11rpx;
+                            border-style: solid;
+                            border-color: transparent transparent transparent @color-black-simple;
+                            position: absolute;
+                            top: 50%;
+                            right: -5rpx;
+                            transform: translateY(-50%);
+                        }
+                        .cell-btn {
+                            color: @color-unique;
+                            font-size: 24rpx;
+                            .ui-count-box {
+                                .flex-center()
+                            }
+                        }
+                        .cell-bold-text {
+                            color: @color-black-simple;
+                            font-size: 26rpx;
+                            font-weight: bold;
+                        }
+                    }
+                }
+            }
+            .cell-user-center-bottom {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+                box-sizing: border-box;
+                .ui-member-interests {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    image {
+                        width: 36rpx;
+                        height: 30rpx;
+                        margin-right: 5rpx;
+                    }
+                    text {
+                        color: @color-black-simple;
+                        font-size: 26rpx;
+                    }
+                }
+            }
+        }
+    }
+    .ui-equity {
+        background: #fff;
+        height: 284rpx;
+        border-top: 1rpx solid #EFEFF4;
+        .ui-get {
+            width: 184rpx;
+            .ui-icon {
+                position: relative;
+                text {
+                    background-image: -webkit-linear-gradient(bottom, #d19f22, #fbc714);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    font-size: 128rpx;
+                }
+                .cell-num {
+                    position: absolute;
+                    top: 13rpx;
+                    right: 41rpx;
+                    background: #E70202;
+                    border-radius: 50%;
+                    color: #fff;
+                    font-size: 24rpx;
+                    width: 32rpx;
+                    height: 32rpx;
+                    line-height: 32rpx;
+                    &.cell-max {
+                        width: 44rpx;
+                        border-radius: 16rpx;
+                    }
+                }
+            }
+            .ui-font {
+                font-size: 32rpx;
+                color: #E2AB00;
+                text-align: center;
+                height: 90rpx;
+            }
+        }
+    }
+    .ui-down {
+        color: #000
+    }
+    .cell-margin {
+        height: 68rpx;
+        width: 100%;
+    }
+    .ui-item-box {
+        margin: 32rpx;
+        border-radius: @border-radius-24;
+        overflow: hidden;
+        box-shadow: @box-shadow-hight;
+    }
+    /* 关注公众号弹窗 */
+    .ui-contact-module {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: @z-index-mask-header;
+        .flex-center();
+        flex-wrap: wrap;
+        padding: 32rpx;
+        box-sizing: border-box;
+        .ui-contact-module-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: @background-mask-normal-4;
+            z-index: @z-index-mask-header;
+        }
+        .ui-contact-content {
+            width: 622rpx;
+            height: 828rpx;
+            background: @background-white;
+            border-radius: @border-radius-32;
+            z-index: @z-index-lower-header;
+            .flex-center();
+            flex-wrap: wrap;
+            position: relative;
+            .ui-title-box {
+                width: 100%;
+                font-size: 32rpx;
+                line-height: 48rpx;
+                font-weight: bold;
+                color: @color-black;
+                .flex-center();
+            }
+            .ui-close {
+                position: absolute;
+                top:-72rpx;
+                right:-36rpx;
+                image {
+                    width: 64rpx;
+                    height: 64rpx;
+                }
+            }
+            .ui-image-box {
+                width: 100%;
+                margin: 0 32rpx;
+                image {
+                    width: 558rpx;
+                    height: 448rpx;
+                    margin-bottom: 30rpx;
+                }
+                .cell-text {
+                    width: 100%;
+                    text-align: center;
+                    font-size: 28rpx;
+                    color: @color-gray-64;
+                    line-height: 44rpx;
+                }
+            }
+            .ui-button-box {
+                width: 100%;
+                .flex-center();
+                button {
+                    width: 494rpx;
+                    height: 88rpx;
+                    color: @color-white;
+                    background: @background-blue;
+                    font-size: 30rpx;
+                    font-weight: bold;
+                    border-radius: @border-radius-88;
+                    .flex-center();
+                }
+            }
+        }
+    }
+</style>
+
+<template>
+    <mloading wx:if="{{ !isLoaded }}" />
+    <tabbar :showWhiteBackground.sync="showWhiteBackground" :selected.sync="selected"></tabbar>
+    <view class="ui-user-module {{isAndroid ? 'is-android' :''}} {{isIphonex ? 'is-iphonex':''}}">
+        <!-- <jn-header hiddenButton className="background-transparent" statusBackground="#fff"></jn-header> -->
+        <view class="ui-gradient-bar-background fadeIn {{isAndroid ? 'ui-android-bar' :''}} {{isIphonex ? 'ui-iphonex-bar':''}}"></view>
+        <view class="ui-user-content">
+            <button open-type="{{!systemInfo.nickName ? 'getUserInfo' : ''}}" bindgetuserinfo="getAuthorize" @tap.stop="getAuthorize" class="ui-myself main-justify" hover-class="ui-down">
+                        <view class="ui-title flex-width-1 main-center">
+                            <view class="ui-avatar">
+                                <open-data type="userAvatarUrl" class="cell-avatar" wx:if="{{canUseOpenData}}"></open-data>
+                                <image class="cell-avatar" src="{{systemInfo.avatarUrl ? systemInfo.avatarUrl : '../../assets/img/profile-off.png'}}" wx:else></image>
+                            </view> 
+                            
+                            <view class="ui-user-info">
+                                <open-data class="cell-name" type="userNickName" class="cell-avatar" wx:if="{{canUseOpenData}}"></open-data>
+                                <view class="cell-name" wx:else>{{nickName || systemInfo.nickName ? nickName || systemInfo.nickName : '授权头像'}}</view>
+                                <view class="cross-center ui-member" wx:if="{{(member.isMember || memberCountDown > 0) && !isDisappearMember && !isInspect}}">
+                                    <image mode="widthFix" src="../../assets/img/crown2.png"></image>
+                                    
+                                    <text class="ui-member-text">UpSkill Plus 会员</text>
+                                </view>
+                                <view class="cross-center ui-member" wx:if="{{!member.isMember && memberCountDown < 0 && !isDisappearMember && !isInspect}}">
+                                    <text>你还不是UpSkill Plus 会员</text>
+                                </view>
+                            </view>
+                        </view>
+                        <view class="ui-avatar cross-center main-end">
+                            <text class="icon-right-arrow"></text>
+                        </view>
+                    </button>
+            <view class="ui-subscribe" wx:if="{{!isDisappearMember && !isInspect}}" @tap.stop="getSubscribe">
+                <view class="ui-user-center">
+                    <view class="cell-user-center-top">
+                        <view class="cell-top-left">
+                            <view class="cell-top-tips" wx:if="{{!member.isMember && memberCountDown < 0}}">
+                                <image src="../../assets/img/crown1.png"></image>
+                                <view class="cell-tips-text">开通解锁全部VIP课程</view>
+                            </view>
+                            <view class="cell-top-tips" wx:else>
+                                <view class="cell-top-tips">我的专属特权</view>
+                            </view>
+                        </view>
+                        <view class="cell-top-right" wx:if="{{showMemberStatus}}">
+                            <view class="cell-right-btn" wx:if="{{!member.isMember && memberCountDown < 0}}">
+                                <view class="cell-btn cell-bold-text">开通</view>
+                            </view>
+                            <view class="cell-right-btn" wx:else>
+                                <view class="cell-btn" wx:if="{{member.isMember || memberCountDown > 0}}">
+                                    <view wx:if="{{member.isMember && !showCountDown}}">{{member.expiredTips}}</view>
+                                    <view class="ui-count-box" wx:else>
+                                        <countdown :countdownstart.sync="memberCountDown" color="#7D5B15" :disabled.sync="showCountDown"></countdown>
+                                        后到期
+                                    </view>
+                                </view>
+                                <view class="cell-btn" wx:else>已到期</view>
+                            </view>
+                        </view>
+                    </view>
+                    <view class="cell-user-center-bottom">
+                        <view class="ui-member-interests">
+                            <image src="../../assets/img/free.png"></image>
+                            <text>全场免费</text>
+                        </view>
+                        <view class="ui-member-interests">
+                            <image src="../../assets/img/new.png"></image>
+                            <text>定期上新</text>
+                        </view>
+                        <view class="ui-member-interests">
+                            <image src="../../assets/img/community.png"></image>
+                            <text>专属社群</text>
+                        </view>
+                    </view>
+                </view>
+            </view>
+            <view class="ui-item-box">
+                <view class="ui-item-list">
+                    <button class="ui-item ui-group main-justify cross-center" open-type="{{!phone ? 'getPhoneNumber' : ''}}"  @getphonenumber.stop="getTeamMember" @tap.stop="getTeamMember" data-name="group" wx:if="{{!isInspect}}">
+                        <view class="ui-icon cross-center">
+                            <view class="cell-svg-box">
+                                <image src="../../assets/img/icon-group.svg"></image>
+                            </view>
+                            <!-- <text class="icon-group"></text> -->
+                        </view>
+                        <view class="ui-name main-justify cross-center">
+                            <view class="cross-center ui-label ui-title">
+                                组队抽取会员卡
+                            </view>
+                            <view class="ui-content">
+                                <text class="cell-text">
+                                            <text>{{groupId ? '查看组队':'立即组队'}}</text>
+                                </text>
+                                <text class="icon-right-arrow cell-icon"></text>
+                            </view>
+                        </view>
+                    </button>
+                    <view class="ui-item ui-course main-justify cross-center" @tap.stop="getItem" data-name="course">
+                        <view class="ui-icon cross-center">
+                            <text class="icon-mycourse"></text>
+                        </view>
+                        <view class="ui-name main-justify cross-center">
+                            <view class="cross-center ui-label ui-title">
+                                我的课程
+                                <text class="cell-num" wx:if="{{myCourses.isShow}}">{{myCourses.newCount}}</text>
+                            </view>
+                            <view class="ui-content">
+                                <text class="cell-text">
+                                            <text wx:if="{{myCourses.learningCount}}">正在学{{myCourses.learningCount}}个</text>
+                                </text>
+                                <text class="icon-right-arrow cell-icon"></text>
+                            </view>
+                        </view>
+                    </view>
+                    <view class="ui-item ui-collection main-justify cross-center" @tap.stop="getItem" data-name="collection">
+                        <view class="ui-icon cross-center">
+                            <text class="icon-mycollection"></text>
+                        </view>
+                        <view class="ui-name main-justify cross-center">
+                            <view class="cross-center ui-label ui-title">
+                                我的收藏
+                                <text class="cell-num" wx:if="{{myCollections.isShow}}">{{myCollections.newCount}}</text>
+                            </view>
+                            <view class="ui-content">
+                                <text class="cell-text">{{myCollections.allCount}}</text>
+                                <text class="icon-right-arrow cell-icon"></text>
+                            </view>
+                        </view>
+                    </view>
+                    <view class="ui-item ui-team main-justify cross-center" @tap.stop="getItem" data-name="team">
+                        <view class="ui-icon cross-center">
+                            <text class="icon-myteamwork"></text>
+                        </view>
+                        <view class="ui-name main-justify cross-center">
+                            <view class="ui-label">我的训练营</view>
+                            <view class="ui-content">
+                                <text class="cell-text"></text>
+                                <text class="icon-right-arrow cell-icon"></text>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+            <view class="ui-item-box">
+                <view class="ui-item-list">
+                    <view class="ui-item ui-contact main-justify cross-center" @tap.stop="getItem" data-name="contact" wx:if="{{showAttentionButton}}">
+                        <view class="ui-icon cross-center">
+                            <view class="cell-svg-box">
+                                <image src="../../assets/img/icon-attention.png"></image>
+                            </view>
+                        </view>
+                        <view class="ui-name main-justify cross-center">
+                            <view class="ui-label">关注公众号<text class="cell-red-dot" wx:if="{{isShowRedHot}}"></text></view>
+                            <view class="ui-content">
+                                <text class="cell-text">免费获取技能资料包</text>
+                                <text class="icon-right-arrow cell-icon"></text>
+                            </view>
+                        </view>
+                    </view>
+                    <view class="ui-item ui-coin main-justify cross-center" @tap.stop="getItem" data-name="coin">
+                        <view class="ui-icon cross-center">
+                            <text class="icon-mycoin"></text>
+                        </view>
+                        <view class="ui-name main-justify cross-center">
+                            <view class="ui-label">我的即能币</view>
+                            <view class="ui-content">
+                                <text class="cell-text">{{balance}}</text>
+                                <text class="icon-right-arrow cell-icon"></text>
+                            </view>
+                        </view>
+                    </view>
+                    <view class="ui-item ui-view main-justify cross-center" @tap.stop="getItem" data-name="view" wx:if="{{!isSubmitAdvertisement}}">
+                        <view class="ui-icon cross-center">
+                            <text class="icon-myview"></text>
+                        </view>
+                        <view class="ui-name main-justify cross-center">
+                            <view class="ui-label">意见反馈</view>
+                            <text class="icon-right-arrow cell-icon"></text>
+                        </view>
+                    </view>
+                    <view class="ui-item ui-test main-justify cross-center" @tap.stop="getItem" data-name="test" wx:if="{{!isSubmitAdvertisement}}">
+                        <view class="ui-icon cross-center">
+                            <text class="icon-neiceyonghu"></text>
+                        </view>
+                        <view class="ui-name main-justify cross-center">
+                            <view class="ui-label">申请成为内测用户</view>
+                            <view class="ui-content">
+                                <text class="cell-text" :class="{'font-color-red':isRedColor,'font-color-blue':isBlueColor}">{{applyStatusText}}</text>
+                                <text class="icon-right-arrow cell-icon"></text>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+            <view class="cell-margin"></view>
+        </view>
+    </view>
+
+    <view class="ui-contact-module" wx:if="{{isShowContactButton}}">
+        <view class="ui-contact-module-mask"></view>
+        <view class="ui-contact-content">
+            <view class="ui-title-box">
+                关注公众号
+            </view>
+            <view class="ui-close">
+                <image mode="widthFix"  @tap.stop="closeContactBtn" class="cell-close" src="../../assets/img/alert-close.svg"></image>
+            </view>
+            <view class="ui-image-box">
+                <image src="https://wx-small.runwise.cn/image/attention-tips.png"></image>
+                <view class="cell-text">发送“关注”给客服</view>
+                <view class="cell-text">即可获取礼包领取方式</view>
+            </view>
+            <view class="ui-button-box">
+                <button class="ui-contact-button main-justify cross-center" open-type="contact" send-message-img="{{coverImageUrl}}" send-message-title="即能" send-message-path="/pages/tabPages/userCenter" show-message-card data-name="contact" @tap.stop="closeContactBtn">去关注</button>
+            </view>
+        </view>
+    </view>
+    <view></view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import { getStore, connect } from "wepy-redux";
+    import Loading from '../../components/common/loading';
+    import header from '../../components/common/header'
+    import { fetch } from "../../api";
+    import { initializationDeligate, getStorageAsync, setStorageAsync } from '../../utils';
+    import { getLoginInfo, getUserPhone, refreshUserInformations } from '../../redux/models/user';
+    import countdown from '../../components/common/countdown';
+    import tabbar from '../../components/common/tabbar';
+
+    const store = getStore();
+    @connect({
+        token(state) {
+            return state.user.token
+        },
+        systemInfo(state) {
+            return state.user
+        },
+        isIos(state) {
+            return state.user.platform === 'ios'
+        },
+        phone(state) {
+            return state.user.phone
+        }
+    })
+    export default class Mine extends wepy.page {
+        config = {
+            usingComponents: {}
+        }
+        data = {
+            isAndroid: /android/i.test(wx.getSystemInfoSync().system),
+            isIphonex: /unknown|iphone x/i.test(wx.getSystemInfoSync().model),
+            headerHeigth: 68,
+            isLoaded: false,
+            paramsInfo: {},
+            isShowMyTips: false,
+            myCollections: {},
+            myCourses: {},
+            isShowPush: false,
+            balance: 0,
+            pushCount: 0,
+            nickName: '',
+            member: {},
+            shareImg: '',
+            shareTitle: '',
+            isDisappearMember: false,
+            isSubmitAdvertisement: false,
+            isInspect:false,//是否为审核需要隐藏状态,true为需要隐藏(只有IOS需要隐藏)
+            timeLimitedDate: null, //会员限时优惠倒计时时间
+            isLimitedOn: null, //是否显示会员优惠倒计时
+            applyStatus: '', //申请内测状态
+            isShowNewUserFloat: '', //是否显示新人礼包悬浮窗
+            showAttentionButton:false,//是否展示关注公众号item
+            coverImageUrl:'http://image.runwise.cn/image/bg.jpeg',//开屏页背景
+            isShowContactButton:false,//是否显示去关注弹窗
+            isShowRedHot:false,//是否显示关注公众号的红点
+            memberCountDown:0,//会员快到期倒计时
+            groupId:'',//队伍id
+            unclaimed:false,//默认为false 是否有上期奖励发放
+            groupSource:'userCenter',//创建组队的入口
+            canUseOpenData:wx.canIUse('open-data'),//是否支持open-data组件
+            showMemberStatus:false,//是否展示会员状态
+            selected:null,//导航栏选中项
+            showWhiteBackground:null,//导航栏背景色
+        }
+        components = {
+            'mloading': Loading,
+            'jn-header': header,
+            'countdown':countdown,//倒计时
+            'tabbar':tabbar,//自定义导航
+        }
+        
+
+        methods = {
+            /* 创建or查看组队 */
+            getTeamMember(event) {
+                let self = this
+                let { detail: { encryptedData, errMsg, iv } } = event
+                console.log(self)
+                if(self.groupId) {
+                    wepy.$instance.globalData.getHuilder('我的页/组队抽取会员/查看组队', 'click', '')
+                    wepy.navigateTo({url:`/pages/activity-module/team-learning?groupId=${self.groupId}&unclaimed=${self.unclaimed}`})
+                } else {
+                    wepy.$instance.globalData.getHuilder('我的页/组队抽取会员/立即组队', 'click', '')
+                    wepy.login().then((res) => {
+                        res.code && store.dispatch(refreshUserInformations({
+                            code: res.code
+                        }))
+                        let t = setTimeout(() => {
+                            res.code && store.dispatch(getUserPhone(encryptedData, errMsg, iv)).then(response => {
+                                store.dispatch(refreshUserInformations({
+                                    phone: response
+                                }))
+                                wepy.$instance.globalData.getHuilder('我的页/组队抽取会员/手机号码授权/授权', 'click', '')
+                                wepy.$instance.globalData.getHuilder('我的页/组队抽取会员/新用户', 'click', '')
+                                
+                                /* 设置缓存次数+1 */
+                                setStorageAsync({
+                                    key:'groupDrawStatusNum',
+                                    value: 1
+                                }).catch(error => console.log('设置不再弹组队弹窗失败'))
+
+                                let postData = {
+                                    token:self.systemInfo.token,
+                                    source: self.groupSource
+                                }
+                                fetch.buildGroup(postData).then(response => {
+                                    let { groupId, unclaimed, drawResult, drawExtra, code, message} = response;
+                                    if(code == 0) {
+                                        wepy.navigateTo({url:`/pages/activity-module/team-learning?groupId=${groupId}&unclaimed=${unclaimed}&drawResult=${drawResult}&drawExtra=${drawExtra}`})
+                                    } else {
+                                        wepy.showToast({
+                                            title:message,
+                                            icon:'none'
+                                        })
+                                    }
+                                    clearTimeout(t)
+                                })
+
+                                self.$apply();
+                            }).catch((error) => {
+                                console.log(error)
+                                if(error && error.indexOf('getPhoneNumber') > -1){
+                                    wepy.$instance.globalData.getHuilder('我的页/组队抽取会员/手机号码授权/拒绝', 'click', '')
+                                }
+                            })
+                        }, 0);
+                    })
+                }
+            },
+            /* 关闭关注公众号弹窗 */
+            closeContactBtn() {
+                this.isShowContactButton = false
+                this.$apply()
+            },
+            /**
+             * 订阅会员
+             * @returns {*}
+             */
+            getSubscribe() {
+                let self = this
+                wepy.$instance.globalData.getHuilder('我的/订阅', 'click', '')
+                self.$navigate(`/pages/course-module/course-subscribe`)
+            },
+            /**
+             * 微信授权登录
+             */
+            getAuthorize(event) {
+                let self = this
+                let {
+                    detail: {
+                        errMsg,
+                        userInfo,
+                        rawData
+                    }
+                } = event
+                store.dispatch(getLoginInfo({
+                    userInfo,
+                    errMsg
+                })).then(response => {
+                    wepy.$instance.globalData.getHuilder('我的/修改个人信息', 'click', '')
+                    wepy.navigateTo({
+                        url: "/pages/user-module/mine-edit"
+                    });
+                }).catch(error => {})
+            },
+            getItem(event) {
+                let {
+                    currentTarget: {
+                        dataset: {
+                            name
+                        }
+                    }
+                } = event
+                let self = this;
+                switch (name) {
+                    case 'skill':
+                        wepy.$instance.globalData.getHuilder('我的/技能成就', 'click', '')
+                        wepy.navigateTo({
+                            url: "/pages/user-module/skill-board"
+                        });
+                        break
+                    case 'course':
+                        wepy.$instance.globalData.getHuilder('我的/我的课程', 'click', '')
+                        wepy.navigateTo({
+                            url: "/pages/user-module/mine-course"
+                        });
+                        break
+                    case 'collection':
+                        wepy.$instance.globalData.getHuilder('我的/我的收藏', 'click', '')
+                        wepy.navigateTo({
+                            url: "/pages/user-module/mine-collect"
+                        });
+                        break
+                    case 'coin':
+                        wepy.$instance.globalData.getHuilder('我的/我的即能币', 'click', '')
+                        wepy.navigateTo({
+                            url: "/pages/user-module/score-detail"
+                        });
+                        break
+                    case 'team':
+                        wepy.$instance.globalData.getHuilder('我的/我的团队学习', 'click', '')
+                        wepy.navigateTo({
+                            url: "/pages/training-camp-module/index"
+                        });
+                        break
+                    case 'view':
+                        wepy.$instance.globalData.getHuilder('我的/意见反馈', 'click', '')
+                        wepy.navigateTo({
+                            url: "/pages/user-module/mine-feedback"
+                        });
+                        break
+                    case 'test':
+                        wepy.$instance.globalData.getHuilder('我的/申请成为内测用户', 'click', '')
+                        wepy.navigateTo({
+                            url: "/pages/user-module/apply-for-test"
+                        });
+                        break
+                    case 'contact':
+                        wepy.$instance.globalData.getHuilder('我的/关注公众号', 'click', '')
+                        self.isShowContactButton = true
+                        setStorageAsync({
+                            key: 'isShowRedHot',
+                            value: true
+                        }).catch(error => console.log('设置是否领过课程失败', error))
+                        self.$apply();
+                        break
+                }
+            },
+        }
+        
+        computed = {
+            isActive() {
+                let self = this
+                return !true
+            },
+            applyStatusText() {
+                let result;
+                switch (this.applyStatus) {
+                    case 'normal':
+                        result = ''
+                        break
+                    case 'approval':
+                        result = '审核中'
+                        break
+                    case 'adopted':
+                        result = '已通过'
+                        break
+                    case 'reject':
+                        result = '未通过'
+                        break
+                    default:
+                        result = ''
+                        break
+                }
+                return result
+            },
+            isRedColor() {
+                let result = this.applyStatus == 'reject' ? true : false
+                return result
+            },
+            isBlueColor() {
+                return this.applyStatus == 'adopted'
+            },
+            /* 是否显示倒计时 小于一天才显示 86400000是一天的毫秒数*/
+            showCountDown() {
+                return this.memberCountDown > 0 && this.memberCountDown < 86400000
+            }
+        }
+        onTabItemTap() {
+            let self = this;
+        }
+        onLoad(params) {
+            let self = this;
+            wx.hideTabBar();
+            self.paramsInfo = params;
+            let s = setTimeout(() => {
+                self.selected = 2;
+                self.showWhiteBackground = true;
+                self.$apply()
+                clearTimeout(s)
+            }, 0);
+            
+            if (params && params.type) {
+                switch (params.type) {
+                    case "1":
+                        wepy.$instance.globalData.getHuilder('今日页/头像', 'click', '我的页面')
+                        break;
+                    case "2":
+                        wepy.$instance.globalData.getHuilder('发现页/头像', 'click', '我的页面')
+                        break;
+                    case "3":
+                        wepy.$instance.globalData.getHuilder('课程页/头像', 'click', '我的页面')
+                        break;
+                }
+            }
+            let t = setTimeout(() => {
+                getStorageAsync({
+                    key: 'tabShare'
+                }).then((response) => {
+                    self.shareImg = response.img;
+                    self.shareTitle = response.title;
+                    self.$apply()
+                }).catch(error => {
+                    console.log(error)
+                })
+                clearTimeout(t)
+            }, 300)
+            self.$apply()
+        }
+        onShow() {
+            let self = this;
+            getStorageAsync({
+                key: 'isShowRedHot'
+            }).then((data) => {
+                self.isShowRedHot = data ? data : false;
+                self.$apply();
+            }).catch(error => {
+                console.log(error)
+            })
+            // ga
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+            
+            initializationDeligate({
+                initializeFunc: self.initialize.bind(self)
+            })
+        }
+
+        onHide() {
+            let self = this
+            let t = setTimeout(() => {
+                self.memberCountDown = 0;
+                self.showMemberStatus = false;
+                clearTimeout(t);
+                self.$apply();
+            }, 0);
+        }
+        
+        onUnload() {
+            let self = this
+            let t = setTimeout(() => {
+                self.memberCountDown = 0;
+                self.showMemberStatus = false;
+                clearTimeout(t);
+                self.$apply();
+            }, 0);
+        }
+        
+        initialize() {
+            let self = this
+            self.__updateLogin()
+            self.__fetUserList()
+        }
+        __updateLogin() {
+            let self = this;
+            let postData = {
+                token: self.systemInfo.token,
+                platform: self.systemInfo.platform
+            }
+            fetch.updateLogin(postData).then(res => {
+                self.nickName = res.nickName
+            }).catch((err) => {})
+        }
+        __fetUserList() {
+            let self = this;
+            let postData = {
+                token: self.systemInfo.token
+            }
+            fetch.myDataCenter(postData).then(res => {
+                self.isShowMyTips = res.isShowMyTips;
+                self.isShowPush = res.isShowPush;
+                self.pushCount = res.pushCount;
+                self.myCollections = res.myCollections;
+                self.myCourses = res.myCourses;
+                self.balance = res.balance;
+                self.isSubmitAdvertisement = res.isSubmitAdvertisement;
+                self.member = res.member;
+                self.memberCountDown = res.member.memberCountDown;
+                self.isDisappearMember = res.isDisappearMember;
+                self.applyStatus = res.applyStatus;
+                self.showAttentionButton = res.showAttentionButton;
+                self.groupId = res.groupId;
+                // 显示/隐藏红点
+                if (self.isShowMyTips) {
+                    wx.showTabBarRedDot({
+                        index: 3
+                    })
+                } else {
+                    wx.hideTabBarRedDot({
+                        index: 3
+                    })
+                }
+                getStorageAsync({
+                    key: 'isIosClosed'
+                }).then(response => {
+                    self.isInspect = response && self.isIos ? true : false;
+                    self.$apply();
+                }).catch(error => {
+                    console.log(error)
+                })
+                self.showMemberStatus = true;
+                self.isLoaded = true;
+                self.$apply();
+            }).catch((err) => {
+                console.log(err)
+            })
+        }
+        /**
+         * 分享
+         */
+        onShareAppMessage(options) {
+            let self = this;
+            wepy.$instance.globalData.getHuilder('我的/分享', 'click', '')
+            return {
+                title: self.shareTitle,
+                imageUrl: self.shareImg,
+                path: '/pages/tabPages/find?source=FindTabShare'
+            }
+        }
+        events = {
+            'header-info': (data) => {
+                let self = this
+                self.headerHeigth = data.headerHeigth
+                self.$apply()
+            }
+        }
+    }
+</script>
+

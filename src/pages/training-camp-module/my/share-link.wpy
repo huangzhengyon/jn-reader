@@ -1,0 +1,226 @@
+<template>
+    <view class="pushlink-body">
+        <jn-header title="分享链接"></jn-header>
+        <input placeholder="标题" bindinput="handleTitleInput" class="pushlink-body-push-link"/>
+        <view class="pushlink-content-input-box">
+            <text class="icon-link"></text>
+            <textarea class="pushlink-content-input"
+                      placeholder-class="pushlink-content-input-p" placeholder="链接"
+                      bindinput="handleCommentInput" maxlength="{{500}}"></textarea>
+        </view>
+
+        <view class="pushlink-body__footer-btn-wapper" style="{{ipX?'padding-bottom:40rpx':''}}">
+            <button wx:if="{{readyToSend}}" class="pushlink-body__footer-btn " plain="{{ true }}"
+                    @tap.stop="handleSubmit">发 布
+            </button>
+            <button wx:else class="pushlink-body__footer-btn disable" plain="{{ true }}">发 布</button>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from "wepy"
+    import {getStore, connect} from "wepy-redux"
+    import {sleep} from "../../../utils"
+    import loadingMixin from "../../../mixins/loading"
+    import {team as teamApi} from "../../../api"
+    import header from '../../../components/common/header'
+
+    const store = getStore();
+    const state = store.getState();
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        }, // mapState 即getters
+        avatar(state) {
+            return state.user.avatarUrl;
+        },
+        token(state) {
+            // return 'userID67eaa3af1eca4c5e99d90ef07c8b0353-1529130257419-29071e22805ed65d7aba43ad3fc07aad'
+            return state.user.token;
+        },
+        code(state) {
+            return state.user.code;
+        },
+        ipX(state) {
+            return state.user.equipmentModel.startsWith('iPhone X')
+        }
+    })
+    export default class TeamLearningPushLink extends wepy.page {
+        mixins = [loadingMixin]; // end mixins
+
+        computed = {}
+        data = {
+            readyToSend: false,
+            inputValue: "",
+            teamID: '',
+            title: ''
+
+        };
+        components = {
+            'jn-header': header
+        }; // end components
+        onLoad({teamID = ''}) {
+            this.teamID = teamID
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+        }
+
+        onShow() {
+
+        }
+
+        methods = {
+            handleSubmit() {
+                // let encodeStr = encodeURI(this.inputValue)
+                let code2 = encodeURIComponent(this.inputValue)
+                // return console.log(encodeStr,code2)
+                wx.showLoading({
+                    title: '发布中',
+                    mask: true
+                })
+                teamApi.sendTeamShareLinkPost({
+                    token: this.token,
+                    shareTitle: this.title,
+                    shareLink: code2,
+                    teamID: this.teamID
+                })
+                    .then(data => {
+                        wx.hideLoading()
+                        wx.showToast({
+                            icon: 'success',
+                            title: '链接发布成功'
+                        })
+                        return sleep(1)
+                            .then(() => {
+                                wx.navigateBack({
+                                    delta: 1
+                                })
+                            })
+                    })
+            },
+            handleTitleInput({
+                                 detail: {
+                                     value
+                                 }
+                             }) {
+                this.title = value
+                this.checkBtnAva()
+            },
+            handleCommentInput({
+                                   detail: {
+                                       value
+                                   }
+                               }) {
+                this.inputValue = value
+                this.checkBtnAva()
+            },
+        }; // end methods
+        events = {}; // end events
+        checkBtnAva() {
+            return this.readyToSend = this.title.replace(/\s/g, "").length && this.inputValue.replace(/\s/g, "").length
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+  @import "../../../assets/style/theme";
+  .pushlink-body-push-link{
+    height: 160rpx;
+    box-sizing: border-box;
+    padding: 76rpx 40rpx 36rpx;
+    border: 0;
+    font-family: PingFangSC-Medium;
+    font-size: 36rpx;
+    color: #14292C;
+    background-color: #fff;
+  }
+  .pushlink-body {
+    width: 100%;
+    height: 100%;
+    background-color: #f1f2f5;
+  }
+  .pushlink-body__footer-btn-wapper {
+    width: 100%;
+    height: 140rpx;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+  }
+  .pushlink-body__footer-btn {
+    width: 702rpx;
+    height: 100rpx;
+    line-height: 100rpx;
+    background-color: @background-blue !important;
+    color: #FFF !important;
+    border: 0 !important;
+    border-radius:@border-radius-20;
+  }
+  .disable {
+    opacity: 0.2;
+  }
+  .pushlink-top {
+    width: 100%;
+    height: 180rpx;
+    background-color: #FFF;
+    display: flex;
+    align-items: center;
+    border-top: #f1f2f5 solid 2rpx;
+  }
+  .pushlink-top-img {
+    margin-left: 56rpx;
+    width: 120rpx;
+    height: 120rpx;
+  }
+  .pushlink-top-title {
+    width: 500rpx;
+    font-family: PingFangSC-Semibold;
+    font-size: 32rpx;
+    color: #303F48;
+    line-height: 40rpx;
+    margin-left: 16rpx;
+  }
+  .pushlink-top-desc {
+    font-family: PingFangSC-Regular;
+    font-size: 24rpx;
+    color: #778D9A;
+    line-height: 26rpx;
+    margin-top: 28rpx;
+    margin-left: 16rpx;
+  }
+  .pushlink-content {
+    width: 100%;
+    height: 350rpx;
+    position: relative;
+    border-top: 20rpx solid #f1f2f5;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .pushlink-content-input-box{width: 100%;background-color: #fff;display: flex;box-sizing: border-box;padding: 32rpx 40rpx;border-top: solid #f1f2f5 2rpx;
+  text{color:@color-blue;margin-right: 16rpx}
+  }
+  .pushlink-content-input {
+    flex: 1;
+    min-height: 202rpx;
+    font-family: PingFangSC-Regular;
+    font-size: 32rpx;
+    color: @color-black;
+  }
+  .pushlink-content-input-p {
+    color: #A1A9AB;
+  }
+  .pushlink-content-tip {
+    font-family: PingFangSC-Regular;
+    font-size: 28rpx;
+    color: #A1A9AB;
+    text-align: right;
+    position: absolute;
+    right: 26rpx;
+    bottom: 22rpx
+  }
+</style>

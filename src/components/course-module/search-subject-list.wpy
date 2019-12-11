@@ -1,0 +1,161 @@
+<template>
+    <view class="ui-subject-banner">
+        <repeat for="{{subjectList}}" key="index" index="index" item="item">
+            <button form-type="submit" hover-stay-time="100" class="ui-item cross-center main-justify" data-item="{{item}}" @tap.stop="getEditor">
+                <view class="flex-width-1 dir-top main-around">
+                    <view class="cell-name text-overflow-t">
+                        <block wx:for="{{item.courseNameArr}}" wx:for-item="jtem" wx:for-index="jndex" wx:key="{{optionIndex}}">
+                            <text class="{{jtem.active ? 'cell-active':''}}">{{jtem.name}}</text>
+                        </block>
+                    </view>
+                    <view class="ui-num">
+                        <view class="cell-num-box">
+                            <image class="ui-eyes" src="../../assets/img/icon-eye.svg"></image>{{item.watchNum}}
+                        </view>
+                        <view class="cell-num-box">
+                            <image class="ui-collected" src="../../assets/img/icon-collected.svg"></image>{{item.likeNum}}
+                        </view>
+                    </view>
+                </view>
+                <image src="{{item.bannerUrl}}"></image>
+            </button>
+        </repeat>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy';
+    import { getStore, connect } from 'wepy-redux';
+    import { fetch, report as reportApi } from '../../api';
+    import { navigateToLesson, getStorageAsync} from '../../utils';
+
+    const store = getStore()
+    @connect({
+        token(state) {
+            return state.user.token
+        },
+        systemInfo(state) {
+            return state.user
+        }
+    })
+    export default class subjectSearchList extends wepy.component {
+        props = {
+            subject: {
+                type: Array,
+                default: []
+            }
+        }
+        data = {
+            subjectList:[],//改造后的数组
+            inputValueArray:[],//搜索关键字拆分后的数组
+        }
+
+        watch = {
+            subject(newValue, oldValue) {
+                newValue && this.getHilightStrArray()
+            }
+        }
+
+        onLoad() {
+
+        }
+
+        getHilightStrArray() {
+            let self = this
+            getStorageAsync({key: 'inputValue'}).then((response) => {
+                self.inputValueArray = response.split("");
+                self.subjectList = self.subject.map(item => {
+                    let courseNameArr = item.courseName.split("").map(i => {
+                        let obj = {
+                            name:i,
+                            active:self.inputValueArray.indexOf(i) > -1 ? true : false
+                        }
+                        return obj
+                    });
+                    return Object.assign({},item,{courseNameArr})
+                })
+                self.$apply()
+            }).catch(error => {
+                console.log('获取搜索关键字失败')
+            });
+        }
+
+        methods = {
+            /**
+             * 专题页
+             * @param event
+             */
+            getEditor(event) {
+                let self = this
+                let {
+                    currentTarget: {
+                        dataset: {
+                            item
+                        }
+                    }
+                } = event
+                wepy.$instance.globalData.getHuilder(`搜索页/专题/专题详情页`, 'click', `${item.courseName}`)
+                self.$parent.$navigate('/pages/SpecialCourse/index', {
+                    courseID: item.courseId
+                })
+            }
+        }
+    }
+</script>
+
+<style lang="less" scoped>
+    @import '../../assets/style/theme';
+    .ui-subject-banner {
+        padding: 0 32rpx;
+        background: @background-white;
+        .ui-item {
+            background: none;
+            height: 208rpx;
+            border-bottom: 2rpx solid #EFEFF4;
+            text-align: left;
+            line-height: 1.5;
+            color: #000;
+            .main-around {
+                max-width: 60%;
+            }
+            image {
+                height: 160rpx;
+                width: 160rpx;
+                border-radius: 12rpx;
+            }
+            .cell-name {
+                font-size: 32rpx;
+                font-weight: bold;
+                padding-right: 20rpx;
+                .cell-active {
+                    color: @color-yellow;
+                }
+            }
+            .ui-num {
+                font-size: 24rpx;
+                color: #8E8E93;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                .cell-num-box {
+                    width: 152rpx;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                }
+                .ui-eyes {
+                    width: 40rpx;
+                    height: 28rpx;
+                    margin-right: 12rpx;
+                    border-radius: 0;
+                }
+                .ui-collected {
+                    width: 34rpx;
+                    height: 32rpx;
+                    margin-right: 12rpx;
+                    border-radius: 0;
+                }
+            }
+        }
+    }
+</style>

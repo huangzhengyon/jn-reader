@@ -1,0 +1,147 @@
+<template>
+    <view class="ui-team-announce">
+        <jn-header title="问题和想法"></jn-header>
+        <view class="ui-announce-top" wx:if="{{senceID}}">
+            <image class="cell-img" mode="aspectFill" src="{{imageUrl}}"/>
+            <view>
+                <view class="cell-title">{{senceName}}</view>
+                <view class="cell-desc">{{skillGroup}}</view>
+            </view>
+        </view>
+        <view class="ui-content">
+            <textarea   maxlength="2000"
+                bindinput="handleCommentInput"
+                value="{{inputValue}}"
+                placeholder-class="cell-placeholder"
+                class="cell-input" focus="{{true}}"
+                placeholder="{{action==='question'?'请输入你的问题或想法':'请输入消息内容'}}" />
+            <view class="cell-tip">还可以输入{{computeStrLength}}个字</view>
+        </view>
+        <view class="ui-button" style="{{ipX?'padding-bottom:40rpx':''}}">
+            <button class="cell-item" :class="{'cell-disable' : !readyToSend}" plain="{{ true }}"
+                    @tap.stop="handleSubmit">提 交
+            </button>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import {sleep} from "../../utils"
+    import header from '../../components/common/header'
+    import {fetch} from "../../api";
+    import {getStore,connect} from "wepy-redux";
+
+    const store = getStore();
+    const state = store.getState();
+    @connect({
+        userName(state) {
+            return state.user.nickName;
+        },
+        token(state) {
+            // return 'userID67eaa3af1eca4c5e99d90ef07c8b0353-1529130257419-29071e22805ed65d7aba43ad3fc07aad'
+            return state.user.token;
+        },
+        ipX(state) {
+            return state.user.equipmentModel.startsWith('iPhone X')
+        }
+    })
+    export default class TeamLearningAnnounce extends wepy.page {
+        computed = {
+            computeStrLength() {
+                return 2000 - this.inputValue.length
+            }
+        }
+        data = {
+            readyToSend: false,
+            inputValue: "",
+            senceID: '',
+            teamID: '',
+            senceName: '',
+            imageUrl: '',
+            skillGroup: '',
+            action: ''
+        };
+        components = {
+            'jn-header': header
+        }; // end components
+        onLoad({teamID = '', senceID = '', senceName = '', imageUrl = '', skillGroup = '', action = ''}) {
+            this.teamID = teamID
+            this.senceID = senceID
+            this.senceName = senceName
+            this.imageUrl = imageUrl
+            this.skillGroup = skillGroup
+            this.action = action
+            wepy.$instance.globalData.getLoadHuilder({pageTheme: senceName}) // ga统计
+        }
+
+        onShow() {
+            wepy.setNavigationBarTitle({
+                title: this.action === 'question' ? "提问" : '发布消息'
+            })
+        }
+
+        methods = {
+            handleSubmit() {
+                let self = this ;
+
+                if(!self.readyToSend) {
+                    return;
+                }
+                let postData = {
+                    token: self.token,
+                    senceID: self.senceID,
+                    action: self.action,
+                    teamID: self.teamID,
+                    postContent: {postContent:self.inputValue},
+                }
+                fetch.sendTeamPost(postData).then((response) => {
+                    wx.showToast({
+                        icon: 'success',
+                        title: '消息发布成功'
+                    })
+                    return sleep(1)
+                    .then(() => {
+                        wx.navigateBack({
+                            delta: 1
+                        })
+                    })
+                })
+            },
+            handleCommentInput(event) {
+                let self = this;
+                let {detail:{value}} = event;
+                self.inputValue = value
+                self.readyToSend = value.length ? true : false
+                console.log(self.readyToSend)
+                self.$apply()
+            },
+        };
+    }
+</script>
+
+<style lang="less" scoped>
+    @import "../../assets/style/theme";
+    .ui-team-announce{
+        width: 100%;height: 100%;background-color: @background-gray-F4;overflow:hidden;
+        .ui-announce-top{
+            width: 100%;height: 180rpx;background-color: @background-white;display: flex;align-items: center;border-top: @border-gray solid 2rpx;
+            .cell-img{margin-left: 56rpx;width: 120rpx;height: 120rpx;}
+            .cell-title{width: 500rpx;font-family: PingFangSC-Semibold;font-size: 32rpx;color: @color-black;line-height: 40rpx;margin-left: 16rpx;}
+            .cell-desc{font-family: PingFangSC-Regular;font-size: 24rpx;color: @color-gray;line-height: 26rpx;margin-top: 28rpx;margin-left: 16rpx;}
+
+        }
+        .ui-content{
+            width: 100%;height: 350rpx;position: relative;border-top: 20rpx solid @border-gray;background-color: @background-white;display: flex;flex-direction: column;align-items: center;height: 680rpx;
+            .cell-input {font-size: 16px;color: @color-black;width: 670rpx;min-height: 220rpx;margin-top: 44rpx;height:560rpx;}
+            .cell-placeholder {color:@color-gray;}
+            .cell-tip{font-family: PingFangSC-Regular;font-size: 28rpx;color: @color-gray;text-align: right;position: absolute;right: 26rpx;bottom: 22rpx}
+
+        }
+        .ui-button{
+            width: 100%;height: 140rpx;position: fixed;left: 0;bottom: 0;display: flex;justify-content: center;align-items: center;background-color: @background-white;border-top: @border-gray 2rpx solid;z-index: 1100;
+            .cell-item{width: 702rpx;height: 100rpx;line-height: 100rpx;background-color: @background-blue !important;color: @color-white !important;border: 0 !important;border-radius: @border-radius-20;}
+            .cell-item.cell-disable {opacity: 0.2;}
+        }
+    }
+</style>

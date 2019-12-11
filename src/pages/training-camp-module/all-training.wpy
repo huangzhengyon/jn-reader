@@ -1,0 +1,128 @@
+<template>
+	<mloading wx:if="{{ !isLoaded  }}"/>
+	<jn-header title="训练营"></jn-header>
+	<view class="assortment-article" wx:if="{{isLoaded}}">
+		<view class="ui-all-camp-list">
+			<view class="ui-camp-item" wx:for="{{ teamList }}"  wx:key="{{index}}" @tap.stop="handleTendToAttendTeamLearning" data-team-i-d="{{item.teamID}}">
+				<view class="ui-img">
+					<image src="{{item.imageUrl}}"/>
+				</view>
+				<view class="ui-content">
+					<view class="cell-title">{{item.name}}</view>
+					<view class="ui-date">{{item.beginDate}}-{{item.endDate}}
+						<text wx:if="{{item.statusMsg === '已结束'}}">
+							<text>，</text>
+							<text class="cell-num">{{item.index}}</text> / {{item.allIndex}}排名
+						</text>
+						<text wx:if="{{item.statusMsg !== '已结束'}}">
+							<text>· </text>
+							<text class="cell-num">{{item.joinCount}}人</text> 报名
+						</text>
+					</view>
+				</view>
+				<view class="ui-end-box" wx:if="{{item.statusMsg === '已结束'}}">
+					<image src="http://wx-small.runwise.cn/image/imageID52958762db34a4a8e3c9d7ea9a35.png"/>
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import wepy from 'wepy'
+	import {getStore, connect} from "wepy-redux"
+	import Loading from '../../components/common/loading'
+	import loadingMixin from '../../mixins/loading'
+	import header from '../../components/common/header'
+	import {team as teamApi } from '../../api'
+
+	const store = getStore()
+	@connect({
+		userName(state) {
+			return state.user.nickName;
+		}, // mapState 即getters
+		avatar(state) {
+			return state.user.avatarUrl;
+		},
+		token(state) {
+			return state.user.token;
+		},
+		code(state) {
+			return state.user.code;
+		}
+	})
+	export default class TrainingAllList extends wepy.page {
+		mixins = [loadingMixin] // end mixins
+		components = {
+			'mloading': Loading,
+			'jn-header': header
+		} // end components
+		data = {
+			isLoaded: true,
+			teamList:[],
+		}
+		onLoad() {
+            wepy.$instance.globalData.getLoadHuilder() // ga统计
+			this.gainAllList()
+		}
+		onShow() {
+
+		}
+
+		methods = {
+
+		handleTendToAttendTeamLearning({
+				currentTarget: {
+					dataset: {
+						teamID
+					}
+				}
+			}) {
+				this.$navigate('/pages/training-camp-module/training-detail', {
+					teamID
+				})
+			},
+
+		} // end methods
+
+		//获得 训练营 列表
+		gainAllList() {
+				teamApi.getMyTeamSignupList({
+			token: this.token
+		})
+		.then(res => {
+						this.teamList = res
+						this.$apply()
+		})
+		.catch(error => {
+			console.log('fail to confirm from backend')
+		})
+		}
+}
+</script>
+
+<style lang="less">
+	@import "../../assets/style/theme";
+	.ui-all-camp-list{
+		.ui-camp-item {
+			height: 210rpx;width: 686rpx;display: flex;margin: 0 32rpx 0 32rpx;border-bottom:2rpx solid @border-gray;align-items:center;box-sizing:border-box;position: relative;
+			.ui-img {
+				margin-right: 20rpx;
+				image{width: 240rpx;height: 144rpx;border-radius: 12rpx;}
+			}
+	 		.ui-content{
+				height: 144rpx;display: flex;flex-direction: column;
+	 			.cell-title {font-family: PingFangSC-Medium;font-size: 32rpx;color: @color-black;line-height: 24px;width: 422rpx;overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;height: 96rpx;}
+	 			.ui-date {
+					width: 422rpx;font-family: PingFangSC-Regular;font-size: 26rpx;color: @color-gray;margin-top: 6rpx;
+					.cell-num{color:  @color-gray;}
+				}
+			}
+			.ui-end-box {
+				position: absolute;top:0;right: -32rpx;
+				image{width: 108rpx;height: 108rpx;}
+			}
+			&:last-of-type{border:none}
+		}
+	}
+</style>
