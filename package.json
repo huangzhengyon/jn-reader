@@ -13,7 +13,7 @@
   "dependencies": {
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "underscore": "^1.9.1",
+    "underscore": "^1.12.1",
     "weapp-redux": "^0.0.1",
     "wepy": "^1.7.2",
     "wepy-cli": "^1.7.3",
